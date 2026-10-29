@@ -101,9 +101,9 @@ def enunciados_dos_exercicios(modulo: Path) -> str:
 
 def montar_markdown() -> str:
     blocos = []
-    leia_me = RAIZ / "README.md"
-    if leia_me.exists():
-        blocos.append(leia_me.read_text(encoding="utf-8"))
+    for nome in ("README.md", "PLANO-DE-ESTUDOS.md"):
+        if (RAIZ / nome).exists():
+            blocos.append((RAIZ / nome).read_text(encoding="utf-8"))
     modulos = sorted(p for p in RAIZ.iterdir() if p.is_dir() and PADRAO_MODULO.match(p.name))
     for modulo in modulos:
         aula = modulo / "README.md"

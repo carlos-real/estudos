@@ -35,7 +35,7 @@ para mostrar.
 | 07 | Módulos e biblioteca padrão | Organizar projetos, datas, estatística, programas de terminal |
 | 08 | Orientação a objetos | Modelar o mundo real com classes e dataclasses |
 | 09 | Testes e qualidade | Escrever testes, usar Git, depurar e manter código limpo |
-| 10 | Dados com pandas | Analisar planilhas e CSV grandes, gerar relatórios Excel |
+| 10 | Dados com pandas | Analisar planilhas e CSV, fazer gráficos, gerar relatórios Excel |
 | 11 | Banco de dados e SQL | Criar e consultar bancos de dados com SQL |
 | 12 | Automação e integração | APIs, e-mail, Excel, pastas e robôs no navegador |
 | 13 | APIs com FastAPI | Criar sua própria API web, com testes |
@@ -46,15 +46,16 @@ nas ferramentas que o mercado pede para dados e automação.
 
 ## Como começar
 
+1. Leia `PLANO-DE-ESTUDOS.md` (10 minutos): ele mostra o caminho e a rotina.
 1. Abra `00-preparacao/README.md` e siga o passo a passo para preparar o computador.
-2. Na pasta `curso-python`, com o ambiente virtual ativado, rode:
+1. Na pasta `curso-python`, com o ambiente virtual ativado, rode:
 
    ```text
    python curso.py modulos
    python curso.py testar 00
    ```
 
-3. Faça um módulo de cada vez, na ordem.
+1. Faça um módulo de cada vez, na ordem.
 
 ## Como cada módulo funciona
 
@@ -86,16 +87,19 @@ python curso.py progresso --detalhes
 
 ## Ritmo sugerido
 
-Com **1 hora por dia, 5 dias por semana**, o curso leva cerca de **6 meses**. Com 2 horas
-por dia, cerca de 3 meses. Mais importante que a velocidade é a constância: programar um
-pouco todo dia ensina mais do que uma maratona por semana.
+Com **1 hora por dia, 5 dias por semana**, o curso leva cerca de **31 semanas (7
+meses)**. Com 2 horas por dia, cerca de 4 meses. Mais importante que a velocidade é a
+constância: programar um pouco todo dia ensina mais do que uma maratona por semana.
 
-| Fase | Módulos | Semanas (1h/dia) |
-|---|---|---|
-| Base da linguagem | 00 a 04 | 1 a 8 |
-| Programas de verdade | 05 a 08 | 9 a 15 |
-| Profissional | 09 a 11 | 16 a 21 |
-| Mundo real | 12 a 14 | 22 a 27 |
+| Fase | Módulos | Semanas (1h/dia) | Marco de portfólio |
+|---|---|---|---|
+| Base da linguagem | 00 a 04 | 1 a 9 | Primeiro programa útil |
+| Programas de verdade | 05 a 08 | 10 a 17 | Ferramenta de laboratório |
+| Profissional | 09 a 11 | 18 a 24 | Análise de dados com SQL e pandas |
+| Mundo real | 12 a 14 | 25 a 31 | Validador de Certificados |
+
+O passo a passo de cada semana, a rotina diária e o método de estudo estão em
+**`PLANO-DE-ESTUDOS.md`**. Leia antes de começar.
 
 ## Regras do jogo
 
