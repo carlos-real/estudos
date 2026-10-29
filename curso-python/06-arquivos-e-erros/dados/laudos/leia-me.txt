@@ -1,0 +1,2 @@
+Pasta de exemplo do desafio do módulo 06.
+Cada CSV foi exportado do Excel de uma linha de produção (A a D).

@@ -1,0 +1,16 @@
+﻿De: expedicao@plastifort.com.br
+Para: laboratorio@plastifort.com.br
+Assunto: Complemento da carga de 28/10
+Cliente: Embalagens do Sul LTDA
+
+Boa tarde!
+
+Faltou um pedido no e-mail de ontem, e a OP 123457 voltou do cliente para
+reenvio (mesma NF):
+
+OP: 123457 | NF: 98766 | Peso: 980,0 kg
+OP: 334455 | NF: 99001 | Peso: 1.100,0 kg
+OP 334456 | NF 99002 | Peso: a confirmar
+
+Att.,
+Expedição

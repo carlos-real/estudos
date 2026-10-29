@@ -1,0 +1,14 @@
+op;linha;ensaio;valor;observacao
+12345;A;espessura;20,3;
+12345;A;gramatura;18,6;
+12345;A;cof;0,38;COF: liberado
+12346;A;espessura;21,4;
+12347;B;espessura;24,8;
+12347;B;gramatura;22,1;
+12347;B;cof;0,22;
+12348;B;espessura;abc;
+12349;C;espessura;30,2;
+12349;C;cof;0,41;Selagem: liberado
+12350;D;espessura;15,0;
+12350;D;gramatura;14,2;
+12350;D;tracao;35,0;

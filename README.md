@@ -1,4 +1,9 @@
 # Script para estudar
+
+> **Curso de Python completo:** veja a pasta [`curso-python/`](curso-python/README.md)
+> (aulas, exercícios com correção automática, projeto final, guia de carreira e apostila
+> em PDF).
+
 - Ambiente virtual isolado
 - Linters e formatadores automáticos
 

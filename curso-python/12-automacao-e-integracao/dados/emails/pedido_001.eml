@@ -1,0 +1,20 @@
+From:
+ Carla Souza - =?utf-8?q?Expedi=C3=A7=C3=A3o?= <expedicao@embalagens.example>
+To: =?utf-8?q?Laborat=C3=B3rio?= de Qualidade <laboratorio@embalagens.example>
+Subject: Pedido de certificado - OP 123456
+Date: Mon, 09 Mar 2026 08:12:00 -0300
+Message-ID: <pedido-001@embalagens.example>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+
+Bom dia, pessoal do laboratório!
+
+Favor emitir o certificado de qualidade:
+
+OP: 123456
+NF: 98765
+Peso: 1.250,5 kg
+
+Obrigada,
+Carla - Expedição

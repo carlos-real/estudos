@@ -1,0 +1,15 @@
+op;cliente;produto;emissao;validade_dias
+OP244801;Alimentos Bom Sabor;Filme PE 25 µm;02/04/2026;180
+OP244815;Alimentos Bom Sabor;Filme PE 40 µm;20/04/2026;180
+OP244902;Laticínios Serra Azul;Laminado PET/PE;15/05/2026;180
+OP244930;Café Montanha;Laminado BOPP/PE;10/09/2025;365
+OP244977;Café Montanha;Laminado BOPP/PE;05/11/2025;365
+OP245010;Higiene Total;Filme PE 60 µm;01/08/2026;90
+OP245022;Higiene Total;Filme PE 60 µm;12/08/2026;90
+OP245035;Pet Nutri;Laminado PET/PE;20/09/2026;90
+OP245041;Laticínios Serra Azul;Filme PE 25 µm;03/05/2026;180
+OP245058;Alimentos Bom Sabor;Filme PE 20 µm;30/10/2025;365
+OP245066;Pet Nutri;Filme PE 40 µm;28/07/2026;90
+OP245071;Café Montanha;Filme PE 25 µm;15/10/2026;180
+OP245089;Laticínios Serra Azul;Laminado PET/PE;22/10/2026;180
+OP245094;Higiene Total;Filme PE 40 µm;29/07/2026;90

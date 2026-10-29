@@ -1,0 +1,6 @@
+﻿produto;descricao;espessura_nominal;tolerancia_pct;gramatura_nominal;cof_max
+PE-40;Filme PE 40 µm transparente;40,0;10,0;37,0;0,35
+PE-50;Filme PE 50 µm branco;50,0;10,0;46,3;0,35
+PE-35;Filme PE 35 µm;35,0;10,0;32,4;0,40
+COEX-70;Filme coextrusado 70 µm;70,0;8,0;65,0;0,30
+LAM-62;Laminado PET/PE 62 µm;62,0;7,0;62,7;0,30
