@@ -33,7 +33,9 @@ Teste com:  python curso.py testar 12 ex07
 from pathlib import Path
 
 
-def organizar_laudos(origem: Path, destino: Path, ensaio: bool = True) -> list[tuple[str, str]]:
+def organizar_laudos(
+    origem: Path, destino: Path, ensaio: bool = True
+) -> list[tuple[str, str]]:
     """Planeja (e, fora do ensaio, executa) a organização dos laudos."""
     # Escreva seu código aqui
     raise NotImplementedError("Implemente esta função")

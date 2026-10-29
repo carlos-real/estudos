@@ -36,7 +36,9 @@ def gerar_relatorio(medicoes: list[dict], caminho: Path) -> Path:
     # 1) Dados
     ws.append(CABECALHO)
     for m in medicoes:
-        ws.append([m["op"], m["linha"], m["ensaio"], m["valor"], m["minimo"], m["maximo"], status(m)])
+        ws.append(
+            [m["op"], m["linha"], m["ensaio"], m["valor"], m["minimo"], m["maximo"], status(m)]
+        )
 
     # 2) Cabeçalho
     for celula in ws[1]:

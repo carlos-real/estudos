@@ -119,8 +119,8 @@ Três resultados possíveis:
 
 ### 2.2 Qual versão instalar
 
-Use **Python 3.14** (a versão estável mais testada em outubro de 2026). As versões 3.12 e
-3.13 também servem. O curso exige no mínimo 3.10, mas recomenda 3.12+.
+Use **Python 3.14**: já tem um ano de correções e roda todas as bibliotecas do curso. As
+versões 3.12 e 3.13 também servem. O curso exige no mínimo 3.10, mas recomenda 3.12+.
 
 A 3.15 saiu em outubro de 2026. Pode usar, mas saiba que em versões recém-lançadas alguma
 biblioteca às vezes demora a publicar o pacote pronto. Se a instalação das bibliotecas
@@ -157,21 +157,14 @@ o Windows responde "não conheço ninguém com esse nome".
 > **"aliases de execução de aplicativo"** e desligue os itens `python.exe` e `python3.exe`
 > do "Instalador de Aplicativo".
 
-### 2.4 Outras formas de instalar (saiba que existem)
+### 2.4 Outras formas de instalar
 
-O site python.org está mudando. A forma oficial recomendada para Windows agora é o
-**Python install manager** (comando `py install 3.14`). O instalador tradicional da seção
-2.3 continua disponível, mas foi marcado como obsoleto e deixará de ser publicado a
-partir do Python 3.16. Se você usar o install manager, aceite quando ele perguntar se
-deve adicionar a pasta de comandos ao PATH.
-
-Também dá para instalar pelo terminal com o `winget`, que já vem no Windows 10/11:
-
-```text
-winget install Python.Python.3.14
-```
-
-Qualquer caminho serve. O que importa: no fim, `python --version` precisa responder.
+O python.org agora recomenda, para Windows, o novo **Python install manager** (comando
+`py install 3.14`; aceite quando ele perguntar se deve adicionar a pasta de comandos ao
+PATH). O instalador da seção 2.3 continua disponível, mas foi marcado como obsoleto e
+deixará de ser publicado a partir do Python 3.16. Outra opção é o `winget`, que já vem no
+Windows 10/11: `winget install Python.Python.3.14`. Qualquer caminho serve: no fim,
+`python --version` precisa responder.
 
 > 💡 **Dica:** em computador da empresa, a TI pode bloquear instalações. Use o seu
 > computador pessoal para o curso ou peça a instalação à TI.
@@ -268,12 +261,9 @@ navegador para você autorizar. Você não digita senha no terminal.
 
 ## 5. O terminal (PowerShell) sem medo
 
-O terminal é uma janela onde você dá ordens ao computador escrevendo. Parece antigo, mas é
-a ferramenta mais usada por programadores: servidores, robôs e ferramentas de dados são
-controlados assim.
-
-No VS Code: menu **Terminal → Novo Terminal** (ou `Ctrl+'`). No Windows ele abre o
-PowerShell.
+O terminal é uma janela onde você dá ordens ao computador escrevendo. Parece antigo, mas
+servidores, robôs e ferramentas de dados são controlados assim. No VS Code: menu
+**Terminal → Novo Terminal** (ou `Ctrl+'`). No Windows ele abre o PowerShell.
 
 O texto antes do cursor é o **prompt**. Ele mostra em que pasta você está:
 
@@ -505,15 +495,13 @@ code .
 
 ### 9.1 O problema
 
-Python tem milhares de bibliotecas prontas (pandas, openpyxl, pytest...). Você as instala
-com o **pip**, o instalador de pacotes do Python.
+Python tem milhares de bibliotecas prontas (pandas, openpyxl, pytest...), instaladas com o
+**pip**. Se você instalar tudo "no Python do computador", um dia um projeto precisa do
+pandas 2 e outro do pandas 3: atualizou para um, quebrou o outro.
 
-Se você instalar tudo "no Python do computador", um dia um projeto precisa do pandas 2 e
-outro do pandas 3. Atualizou para um, quebrou o outro.
-
-Pense nas bancadas do laboratório: cada linha de produção tem o seu próprio jogo de
-calibradores. Trocar um calibrador da linha A não mexe na linha B. Um **ambiente virtual**
-é isso: uma pasta (`.venv`) com um Python e bibliotecas só daquele projeto.
+Pense nas bancadas do laboratório: cada linha tem o seu próprio jogo de calibradores, e
+trocar um calibrador da linha A não mexe na linha B. Um **ambiente virtual** é isso: uma
+pasta (`.venv`) com um Python e bibliotecas só daquele projeto.
 
 ### 9.2 Criar o ambiente virtual
 
@@ -568,14 +556,14 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 
 Se pedir confirmação, digite `S` (Sim) e Enter. Depois rode o `Activate.ps1` de novo.
 
-O que isso faz: `RemoteSigned` permite rodar scripts criados no seu computador, mas exige
-assinatura digital de scripts baixados da internet. É a configuração que a própria
-documentação da Microsoft recomenda para quem não assina scripts. Para ver a política
-atual: `Get-ExecutionPolicy -List`.
+O que isso faz: `RemoteSigned` libera scripts criados no seu computador e exige assinatura
+digital dos baixados da internet. É o que a documentação da Microsoft recomenda para quem
+não assina scripts. Para ver a política atual: `Get-ExecutionPolicy -List`.
 
-> ⚠️ **Erro comum:** em computador da empresa, a política pode ser imposta pela TI (via
-> Group Policy) e o comando não muda nada. Não tente burlar. Use o Prompt de Comando (cmd)
-> com `.venv\Scripts\activate.bat`, estude no computador pessoal ou converse com a TI.
+> ⚠️ **Erro comum:** em computador da empresa, a TI pode impor a política (Group Policy) e
+> o comando não muda nada. Não tente burlar: estude no computador pessoal ou fale com a TI.
+> (Se a TI liberar o Prompt de Comando, o `cmd`, a ativação nele é
+> `.venv\Scripts\activate.bat`.)
 
 ### 9.5 Instalar as bibliotecas do curso
 
@@ -696,36 +684,37 @@ equipamento de ensaio: você coloca a amostra (entrada), ele faz o trabalho e de
 resultado (saída). Você não precisa saber o que acontece lá dentro para usar o resultado.
 
 ```python
-def peso_total(peso_bobina_kg: float, quantidade: int) -> float:
-    """Devolve o peso total (kg) de `quantidade` bobinas."""
-    return peso_bobina_kg * quantidade
+def peso_liquido(peso_bruto_kg: float, tara_kg: float) -> float:
+    """Devolve o peso líquido (kg): peso bruto menos a tara (tubete e embalagem)."""
+    return peso_bruto_kg - tara_kg
 ```
 
 Peça por peça:
 
 ```text
-def peso_total(peso_bobina_kg: float, quantidade: int) -> float:
-│   │          │                       │               │       │
-│   │          └── parâmetros: as entradas (valores que a função recebe)
-│   └── nome da função                                 │       └── dois-pontos: obrigatório
-└── "vou definir uma função"                           └── tipo do resultado (anotação)
+def peso_liquido(peso_bruto_kg: float, tara_kg: float) -> float:
+│   │            │                                     │       │
+│   │            └── parâmetros: as entradas           │       └── dois-pontos
+│   └── nome da função                                 └── tipo do resultado (anotação)
+└── "vou definir uma função"
 
-    """Devolve o peso total..."""     ← docstring: explica o que a função faz
-    return peso_bobina_kg * quantidade ← return: DEVOLVE o resultado para quem chamou
+    """Devolve o peso líquido..."""  ← docstring: explica o que a função faz
+    return peso_bruto_kg - tara_kg    ← return: DEVOLVE o resultado para quem chamou
 ^^^^
 4 espaços de recuo: é assim que o Python sabe o que está "dentro" da função
 ```
 
-Definir não executa nada. A função só trabalha quando é **chamada**:
+Definir não executa nada. A função só trabalha quando é **chamada**, com valores entre
+os parênteses (um para cada parâmetro, na mesma ordem):
 
 ```python
->>> peso_total(250.0, 4)
+>>> peso_liquido(1050.0, 50.0)
 1000.0
->>> peso_total(312.5, 3)
-937.5
+>>> peso_liquido(937.5, 37.5)
+900.0
 ```
 
-Os `: float`, `: int` e `-> float` são **anotações de tipo** (type hints): avisos para
+Os `: float` e `-> float` são **anotações de tipo** (type hints): avisos para
 você e para o VS Code sobre o que entra e o que sai. O Python não confere. Detalhes nos
 módulos 01 e 04.
 
@@ -805,16 +794,7 @@ Abra `00-preparacao/exercicios/ex01_ola_mundo.py`. Todo exercício tem este form
 """
 Exercício 00.01 — Olá, mundo!
 Nível: ★☆☆
-
-Contexto: (...)
-
-Tarefa: implemente `ola_mundo()`, que DEVOLVE (com `return`) exatamente o texto
-"Olá, mundo!" (...)
-
-Exemplos:
-    >>> ola_mundo()
-    'Olá, mundo!'
-
+(... contexto, tarefa, exemplos e dica ...)
 Teste com:  python curso.py testar 00 ex01
 """
 
@@ -924,9 +904,7 @@ Saída (trecho):
 collecting ... collected 5 items
 
 00-preparacao/testes/test_m00_ex01_ola_mundo.py::test_devolve_um_valor FAILED [ 20%]
-00-preparacao/testes/test_m00_ex01_ola_mundo.py::test_devolve_um_texto FAILED [ 40%]
-00-preparacao/testes/test_m00_ex01_ola_mundo.py::test_texto_exato FAILED [ 60%]
-00-preparacao/testes/test_m00_ex01_ola_mundo.py::test_tem_acento_em_ola FAILED [ 80%]
+(...)
 00-preparacao/testes/test_m00_ex01_ola_mundo.py::test_sem_espacos_sobrando FAILED [100%]
 
 =================================== FAILURES ===================================
@@ -1114,21 +1092,11 @@ O commit só leva o que está na área de preparação. Faltou o `git add`.
 
 Regra prática: complete a frase "Este commit...". Verbo no presente, curto, específico.
 
-### 12.4 Rotina de cada sessão de estudo
+### 12.4 `git pull` no começo, `git push` no fim
 
-```text
-cd ~\projetos\estudos\curso-python
-git pull                          # traz novidades (do curso ou do outro computador)
-.venv\Scripts\Activate.ps1        # se o (.venv) não aparecer sozinho
-... estuda, resolve, testa ...
-git status
-git add .
-git commit -m "Resolve exercícios 00.02 e 00.03"
-git push
-```
-
-`git add .` coloca na bandeja **tudo** o que mudou na pasta atual. Rode `git status` antes
-para conferir o que vai junto.
+Comece cada sessão com `git pull` (traz novidades do curso ou do outro computador) e
+termine com `git add`, `git commit` e `git push`. O atalho `git add .` coloca na bandeja
+**tudo** o que mudou na pasta atual: rode `git status` antes para conferir o que vai junto.
 
 > ⚠️ **Erro comum:** colocar no GitHub planilhas da empresa, laudos com nome de cliente,
 > senhas ou arquivos `.env`. Se o repositório for público, qualquer pessoa vê. Use dados
@@ -1202,17 +1170,20 @@ aquilo") e motivação, e no fim vira portfólio.
 
 ### 13.3 Rotina sugerida: 1 hora por dia
 
-Com 1 hora por dia, 5 dias por semana, o curso leva cerca de 6 meses. Constância vence
-intensidade: 5 horas espalhadas na semana ensinam mais que 5 horas num sábado.
+Com 1 hora por dia, 5 dias por semana, o curso leva cerca de 31 semanas (7 meses).
+Constância vence intensidade: 5 horas espalhadas na semana ensinam mais que 5 horas num
+sábado.
 
 | Tempo | O que fazer |
 |---|---|
-| 5 min | Recuperação: escreva de memória o que aprendeu ontem. `git pull`. |
+| 5 min | Resumo de memória: sem olhar nada, escreva 3 coisas da última aula. `git pull`. |
 | 20 min | Aula: uma ou duas seções, digitando os exemplos e fazendo os 🔮. |
 | 30 min | Exercícios: um ou dois, com o ciclo testar → corrigir → passar. |
-| 5 min | `git add`, `git commit`, `git push` e anotar dúvidas para amanhã. |
+| 5 min | Diário de bordo (o que aprendeu, onde travou) e `git add`/`commit`/`push`. |
 
-No fim de cada módulo: quiz sem consultar, desafio e `python curso.py progresso`.
+Sexta-feira é dia de revisão espaçada: refaça sem consultar o quiz do módulo anterior e
+refaça do zero um exercício de 2 ou 3 módulos atrás. O calendário semana a semana, com os
+marcos de portfólio, está em `PLANO-DE-ESTUDOS.md` (na pasta `curso-python`).
 
 > 💡 **Dica:** o celular é ótimo para **reler** a aula e fazer o quiz no ônibus ou no
 > intervalo. Mas exercício se faz no computador.
@@ -1258,11 +1229,11 @@ E lembre: a IA erra com toda a confiança do mundo. Confira sempre rodando o có
 ### 13.6 Como pesquisar
 
 1. Copie a **última linha** do erro (sem os seus caminhos de pasta) e pesquise junto com
-   a palavra `python`. Ex.: `python NameError: name 'pritn' is not defined`.
-2. Pesquise também em inglês: há muito mais conteúdo.
-3. Prefira fontes confiáveis: a documentação oficial (`docs.python.org/pt-br/3/`), o
+   a palavra `python`. Ex.: `python NameError: name 'pritn' is not defined`. Tente também
+   em inglês: há muito mais conteúdo.
+2. Prefira fontes confiáveis: a documentação oficial (`docs.python.org/pt-br/3/`), o
    Stack Overflow, a documentação da biblioteca.
-4. Confira a data e a versão: resposta de 2012 pode ser de Python 2.
+3. Confira a data e a versão: resposta de 2012 pode ser de Python 2.
 
 ### 13.7 Como pedir ajuda (e ser respondido)
 
@@ -1320,22 +1291,13 @@ SyntaxError: unterminated string literal (detected at line 1)
 
 Faltou fechar as aspas.
 
-```text
-    print("Olá, mundo!"
-         ^
-SyntaxError: '(' was never closed
-```
+Outras mensagens de `SyntaxError` que você vai ver:
 
-Faltou fechar o parêntese. Às vezes o erro aparece na linha **seguinte** à culpada:
-confira também a linha de cima.
-
-```text
-    def ola_mundo()
-                   ^
-SyntaxError: expected ':'
-```
-
-Faltaram os dois-pontos no fim da linha do `def`.
+| Mensagem | Causa provável |
+|---|---|
+| `'(' was never closed` | faltou fechar um parêntese |
+| `expected ':'` | faltaram os dois-pontos no fim da linha do `def` (ou `if`, `for`...) |
+| `invalid syntax` | algo fora do lugar; olhe a linha apontada **e a de cima** |
 
 **`IndentationError`: recuo errado.**
 

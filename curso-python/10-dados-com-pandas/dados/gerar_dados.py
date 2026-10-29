@@ -168,10 +168,8 @@ def gravar_especificacoes_csv() -> None:
     caminho = PASTA / "especificacoes.csv"
     with caminho.open("w", encoding="utf-8-sig", newline="") as arquivo:
         escritor = csv.writer(arquivo, delimiter=";")
-        escritor.writerow(
-            ["produto", "descricao", "espessura_nominal", "tolerancia_pct", "gramatura_nominal",
-             "cof_max"]
-        )  # fmt: skip
+        cabecalho = ["produto", "descricao", "espessura_nominal", "tolerancia_pct"]
+        escritor.writerow([*cabecalho, "gramatura_nominal", "cof_max"])
         for produto, (descricao, _, nominal, tol, gram, cof) in PRODUTOS.items():
             escritor.writerow([produto, descricao, br(nominal), br(tol), br(gram), br(cof, 2)])
 
@@ -220,7 +218,7 @@ def gravar_planilha_linhas(medicoes: list[dict]) -> None:
             )
         for linha_planilha in aba.iter_rows(min_row=3, min_col=3, max_col=3):
             linha_planilha[0].number_format = "DD/MM/YYYY"
-        for coluna, largura in zip("ABCDEFGH", [10, 12, 12, 15, 17, 8, 11, 16]):
+        for coluna, largura in zip("ABCDEFGH", [10, 12, 12, 15, 17, 8, 11, 16], strict=True):
             aba.column_dimensions[coluna].width = largura
         aba.freeze_panes = "A3"
     livro.save(PASTA / "planilha_linhas.xlsx")

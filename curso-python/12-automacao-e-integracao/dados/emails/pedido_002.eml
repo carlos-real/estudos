@@ -6,9 +6,9 @@ Date: Mon, 09 Mar 2026 09:40:00 -0300
 Message-ID: <pedido-002@embalagens.example>
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
- boundary="===============1460751180164677352=="
+ boundary="===============6770211296544140905=="
 
---===============1460751180164677352==
+--===============6770211296544140905==
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 
@@ -22,7 +22,7 @@ Peso: 980,25 kg
 
 Carla
 
---===============1460751180164677352==
+--===============6770211296544140905==
 Content-Type: text/html; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -30,4 +30,4 @@ MIME-Version: 1.0
 <p>Ol=C3=A1!</p><p>O caminh=C3=A3o sai =C3=A0s 14h. Preciso do certificado:</=
 p><p>OP: 123789<br>NF: 98766<br>Peso: 980,25 kg</p><p>Carla</p>
 
---===============1460751180164677352==--
+--===============6770211296544140905==--

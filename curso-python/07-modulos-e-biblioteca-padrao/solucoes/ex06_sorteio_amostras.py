@@ -37,7 +37,9 @@ Teste com:  python curso.py testar 07 ex06
 import random
 
 
-def sortear_bobinas(bobinas: list[str], quantidade: int, semente: int | None = None) -> list[str]:
+def sortear_bobinas(
+    bobinas: list[str], quantidade: int, semente: int | None = None
+) -> list[str]:
     """Sorteia bobinas sem repetição (reprodutível com a semente)."""
     if quantidade < 0 or quantidade > len(bobinas):
         # O sample levantaria ValueError sozinho, mas em inglês e sem contexto.

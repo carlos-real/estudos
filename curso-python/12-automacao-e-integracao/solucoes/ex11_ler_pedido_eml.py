@@ -42,7 +42,11 @@ def ler_pedido(conteudo: bytes) -> dict:
     msg = BytesParser(policy=policy.default).parsebytes(conteudo)
     texto = texto_do_corpo(msg)
 
-    achados = {"OP": RE_OP.search(texto), "NF": RE_NF.search(texto), "peso": RE_PESO.search(texto)}
+    achados = {
+        "OP": RE_OP.search(texto),
+        "NF": RE_NF.search(texto),
+        "peso": RE_PESO.search(texto),
+    }
     # Um dicionário mantém a ordem de inserção: checamos OP, NF e peso nessa ordem.
     for campo, achado in achados.items():
         if achado is None:

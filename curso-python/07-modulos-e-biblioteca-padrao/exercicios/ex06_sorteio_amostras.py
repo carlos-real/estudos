@@ -35,7 +35,9 @@ Teste com:  python curso.py testar 07 ex06
 """
 
 
-def sortear_bobinas(bobinas: list[str], quantidade: int, semente: int | None = None) -> list[str]:
+def sortear_bobinas(
+    bobinas: list[str], quantidade: int, semente: int | None = None
+) -> list[str]:
     """Sorteia bobinas sem repetição (reprodutível com a semente)."""
     # Escreva seu código aqui
     raise NotImplementedError("Implemente esta função")

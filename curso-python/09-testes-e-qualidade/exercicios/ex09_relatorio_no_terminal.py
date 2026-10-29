@@ -5,7 +5,7 @@ Nível: ★★☆
 Contexto: no fim da conferência, o programa imprime um resumo para o técnico
 conferir na tela antes de emitir os certificados. Funções que só imprimem
 também podem (e devem) ser testadas: a fixture capsys captura o que foi
-impresso (seção 11 da aula).
+impresso (seção 10 da aula).
 
 Tarefa: implemente imprimir_relatorio(resultados). Cada resultado é uma tupla
 (op, valor, dentro) em que dentro é True (OK) ou False (FORA).

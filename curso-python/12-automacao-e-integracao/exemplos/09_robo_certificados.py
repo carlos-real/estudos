@@ -97,7 +97,9 @@ def registrar(caminho: Path, pedido: dict, certificado: str) -> None:
         escritor = csv.writer(f, delimiter=";")
         if novo:
             escritor.writerow(["op", "nf", "certificado", "data_hora"])
-        escritor.writerow([pedido["op"], pedido["nf"], certificado, f"{datetime.now():%Y-%m-%d %H:%M:%S}"])
+        escritor.writerow(
+            [pedido["op"], pedido["nf"], certificado, f"{datetime.now():%Y-%m-%d %H:%M:%S}"]
+        )
 
 
 # ----------------------------------------------------------------------------

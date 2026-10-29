@@ -48,8 +48,6 @@ Teste com:  python curso.py testar 14 ex06
 import re
 import unicodedata
 
-PADRAO_LIBERACAO = re.compile(r"\bcof\s*[:-]?\s*liberad[oa]\b")
-
 
 def prever_v1() -> list[object]:
     """O que esta_liberado_v1 devolve para as 4 observações do enunciado."""
@@ -81,4 +79,5 @@ def esta_liberado(observacao: str | None) -> bool:
     # re.IGNORECASE, nem de [ií], nem de pensar em espaços duplos.
     # Por que "cof: nao liberado" não casa? Depois de "cof:" e do espaço, o padrão
     # exige "liberad", mas o texto tem "nao". Não há como pular palavras.
-    return PADRAO_LIBERACAO.search(normalizar(observacao)) is not None
+    padrao = r"\bcof\s*[:-]?\s*liberad[oa]\b"
+    return re.search(padrao, normalizar(observacao)) is not None

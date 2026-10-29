@@ -25,11 +25,14 @@ class ApiDeTreino(BaseHTTPRequestHandler):
             "autorizacao": self.headers.get("Authorization"),
         }
         corpo = json.dumps(dados).encode("utf-8")
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(corpo)))
-        self.end_headers()
-        self.wfile.write(corpo)
+        try:
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(corpo)))
+            self.end_headers()
+            self.wfile.write(corpo)
+        except (BrokenPipeError, ConnectionResetError):
+            pass  # o cliente desistiu de esperar (timeout) e fechou a conexão
 
     def log_message(self, *args) -> None:
         pass
@@ -70,8 +73,14 @@ def main() -> None:
         print("  ", type(erro).__name__)
 
     print("4) A família de exceções do requests")
-    print("   Timeout é RequestException?", issubclass(requests.Timeout, requests.RequestException))
-    print("   HTTPError é RequestException?", issubclass(requests.HTTPError, requests.RequestException))
+    print(
+        "   Timeout é RequestException?",
+        issubclass(requests.Timeout, requests.RequestException),
+    )
+    print(
+        "   HTTPError é RequestException?",
+        issubclass(requests.HTTPError, requests.RequestException),
+    )
 
     servidor.shutdown()
 

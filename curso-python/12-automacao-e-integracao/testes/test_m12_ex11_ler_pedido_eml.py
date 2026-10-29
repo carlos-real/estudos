@@ -34,7 +34,9 @@ def test_texto_puro():
 
 
 def test_assunto_com_acentos_e_travessao():
-    conteudo = eml("OP 123789 NF 98766 Peso 980,25 kg", assunto="Certificado urgente — OP 123789")
+    conteudo = eml(
+        "OP 123789 NF 98766 Peso 980,25 kg", assunto="Certificado urgente — OP 123789"
+    )
     pedido = ex.ler_pedido(conteudo)
     assert pedido["assunto"] == "Certificado urgente — OP 123789"
     assert pedido["peso_kg"] == pytest.approx(980.25)

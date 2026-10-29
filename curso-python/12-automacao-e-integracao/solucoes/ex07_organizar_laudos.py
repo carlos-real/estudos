@@ -15,7 +15,9 @@ from pathlib import Path
 PADRAO = re.compile(r"laudo_(\d{6})_([A-D])_(\d{4}-\d{2})-\d{2}\.pdf")
 
 
-def organizar_laudos(origem: Path, destino: Path, ensaio: bool = True) -> list[tuple[str, str]]:
+def organizar_laudos(
+    origem: Path, destino: Path, ensaio: bool = True
+) -> list[tuple[str, str]]:
     """Planeja (e, fora do ensaio, executa) a organização dos laudos."""
     resultado = []
     # sorted() já deixa a lista final em ordem alfabética pelo nome.

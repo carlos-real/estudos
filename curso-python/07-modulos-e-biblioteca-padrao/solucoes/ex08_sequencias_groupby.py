@@ -43,7 +43,9 @@ def resumir_sequencia(resultados: list[str]) -> list[tuple[str, int]]:
 def maior_sequencia(resultados: list[str], alvo: str = "R") -> int:
     """Tamanho da maior sequência seguida de `alvo`."""
     # Reaproveita o resumo e filtra só as sequências do alvo.
-    tamanhos = [quantidade for valor, quantidade in resumir_sequencia(resultados) if valor == alvo]
+    tamanhos = [
+        quantidade for valor, quantidade in resumir_sequencia(resultados) if valor == alvo
+    ]
     # max([]) dá erro; o parâmetro default resolve a lista vazia.
     return max(tamanhos, default=0)
 

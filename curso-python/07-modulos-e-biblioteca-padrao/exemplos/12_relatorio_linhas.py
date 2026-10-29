@@ -2,12 +2,14 @@
 
 Lê o CSV de ensaios do laboratório (padrão Excel BR: ';' e vírgula decimal), filtra
 por ensaio e período, calcula média, desvio padrão e CV% por linha e conta as
-reprovações. Devolve código de saída 1 se alguma linha passar do CV máximo.
+reprovações. Com --estrito, devolve código de saída 1 se alguma linha passar do CV
+máximo (útil quando outro programa ou o Agendador de Tarefas chama este script).
 
 Rode com (na pasta curso-python):
     python 07-modulos-e-biblioteca-padrao/exemplos/12_relatorio_linhas.py
     python 07-modulos-e-biblioteca-padrao/exemplos/12_relatorio_linhas.py --ensaio gramatura
-    python 07-modulos-e-biblioteca-padrao/exemplos/12_relatorio_linhas.py --desde 01/10/2026 --ate 15/10/2026
+    python 07-modulos-e-biblioteca-padrao/exemplos/12_relatorio_linhas.py --linha c --cv-max 6
+(dentro da pasta exemplos, basta: python 12_relatorio_linhas.py --desde 01/10/2026)
 """
 
 import argparse
@@ -28,7 +30,9 @@ def data_br(texto: str) -> date:
     try:
         return datetime.strptime(texto, "%d/%m/%Y").date()
     except ValueError:
-        raise argparse.ArgumentTypeError(f"data inválida: {texto!r} (use dd/mm/aaaa)") from None
+        raise argparse.ArgumentTypeError(
+            f"data inválida: {texto!r} (use dd/mm/aaaa)"
+        ) from None
 
 
 def criar_parser() -> argparse.ArgumentParser:
@@ -37,12 +41,17 @@ def criar_parser() -> argparse.ArgumentParser:
         description="Estatística de ensaios por linha de produção.",
     )
     parser.add_argument("arquivo", nargs="?", type=Path, default=ARQUIVO_PADRAO)
-    parser.add_argument("--ensaio", default="espessura", choices=["espessura", "gramatura", "cof"])
+    parser.add_argument(
+        "--ensaio", default="espessura", choices=["espessura", "gramatura", "cof"]
+    )
     parser.add_argument("--linha", type=str.upper, choices=["A", "B", "C", "D"])
     parser.add_argument("--desde", type=data_br, help="data inicial (dd/mm/aaaa)")
     parser.add_argument("--ate", type=data_br, help="data final (dd/mm/aaaa)")
     padrao_cv = float(os.environ.get("LAB_CV_MAX", "5.0"))
     parser.add_argument("--cv-max", type=float, default=padrao_cv, help="CV%% máximo")
+    parser.add_argument(
+        "--estrito", action="store_true", help="sai com código 1 se houver alerta"
+    )
     return parser
 
 
@@ -83,7 +92,8 @@ def main(argv: list[str] | None = None) -> int:
     filtrados = [
         r
         for r in registros
-        if no_periodo(r, args.desde, args.ate) and (args.linha is None or r["linha"] == args.linha)
+        if no_periodo(r, args.desde, args.ate)
+        and (args.linha is None or r["linha"] == args.linha)
     ]
     valores_por_linha = defaultdict(list)
     for r in filtrados:
@@ -114,7 +124,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  Linha {linha}: {quantidade}")
     if not reprovacoes:
         print("  nenhuma")
-    return 1 if alertas else 0
+    return 1 if args.estrito and alertas else 0
 
 
 if __name__ == "__main__":

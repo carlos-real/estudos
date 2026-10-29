@@ -5,7 +5,7 @@ Nível: ★☆☆
 Contexto: cada computador do laboratório tem uma variável de ambiente
 LAB_OPERADOR com o nome de quem está usando a máquina. O laudo precisa trazer
 esse nome. Os testes deste exercício usam monkeypatch para criar e apagar a
-variável sem mexer no seu computador de verdade (seção 12 da aula).
+variável sem mexer no seu computador de verdade (seção 11 da aula).
 
 Tarefa: implemente as duas funções.
   operador_atual():

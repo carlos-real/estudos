@@ -29,11 +29,9 @@ Seu trabalho nunca é um valor só. É a série de medições de uma bobina. É 
 
 No projeto final, as tolerâncias por linha viram um dicionário aninhado, os valores da planilha viram uma lista de dicionários e o cruzamento "OPs do e-mail × OPs com resultado" é uma operação de conjuntos. Você vai escrever versões pequenas de tudo isso neste módulo.
 
-> 💡 **Dica:** rode cada exemplo no REPL (`python` no PowerShell). Ver a saída aparecer na sua tela fixa muito mais do que ler.
-
 ## 1. Listas: vários valores numa variável só
 
-Pense numa coluna do Excel com as espessuras das bobinas da linha A. Cada valor ocupa uma posição. Em Python, isso é uma **lista**: valores entre colchetes, separados por vírgula.
+Pense numa coluna do Excel com as espessuras das bobinas da linha A. Cada valor ocupa uma posição. Em Python, isso é uma **lista**: valores entre colchetes, separados por vírgula. (Abra o REPL com `python` no PowerShell e digite junto: ver a saída na sua tela fixa muito mais do que ler.)
 
 ```python
 >>> espessuras = [50.2, 49.8, 51.0, 50.5, 48.9]
@@ -74,41 +72,9 @@ Você também troca um item pelo índice:
 [50.2, 49.9, 51.0, 50.5, 48.9]
 ```
 
-Outras formas de criar listas:
+Lista vazia é `[]`, e `list(range(5))` vira `[0, 1, 2, 3, 4]`. Uma lista pode misturar tipos (`["OP-4512", "A", 1250.5]`), mas na prática prefira listas de **uma coisa só**: só espessuras, só OPs. Para um registro com campos diferentes, você vai ver ferramentas melhores (tuplas e dicionários) daqui a pouco.
 
-```python
->>> vazia = []
->>> len(vazia)
-0
->>> list(range(5))
-[0, 1, 2, 3, 4]
->>> list("ABC")
-['A', 'B', 'C']
-```
-
-Uma lista pode misturar tipos (`["OP-4512", "A", 1250.5]`), mas na prática prefira listas de **uma coisa só**: só espessuras, só OPs. Para um registro com campos diferentes, você vai ver ferramentas melhores (tuplas e dicionários) daqui a pouco.
-
-E você já sabe percorrer uma lista desde o módulo 02:
-
-```python
->>> for espessura in espessuras:
-...     if espessura < 50:
-...         print("abaixo de 50:", espessura)
-...
-abaixo de 50: 49.9
-abaixo de 50: 48.9
-```
-
-> ⚠️ **Erro comum:** pedir um índice que não existe. A lista acima tem 5 itens, então o último índice é 4.
->
-> ```python
-> >>> espessuras[5]
-> Traceback (most recent call last):
->   File "<stdin>", line 1, in <module>
-> IndexError: list index out of range
-> ```
->
-> Lembre: com `n` itens, os índices vão de `0` a `n - 1`.
+> ⚠️ **Erro comum:** pedir um índice que não existe. A lista acima tem 5 itens, então `espessuras[5]` dá `IndexError: list index out of range`. Com `n` itens, os índices vão de `0` a `n - 1`.
 
 O exemplo completo está em `exemplos/01_listas.py`. No PowerShell, dentro da pasta `03-colecoes`:
 
@@ -122,7 +88,7 @@ python exemplos\01_listas.py
 
 <details><summary>Resposta</summary>
 
-`notas[3]` e `notas[-1]`. O segundo continua funcionando se outra nota for acrescentada no começo? Não! Se entrar uma nota no **fim**, `notas[-1]` passa a ser ela. Se entrar no **começo**, `notas[3]` deixa de ser o 9.5. Cada forma tem seu uso: `[-1]` quando você quer "o último", seja ele qual for.
+`notas[3]` e `notas[-1]`. Qual usar? Se a pergunta é "qual a última nota?", use `notas[-1]`: continua certo mesmo se a lista crescer. `notas[3]` só faz sentido quando a posição 3 tem um significado fixo (por exemplo, "a 4ª prova").
 
 </details>
 
@@ -173,15 +139,7 @@ Duas propriedades importantes:
 1. **Fatiar nunca dá `IndexError`.** Se o fim passa do tamanho, ele simplesmente para no fim: `medicoes[:100]` devolve a lista toda.
 2. **Fatiar sempre cria uma lista nova.** `medicoes[:]` é uma cópia da lista inteira (isso vai ser importante na seção 4).
 
-Strings também fatiam, do mesmo jeito:
-
-```python
->>> codigo = "OP-4512-A"
->>> codigo[3:7]
-'4512'
->>> codigo[-1]
-'A'
-```
+Strings também fatiam, do mesmo jeito: `"OP-4512-A"[3:7]` é `'4512'` e `"OP-4512-A"[-1]` é `'A'`.
 
 > 🔮 **Preveja antes de rodar:** você quer as `n` últimas medições e escreve `medicoes[-n:]`. O que acontece quando `n = 0`?
 >
@@ -214,9 +172,7 @@ Listas têm **métodos**: funções que você chama com um ponto depois do nome 
 | `lista.index(x)` | posição da primeira ocorrência de `x` | um `int` |
 | `lista.count(x)` | quantas vezes `x` aparece | um `int` |
 | `lista.sort()` | ordena a própria lista | `None` |
-| `lista.reverse()` | inverte a própria lista | `None` |
 | `lista.copy()` | cria uma cópia rasa | uma lista nova |
-| `lista.clear()` | esvazia a lista | `None` |
 
 Veja alguns em ação:
 
@@ -227,8 +183,6 @@ Veja alguns em ação:
 >>> ops
 ['OP-4500', 'OP-4512', 'OP-4513', 'OP-4514']
 >>> ops.extend(["OP-4515", "OP-4516"])
->>> len(ops)
-6
 >>> ops.remove("OP-4513")
 >>> ultima = ops.pop()
 >>> ultima
@@ -237,16 +191,7 @@ Veja alguns em ação:
 ['OP-4500', 'OP-4512', 'OP-4514', 'OP-4515']
 ```
 
-Operadores também funcionam com listas:
-
-```python
->>> [1, 2] + [3]
-[1, 2, 3]
->>> [0] * 4
-[0, 0, 0, 0]
->>> "OP-4512" in ops
-True
-```
+Operadores também funcionam: `[1, 2] + [3]` dá `[1, 2, 3]`, `[0] * 4` dá `[0, 0, 0, 0]` e `"OP-4512" in ops` dá `True`.
 
 ### `sort()` ou `sorted()`?
 
@@ -282,13 +227,7 @@ Regra prática: **métodos que modificam a lista no lugar devolvem `None`**. Use
 
 ### Como descobrir sozinho o que um método faz
 
-Você não precisa decorar a tabela. No REPL:
-
-```python
->>> help(list.remove)  # doctest: +SKIP
-```
-
-Ou teste uma hipótese. "Será que `remove` apaga **todas** as ocorrências?" Não adivinhe, pergunte ao Python:
+Você não precisa decorar a tabela. No REPL, `help(list.remove)` mostra a documentação do método (aperte `q` para sair). Ou teste uma hipótese. "Será que `remove` apaga **todas** as ocorrências?" Não adivinhe, pergunte ao Python:
 
 ```python
 >>> teste = [1, 2, 1, 3]
@@ -318,13 +257,7 @@ No módulo 01, dissemos que uma variável "guarda" um valor. Agora vamos ser mai
 Mexemos em `b` e `a` mudou. Por quê? Porque `b = a` **não copiou a lista**. Só colou uma segunda etiqueta no mesmo objeto:
 
 ```text
- a = [50.2, 49.8]
-
-     a ---------> +------+------+
-                  | 50.2 | 49.8 |
-                  +------+------+
-
- b = a            (NÃO copia: só mais uma etiqueta)
+ b = a            (NÃO copia: só cola mais uma etiqueta)
 
      a ---------> +------+------+
                   | 50.2 | 49.8 |
@@ -344,46 +277,26 @@ Como provar que são o mesmo objeto? Com o operador `is`:
 ```python
 >>> a is b
 True
->>> id(a) == id(b)
-True
 ```
 
 - `==` pergunta: "têm o **mesmo conteúdo**?"
-- `is` pergunta: "são o **mesmo objeto**?"
-
-`id()` devolve um número que identifica o objeto na memória. Duas etiquetas com o mesmo `id` estão presas no mesmo objeto.
+- `is` pergunta: "são o **mesmo objeto**?" (o mesmo que comparar `id(a) == id(b)`; `id()` é o "número de série" do objeto na memória).
 
 ### 4.2 Como copiar de verdade
 
-Três formas equivalentes de copiar uma lista:
+Três formas equivalentes de copiar uma lista: `original.copy()`, `original[:]` e `list(original)`.
 
 ```python
 >>> original = [50.2, 49.8]
 >>> copia = original.copy()
->>> copia2 = original[:]
->>> copia3 = list(original)
+>>> original == copia, original is copia
+(True, False)
 >>> copia.append(51.0)
 >>> original
 [50.2, 49.8]
->>> copia
-[50.2, 49.8, 51.0]
->>> original == copia2, original is copia2
-(True, False)
 ```
 
-```text
- copia = original.copy()
-
-     original ----> +------+------+
-                    | 50.2 | 49.8 |
-                    +------+------+
-
-     copia -------> +------+------+------+     (objeto NOVO)
-                    | 50.2 | 49.8 | 51.0 |
-                    +------+------+------+
-```
-
-Dicionários e conjuntos também têm `.copy()`.
+Agora são dois objetos, cada um com sua etiqueta. Dicionários e conjuntos também têm `.copy()`.
 
 ### 4.3 Mutáveis e imutáveis
 
@@ -405,14 +318,7 @@ Com imutáveis, "mudar" sempre cria um objeto novo e move a etiqueta. Por isso e
 (11, 10)
 ```
 
-```text
- y = x            x += 1  (cria o 11 e move só a etiqueta x)
-
-  x ---> 10         x ---> 11
-  y ---> 10         y ---> 10
-```
-
-Com strings é igual: `texto.upper()` não muda `texto`, devolve uma string nova. Você já viu isso no módulo 01.
+O `x += 1` criou o objeto `11` e moveu só a etiqueta `x`; `y` continua no `10`. Com strings é igual: `texto.upper()` não muda `texto`, devolve uma string nova. Você já viu isso no módulo 01.
 
 > 🔮 **Preveja antes de rodar:** o que aparece nas duas últimas linhas?
 >
@@ -456,15 +362,13 @@ Acrescentar a chave `"C"` em `rasa` não afetou o original (o dicionário é nov
 ```text
  rasa = por_linha.copy()
 
-  por_linha --> { "A": * , "B": * }      dicionário original
+  por_linha --> { "A": * , "B": * }   dicionário original
                        |        |
-                       |        +-----> [20.1]
-                       v                  ^
-                  [50.2, 49.8]            |
-                       ^                  |
-                       |        +---------+
-  rasa -------> { "A": * , "B": * }      dicionário NOVO...
-                                         ...com as MESMAS listas dentro
+                       v        v
+                 [50.2, 49.8] [20.1]  as listas existem UMA vez só
+                       ^        ^
+                       |        |
+  rasa -------> { "A": * , "B": * }   dicionário NOVO, mesmas listas
 ```
 
 É como copiar uma pasta cheia de **atalhos**: a pasta é nova, mas os atalhos abrem os mesmos arquivos.
@@ -582,21 +486,12 @@ Para que serve uma "lista que não muda"?
 
 ### Desempacotamento
 
-O poder real das tuplas está no **desempacotamento**: cada posição vai para uma variável.
+O poder real das tuplas está no **desempacotamento**: cada posição vai para uma variável. Funciona com qualquer sequência (listas também) e deixa o código muito mais legível. Compare `peso` com `bobina[2]`: qual dos dois explica melhor o que é?
 
 ```python
 >>> op, linha, peso = bobina
->>> op
-'OP-4512'
 >>> peso
 1250.5
-```
-
-Funciona com qualquer sequência (listas também) e deixa o código muito mais legível. Compare `peso` com `bobina[2]`: qual dos dois explica melhor o que é?
-
-Alguns truques que você vai usar sempre:
-
-```python
 >>> minimo, maximo = 55.0, 45.0
 >>> minimo, maximo = maximo, minimo
 >>> minimo, maximo
@@ -613,20 +508,13 @@ OP-4512: 500.0 kg
 OP-4513: 320.5 kg
 ```
 
-- `a, b = b, a` troca dois valores sem variável auxiliar.
+- `minimo, maximo = maximo, minimo` troca dois valores sem variável auxiliar.
 - `*meio` recolhe "o resto" (sempre vira lista).
 - `for op, peso in pedidos` desempacota cada tupla da lista, a cada volta.
 
 > ⚠️ **Erro comum:** tupla de um item só. `(50.2)` é só um número entre parênteses. A vírgula é que faz a tupla: `(50.2,)`.
 
-> ⚠️ **Erro comum:** número de variáveis diferente do número de itens.
->
-> ```python
-> >>> op, peso = ("OP-4512", "A", 1250.5)
-> Traceback (most recent call last):
->   File "<stdin>", line 1, in <module>
-> ValueError: too many values to unpack (expected 2)
-> ```
+> ⚠️ **Erro comum:** número de variáveis diferente do número de itens. `op, peso = ("OP-4512", "A", 1250.5)` dá `ValueError: too many values to unpack (expected 2)`: são 3 itens para 2 variáveis.
 
 Exemplo completo: `exemplos/04_tuplas.py`.
 
@@ -665,14 +553,6 @@ OP-4514 210.0
 {'OP-4512': 500.0, 'OP-4513': 320.5, 'OP-4514': 210.0}
 ```
 
-```text
-  ops    ["OP-4512", "OP-4513", "OP-4514"]
-              |          |          |
-  pesos  [  500.0  ,   320.5  ,   210.0  ]
-              v          v          v
-  zip    ("OP-4512", 500.0) ("OP-4513", 320.5) ("OP-4514", 210.0)
-```
-
 > ⚠️ **Erro comum:** listas de tamanhos diferentes. Sem `strict=True`, o `zip` **para na mais curta sem avisar**, e você perde dados em silêncio:
 >
 > ```python
@@ -696,16 +576,6 @@ Um **dicionário** guarda pares **chave → valor**. Você acha o valor pela cha
 320.5
 >>> len(peso_da_op)
 2
-```
-
-```text
-  peso_da_op
-  +-----------+---------+
-  |  chave    |  valor  |
-  +-----------+---------+
-  | "OP-4512" |  500.0  |
-  | "OP-4513" |  320.5  |
-  +-----------+---------+
 ```
 
 ### Acrescentar, alterar e remover
@@ -753,39 +623,20 @@ Quando usar cada um:
 
 ```python
 >>> peso_da_op = {"OP-4512": 500.0, "OP-4513": 320.5}
->>> for op in peso_da_op:
-...     print(op)
-...
-OP-4512
-OP-4513
 >>> for op, peso in peso_da_op.items():
 ...     print(f"{op} -> {peso} kg")
 ...
 OP-4512 -> 500.0 kg
 OP-4513 -> 320.5 kg
->>> list(peso_da_op.values())
-[500.0, 320.5]
 >>> sum(peso_da_op.values())
 820.5
 ```
 
-`items()` entrega pares (chave, valor); desempacote direto no `for`. `keys()` e `values()` entregam só um dos lados.
+`items()` entrega pares (chave, valor); desempacote direto no `for`. `keys()` e `values()` entregam só um dos lados. Um `for` direto no dicionário (`for op in peso_da_op`) passa pelas chaves.
 
 ### O que pode ser chave?
 
-Chaves precisam ser **imutáveis**: `str`, `int`, `float`, `tuple`. Uma lista não pode ser chave:
-
-```python
->>> medicao_no_ponto = {("A", 1): 50.2, ("A", 2): 49.8}
->>> medicao_no_ponto[("A", 2)]
-49.8
->>> {["A", 1]: 50.2}
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: unhashable type: 'list'
-```
-
-"*Unhashable*" é o jeito do Python dizer "isso pode mudar, então não serve de chave".
+Chaves precisam ser **imutáveis**: `str`, `int`, `float`, `tuple`. Uma tupla como `("A", 1)` (linha, ponto) é uma ótima chave. Uma lista não serve: `{["A", 1]: 50.2}` dá `TypeError: unhashable type: 'list'`, o jeito do Python dizer "isso pode mudar, então não serve de chave".
 
 ### Os dois padrões que você vai usar a vida toda
 
@@ -887,9 +738,7 @@ Desenhando como árvore:
  |    +-- "gramatura" --> {"nominal": 46.0, "tol_pct": 5.0}
  |    +-- "cof"       --> {"min": 0.15, "max": 0.30}
  |
- +-- "B"
-      +-- "espessura" --> {"nominal": 20.0, "tol_pct": 8.0}
-      +-- "cof"       --> {"min": 0.20, "max": 0.40}
+ +-- "B"  (mesma ideia: espessura e cof)
 ```
 
 Cada `[]` desce um nível:
@@ -917,15 +766,7 @@ None
 
 Se a linha `"E"` não existe, o primeiro `get` devolve `{}`, e o segundo `get` num dicionário vazio devolve `None`. Sem erro.
 
-Percorrendo dois níveis:
-
-```python
->>> for linha, propriedades in TOLERANCIAS.items():
-...     print(linha, list(propriedades))
-...
-A ['espessura', 'gramatura', 'cof']
-B ['espessura', 'cof']
-```
+Para percorrer dois níveis, use um `for` dentro de outro: `for linha, propriedades in TOLERANCIAS.items():` e, dentro dele, `for nome, regra in propriedades.items():`. O exemplo `07` mostra isso rodando.
 
 > 💡 **Dica:** isso que você acabou de escrever é praticamente um arquivo **JSON**. Quando, no módulo 06, você salvar as regras num arquivo `regras.json`, e no módulo 12 receber dados de uma API, a estrutura vai ser exatamente esta: dicionários e listas aninhados.
 
@@ -985,19 +826,22 @@ Para modificar: `conjunto.add(x)`, `conjunto.remove(x)` (dá `KeyError` se não 
 
 > 💡 **Dica:** um conjunto não tem ordem garantida. A ordem em que ele aparece no `print` pode mudar de uma execução para outra. Sempre que for **mostrar** um conjunto, use `sorted(...)`.
 
-> 🔮 **Preveja antes de rodar:** quanto vale cada linha?
+> 🔮 **Preveja antes de rodar:** o que cada linha imprime?
 >
 > ```python
 > print(len(set("bobina")))
-> print(len({1, 1.0, True}))
+> print(sorted({"A", "b", "a", "B "}))
 > ```
 
 <details><summary>Resposta</summary>
 
-`4` e `1`.
+```text
+5
+['A', 'B ', 'a', 'b']
+```
 
-- `set("bobina")` pega as letras sem repetir: b, o, i, n, a... são 5 letras distintas? Conte de novo: b-o-b-i-n-a tem as letras `b`, `o`, `i`, `n`, `a`. São **5**? Não: rode e veja `5`. Brincadeira à parte, **rode** antes de confiar na sua contagem. (A resposta certa é 5. Se você previu 4, esqueceu uma letra; se previu 6, contou o `b` duas vezes.)
-- `{1, 1.0, True}` tem **1** item: para o Python, `1 == 1.0 == True`, então são "o mesmo valor" dentro do conjunto. Curiosidade que às vezes vira bug.
+- `set("bobina")` guarda as letras sem repetir: `b`, `o`, `i`, `n`, `a`. O segundo `b` não entra. São 5.
+- Para o conjunto, `"A"` e `"a"` são diferentes, e `"B "` (com espaço) também é diferente de `"B"`. Nada foi eliminado. E o `sorted` põe maiúsculas antes de minúsculas. Se você queria as linhas A e B, normalize antes: `{x.strip().upper() for x in ...}`.
 
 </details>
 
@@ -1188,8 +1032,6 @@ Com o que você já sabe, dá para fazer **tudo** que um analista faz numa tabel
 | Nova coluna | `{**a, "status": ...}` | `SELECT *, ... AS status` | `df["status"] = ...` |
 | Juntar tabelas | índice com dicionário | `JOIN` | `pd.merge(...)` |
 
-Vamos ver cada uma.
-
 ### Filtrar e escolher colunas
 
 ```python
@@ -1293,18 +1135,7 @@ Isso é um **LEFT JOIN**: todos os pedidos aparecem, com ou sem resultado. O exe
 
 ### Linhas ou colunas?
 
-Existe outro formato para a mesma tabela: um **dicionário de listas**, uma lista por coluna.
-
-```python
->>> colunas = {
-...     "op": ["OP-4512", "OP-4513"],
-...     "espessura": [50.4, 20.9],
-... }
->>> colunas["espessura"][1]
-20.9
-```
-
-O pandas aceita os dois formatos: `pd.DataFrame(amostras)` e `pd.DataFrame(colunas)` geram a mesma tabela. Lista de dicionários é mais natural para **ler e processar linha a linha** (é o que o `csv.DictReader` do módulo 06 entrega). Dicionário de listas é mais natural para **cálculos por coluna**.
+Existe outro formato para a mesma tabela: um **dicionário de listas**, uma lista por coluna, como `colunas = {"op": ["OP-4512", "OP-4513"], "espessura": [50.4, 20.9]}`. O pandas aceita os dois formatos: `pd.DataFrame(amostras)` e `pd.DataFrame(colunas)` geram a mesma tabela. Lista de dicionários é mais natural para **ler e processar linha a linha** (é o que o `csv.DictReader` do módulo 06 entrega). Dicionário de listas é mais natural para **cálculos por coluna**.
 
 Exemplo completo: `exemplos/11_tabela_lista_de_dicts.py`.
 
@@ -1354,22 +1185,11 @@ TypeError: 'NoneType' object is not subscriptable
 
 Leitura: `medicoes` vale `None`, e `None` não tem índice. Quase sempre é um `medicoes = medicoes.sort()` (ou `.append`, `.reverse`) mais acima. Procure a linha que **atribuiu** a variável, não a linha do erro.
 
-**3. `IndexError: list index out of range`.**
-
-```text
-Traceback (most recent call last):
-  File "C:\curso-python\indice.py", line 3, in <module>
-    print(medicoes[i])
-          ~~~~~~~~^^^
-IndexError: list index out of range
-```
-
-Leitura: `i` passou do último índice. Num `for i in range(...)`, confira o limite: o último índice válido é `len(lista) - 1`. Melhor ainda: percorra os itens direto (`for valor in medicoes`) ou use `enumerate`.
-
 **Outros que você vai encontrar:**
 
 | Mensagem | Causa provável | Correção |
 |---|---|---|
+| `IndexError: list index out of range` | índice passou do último (`len(lista) - 1`), comum em `for i in range(...)` | percorra os itens direto, ou use `enumerate` |
 | `AttributeError: 'NoneType' object has no attribute 'append'` | a variável recebeu o `None` de um método como `sort()` | não atribua o resultado de métodos que modificam no lugar |
 | `TypeError: unhashable type: 'list'` | lista usada como chave de dicionário ou item de conjunto | use uma tupla |
 | `TypeError: 'tuple' object does not support item assignment` | tentou mudar uma tupla | crie uma tupla nova, ou use lista |
@@ -1393,41 +1213,21 @@ Leitura: `i` passou do último índice. Num `for i in range(...)`, confira o lim
 - **Compreensões curtas.** Se não cabe numa linha legível, vire um `for`.
 - **Mantenha as "linhas" da tabela com as mesmas chaves.** Se uma coluna pode faltar, decida o padrão (`None`) e use `get`.
 - **Não use nomes de funções embutidas como variável:** `list`, `dict`, `set`, `sum`, `max`, `min`, `id`, `type`. O Python deixa, e depois a função "some".
-- **Ordene ao mostrar conjuntos:** `sorted(conjunto)`.
 
 ## No mundo real
 
 Fim de turno. A planilha do dia tem as amostras das linhas A a D. A expedição mandou por e-mail as OPs que saem amanhã. Você precisa: conferir cada amostra contra as tolerâncias da linha, respeitar a observação "COF: liberado" e montar a lista de certificados a emitir.
 
-O script `exemplos/12_mundo_real_conferencia.py` faz isso só com o que você aprendeu neste módulo:
+O script `exemplos/12_mundo_real_conferencia.py` faz isso só com o que você aprendeu neste módulo. No começo do arquivo ficam os dados:
+
+- `TOLERANCIAS`: dicionário aninhado. Para cada linha (A a D), cada propriedade tem uma tupla: `(nominal, %)` para espessura e gramatura, `(mín, máx)` para COF. Exemplo: `"A": {"espessura": (50.0, 10.0), "gramatura": (46.0, 5.0), "cof": (0.15, 0.30)}`.
+- `PERCENTUAIS = {"espessura", "gramatura"}`: o conjunto das propriedades que usam nominal ± %.
+- `AMOSTRAS`: a planilha do dia como lista de dicionários, montada com `dict(zip(COLUNAS, linha, strict=True))` a partir de tuplas, como se viesse de um CSV. Cada amostra tem `op`, `linha`, `espessura`, `gramatura`, `cof` e `obs` (a observação, que às vezes diz "COF: liberado").
+- `OPS_PEDIDAS`: as OPs do e-mail da expedição, com uma repetida.
+
+O miolo do programa:
 
 ```python
-TOLERANCIAS = {
-    "A": {"espessura": (50.0, 10.0), "gramatura": (46.0, 5.0), "cof": (0.15, 0.30)},
-    "B": {"espessura": (20.0, 8.0), "gramatura": (18.5, 5.0), "cof": (0.20, 0.40)},
-    "C": {"espessura": (35.0, 10.0), "gramatura": (32.0, 6.0), "cof": (0.15, 0.30)},
-    "D": {"espessura": (70.0, 7.0), "gramatura": (65.0, 5.0), "cof": (0.10, 0.25)},
-}
-PERCENTUAIS = {"espessura", "gramatura"}  # as outras são faixa fixa (mín, máx)
-
-# A "planilha" do dia: um cabeçalho e uma tupla por linha, como num CSV.
-COLUNAS = ("op", "linha", "espessura", "gramatura", "cof", "obs")
-PLANILHA = [
-    ("OP-4512", "A", 50.4, 46.3, 0.22, ""),
-    ("OP-4513", "B", 21.9, 18.4, 0.31, ""),
-    ("OP-4514", "A", 49.1, 45.8, 0.33, "COF: liberado"),
-    ("OP-4515", "C", 35.2, 31.0, 0.18, ""),
-    ("OP-4516", "D", 76.0, 69.0, 0.12, ""),
-    ("OP-4517", "D", 69.5, 64.2, 0.11, ""),
-]
-# zip casa cada nome de coluna com o valor da linha; dict transforma os pares
-# em dicionário. Resultado: uma lista de dicionários (a nossa "tabela").
-AMOSTRAS = [dict(zip(COLUNAS, linha, strict=True)) for linha in PLANILHA]
-
-# OPs que a expedição pediu por e-mail (com uma repetida, como acontece).
-OPS_PEDIDAS = ["OP-4512", "OP-4514", "OP-4516", "OP-4520", "OP-4512"]
-
-
 def faixa(propriedade, regra):
     """Converte a regra em (mínimo, máximo)."""
     if propriedade in PERCENTUAIS:
@@ -1585,7 +1385,7 @@ Enunciado completo, requisitos e critérios de aceite: [desafio/README.md](desaf
 
 ## Quiz
 
-Teste o que ficou: [quiz.md](quiz.md) (14 perguntas, gabarito no final).
+Teste o que ficou: [quiz.md](quiz.md) (15 perguntas, gabarito no final).
 
 ## Para ir além
 

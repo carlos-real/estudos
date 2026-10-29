@@ -79,7 +79,8 @@ print("Registros híbridos nessa fatia:", (eua_2025["regime"] == "Híbrido").sum
 print("\n=== 5. E quem mora no Brasil? ===")
 brasil = df[df["employee_residence"] == "BR"]
 print("Registros:", len(brasil))
-print(brasil.groupby("nivel", observed=True)["salario_mil_usd"].agg(["count", "median"]).round(1))
+por_nivel_br = brasil.groupby("nivel", observed=True)["salario_mil_usd"]
+print(por_nivel_br.agg(["count", "median"]).round(1))
 
 print("\n=== 6. Evolução por ano (mediana, mil USD) ===")
 print(df.groupby("work_year")["salario_mil_usd"].median().round(1))

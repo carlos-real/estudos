@@ -1284,7 +1284,7 @@ Para testar o módulo inteiro: `python curso.py testar 01`. Faça na ordem: os p
 
 ## Quiz
 
-Teste o que ficou: [quiz.md](quiz.md) (14 perguntas, gabarito comentado no final).
+Teste o que ficou: [quiz.md](quiz.md) (15 perguntas, gabarito comentado no final).
 
 ## Para ir além
 

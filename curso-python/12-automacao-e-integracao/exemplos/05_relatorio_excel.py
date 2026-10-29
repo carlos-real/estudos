@@ -20,7 +20,14 @@ MEDICOES = [
     {"op": "123456", "linha": "A", "ensaio": "Espessura", "valor": 20.4, "min": 18, "max": 22},
     {"op": "123456", "linha": "A", "ensaio": "COF", "valor": 0.27, "min": 0.2, "max": 0.3},
     {"op": "123789", "linha": "B", "ensaio": "Espessura", "valor": 43.1, "min": 38, "max": 42},
-    {"op": "123789", "linha": "B", "ensaio": "Gramatura", "valor": 37.9, "min": 36.5, "max": 39.5},
+    {
+        "op": "123789",
+        "linha": "B",
+        "ensaio": "Gramatura",
+        "valor": 37.9,
+        "min": 36.5,
+        "max": 39.5,
+    },
     {"op": "124001", "linha": "C", "ensaio": "Tração", "valor": 21.5, "min": 25, "max": 40},
 ]
 
@@ -39,7 +46,9 @@ def gerar(caminho: Path) -> None:
     # 1) Dados: append() escreve uma linha inteira de uma vez
     ws.append(CABECALHO)
     for m in MEDICOES:
-        ws.append([m["op"], m["linha"], m["ensaio"], m["valor"], m["min"], m["max"], status(m)])
+        ws.append(
+            [m["op"], m["linha"], m["ensaio"], m["valor"], m["min"], m["max"], status(m)]
+        )
 
     # 2) Estilo do cabeçalho
     for celula in ws[1]:  # ws[1] = linha 1 inteira
@@ -87,8 +96,11 @@ def conferir(caminho: Path) -> None:
     for faixa in ws.conditional_formatting:
         regra = faixa.rules[0]
         print("Regra condicional:", faixa.sqref, regra.operator, regra.formula)
-    reprovadas = [linha[0] for linha in ws.iter_rows(min_row=2, values_only=True)
-                  if linha[6] == "REPROVADO"]
+    reprovadas = [
+        linha[0]
+        for linha in ws.iter_rows(min_row=2, values_only=True)
+        if linha[6] == "REPROVADO"
+    ]
     print("OPs com reprovação:", reprovadas)
 
 

@@ -74,7 +74,8 @@ ax.set_xlabel("Espessura (µm)")
 ax.set_ylabel("Gramatura (g/m²)")
 ax.figure.tight_layout()
 ax.figure.savefig(SAIDA / "dispersao_esp_gram.png", dpi=120)
-print("Correlação espessura x gramatura:", round(df["espessura_um"].corr(df["gramatura_gm2"]), 3))
+correlacao = df["espessura_um"].corr(df["gramatura_gm2"])
+print("Correlação espessura x gramatura:", round(correlacao, 3))
 
 if "--mostrar" in sys.argv:
     plt.show()

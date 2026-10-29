@@ -30,7 +30,8 @@ No projeto final, este módulo é a peça que lê os pedidos da expedição (OP,
 entende números brasileiros e reconhece a observação "COF: liberado".
 
 > 💡 **Dica:** deixe o REPL aberto (`python` no PowerShell) e digite os exemplos junto
-> com a aula. Texto se aprende testando.
+> com a aula. Texto se aprende testando. As versões completas estão em `exemplos/`, na
+> ordem das seções (`python 05-texto-e-regex/exemplos/01_fatiar_e_limpar.py`).
 
 ## 1. Strings por dentro
 

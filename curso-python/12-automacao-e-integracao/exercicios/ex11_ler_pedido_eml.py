@@ -24,7 +24,8 @@ Tarefa: implemente ler_pedido(conteudo), onde `conteudo` são os bytes do .eml.
 
 Exemplos (o arquivo dados/emails/pedido_001.eml):
     >>> ler_pedido(Path("dados/emails/pedido_001.eml").read_bytes())
-    {'remetente': 'expedicao@embalagens.example', 'assunto': 'Pedido de certificado - OP 123456',
+    {'remetente': 'expedicao@embalagens.example',
+     'assunto': 'Pedido de certificado - OP 123456',
      'op': '123456', 'nf': '98765', 'peso_kg': 1250.5}
 
 Dica: email.utils.parseaddr("Nome <a@b.c>") devolve ("Nome", "a@b.c").

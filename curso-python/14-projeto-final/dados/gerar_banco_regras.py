@@ -98,5 +98,7 @@ def gerar(destino: Path = DESTINO) -> Path:
 if __name__ == "__main__":
     caminho = gerar()
     print(f"Banco gerado: {caminho.name}")
-    print(f"  {len(LINHAS)} linhas, {len(ESPECIFICACOES)} especificações, "
-          f"{len(TOLERANCIAS)} tolerâncias")
+    print(
+        f"  {len(LINHAS)} linhas, {len(ESPECIFICACOES)} especificações, "
+        f"{len(TOLERANCIAS)} tolerâncias"
+    )

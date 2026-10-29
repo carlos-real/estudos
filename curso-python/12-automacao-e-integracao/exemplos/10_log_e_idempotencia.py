@@ -54,7 +54,10 @@ def main() -> None:
         logging.basicConfig(
             level=logging.DEBUG,
             format="%(levelname)-5s %(message)s",
-            handlers=[logging.StreamHandler(), logging.FileHandler(arquivo_log, encoding="utf-8")],
+            handlers=[
+                logging.StreamHandler(),
+                logging.FileHandler(arquivo_log, encoding="utf-8"),
+            ],
         )
         vistos = Path(tmp) / "vistos.json"
 

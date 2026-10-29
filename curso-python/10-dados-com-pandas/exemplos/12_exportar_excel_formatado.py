@@ -30,7 +30,9 @@ df.loc[df["cof_max"].isna(), "status"] = "SEM ESPECIFICAÇÃO"  # nunca aprove s
 print(df["status"].value_counts())
 
 # 1) CSV que abre certinho no Excel brasileiro
-df.to_csv(SAIDA / "medicoes_status.csv", sep=";", decimal=",", index=False, encoding="utf-8-sig")
+df.to_csv(
+    SAIDA / "medicoes_status.csv", sep=";", decimal=",", index=False, encoding="utf-8-sig"
+)
 
 # 2) Excel com várias abas: um ExcelWriter, vários to_excel
 resumo = df.groupby("linha", as_index=False).agg(
@@ -72,4 +74,4 @@ with pd.ExcelWriter(caminho, engine="openpyxl") as escritor:
             for celula in linha:
                 celula.fill = fundo
 
-print("Gerados:", sorted(p.name for p in SAIDA.iterdir()))
+print("Gerados: saida/medicoes_status.csv e saida/relatorio_cof.xlsx")

@@ -35,7 +35,14 @@ def arquivo_ops(tmp_path):
 def test_medicoes_tem_colunas_e_linhas_certas(arquivo_medicoes):
     df = ex.ler_medicoes(arquivo_medicoes)
     assert df.shape == (3, 6), "o separador é ';' (sep=';')"
-    assert list(df.columns) == ["data", "op", "bobina", "espessura_um", "peso_kg", "observacao"]
+    assert list(df.columns) == [
+        "data",
+        "op",
+        "bobina",
+        "espessura_um",
+        "peso_kg",
+        "observacao",
+    ]
 
 
 def test_op_mantem_zero_a_esquerda(arquivo_medicoes):

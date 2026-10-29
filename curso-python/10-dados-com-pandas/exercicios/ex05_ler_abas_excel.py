@@ -28,8 +28,11 @@ Exemplo:
     1     A  024412  024412-02          36.4
     2     B  024413  024413-01          32.9
 
-Dica: pd.read_excel(caminho, sheet_name=None, header=1, dtype={"OP": str})
-devolve um dicionário {nome da aba: DataFrame}. Junte as partes com pd.concat.
+Dica: pd.ExcelFile(caminho).sheet_names dá a lista de nomes das abas.
+pd.read_excel(caminho, sheet_name=[nomes], header=1, dtype={"OP": str})
+devolve um dicionário {nome da aba: DataFrame}. Cuidado: header=1 numa aba de
+uma linha só (como "Instruções") dá erro; escolha as abas ANTES de ler.
+Junte as partes com pd.concat.
 
 Teste com:  python curso.py testar 10 ex05
 """

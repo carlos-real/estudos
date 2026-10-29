@@ -5,11 +5,30 @@ from _curso import carregar
 ex = carregar(__file__, "ex09_relatorio_excel")
 
 MEDICOES = [
-    {"op": "123456", "linha": "A", "ensaio": "Espessura", "valor": 20.4, "minimo": 18.0,
-     "maximo": 22.0},
-    {"op": "123456", "linha": "A", "ensaio": "COF", "valor": 0.31, "minimo": 0.2, "maximo": 0.3},
-    {"op": "123789", "linha": "B", "ensaio": "Tração longitudinal", "valor": 25.0,
-     "minimo": 25.0, "maximo": 40.0},
+    {
+        "op": "123456",
+        "linha": "A",
+        "ensaio": "Espessura",
+        "valor": 20.4,
+        "minimo": 18.0,
+        "maximo": 22.0,
+    },
+    {
+        "op": "123456",
+        "linha": "A",
+        "ensaio": "COF",
+        "valor": 0.31,
+        "minimo": 0.2,
+        "maximo": 0.3,
+    },
+    {
+        "op": "123789",
+        "linha": "B",
+        "ensaio": "Tração longitudinal",
+        "valor": 25.0,
+        "minimo": 25.0,
+        "maximo": 40.0,
+    },
 ]
 
 
