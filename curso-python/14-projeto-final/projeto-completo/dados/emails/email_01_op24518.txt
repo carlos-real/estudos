@@ -1,0 +1,17 @@
+De: Marcos Silva <expedicao@exemplo.com.br>
+Para: Laboratório da Qualidade <qualidade@exemplo.com.br>
+Data: 27/10/2026 08:12
+Assunto: Certificado de qualidade - OP 24518
+
+Bom dia, pessoal do laboratório.
+
+Favor emitir o certificado para a carga abaixo:
+
+OP: 24518
+NF: 123456
+Peso: 1.250,5 kg
+
+Cliente retira hoje às 14h.
+
+Obrigado,
+Marcos - Expedição

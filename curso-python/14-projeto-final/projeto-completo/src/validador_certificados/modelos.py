@@ -35,7 +35,9 @@ class Tolerancia:
                 if self.minimo > self.maximo:
                     raise ValueError(f"{self.caracteristica}: mínimo maior que o máximo")
         elif self.percentual is None or self.percentual <= 0:
-            raise ValueError(f"{self.caracteristica}: tolerância nominal precisa de percentual > 0")
+            raise ValueError(
+                f"{self.caracteristica}: tolerância nominal precisa de percentual > 0"
+            )
 
 
 @dataclass

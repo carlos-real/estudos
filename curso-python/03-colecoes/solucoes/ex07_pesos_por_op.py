@@ -14,13 +14,16 @@ def pesos_por_op(ops: list[str], pesos: list[float]) -> dict[str, float]:
         return {}
 
     totais: dict[str, float] = {}
-    for op, peso in zip(ops, pesos):
+    # strict=True (Python 3.10+) faz o zip reclamar se os tamanhos forem
+    # diferentes. Aqui isso nunca acontece, pois já conferimos acima; é uma
+    # rede de segurança (e o ruff pede que você deixe a intenção explícita).
+    for op, peso in zip(ops, pesos, strict=True):
         totais[op] = totais.get(op, 0.0) + peso
 
     # Arredondamos só no FIM. Arredondar a cada soma acumula erro.
     # Compreensão de dicionário: mesma chave, valor arredondado.
     return {op: round(total, 2) for op, total in totais.items()}
 
-    # No Python 3.10+, zip(ops, pesos, strict=True) dá ValueError se os
-    # tamanhos forem diferentes. Tratar erros com try/except é assunto do
-    # módulo 06; por isso aqui conferimos com len().
+    # Por que não confiar só no strict=True? Porque ele dá ValueError (o
+    # programa para), e tratar erros com try/except é assunto do módulo 06.
+    # Conferir com len() deixa a função devolver {} de forma controlada.

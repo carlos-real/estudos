@@ -9,7 +9,7 @@ da reprovação. O motivo vai direto para o relatório.
 
 from __future__ import annotations
 
-from .modelos import EspecificacaoDesconhecida, Especificacao, Medicao, ResultadoValidacao
+from .modelos import Especificacao, EspecificacaoDesconhecida, Medicao, ResultadoValidacao
 
 
 def verificar_fixa(

@@ -23,9 +23,9 @@ print(espessuras < 49.5)
 # Um DataFrame é uma tabela: várias Series com o mesmo índice.
 df = pd.DataFrame(
     {
-        "op": ["004512", "004512", "004513", "004520"],
+        "op": ["024412", "024412", "024413", "024420"],
         "linha": ["A", "A", "B", "C"],
-        "espessura_um": [50.2, 49.1, 20.3, 12.1],
+        "espessura_um": [40.2, 39.1, 35.3, 69.8],
         "peso_kg": [1250.5, 980.0, 1310.2, 845.7],
     }
 )
