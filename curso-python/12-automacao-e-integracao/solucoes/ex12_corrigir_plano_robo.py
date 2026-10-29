@@ -13,9 +13,10 @@ Os defeitos do código do colega, do mais grave ao mais sutil:
 5. `len(op) != 6` aceita "12a456". A regra pede 6 DÍGITOS.
 6. Não há validação de peso: 0 ou negativo passariam direto para a tela.
 
-Resposta do Passo 1 (pedido do exemplo, sem a chave "observacao"): a primeira
-chamada já quebra com KeyError: 'observacao' — e, como as 4 primeiras ações
-foram anexadas ANTES do erro, a lista padrão fica "suja" para a próxima chamada.
+Resposta do Passo 1 (pedido do exemplo, sem a chave "observacao"): as DUAS
+chamadas quebram com KeyError: 'observacao'. Pior: como as 4 primeiras ações
+são anexadas ANTES do erro, a lista padrão já acumula 8 ações "fantasmas", que
+vão aparecer no próximo plano que der certo.
 """
 
 
