@@ -76,6 +76,8 @@ def test_nao_fecha_a_conexao(conexao):
 
 
 def test_regra_quebrada_no_banco_levanta_value_error(conexao):
-    conexao.execute("INSERT INTO tolerancia VALUES ('ESP-0700', 'cof', 'fixa', NULL, NULL, NULL)")
+    conexao.execute(
+        "INSERT INTO tolerancia VALUES ('ESP-0700', 'cof', 'fixa', NULL, NULL, NULL)"
+    )
     with pytest.raises(ValueError):
         ex.carregar_especificacoes(conexao)

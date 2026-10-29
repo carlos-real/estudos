@@ -72,7 +72,11 @@ def test_main_chama_executar_em_modo_ensaio(arquivos, capsys):
         {"planilha": planilha, "regras": regras, "emails": emails,
          "saida": Path("saida"), "ensaio": True}
     ]  # fmt: skip
-    assert capsys.readouterr().out.splitlines() == ["Modo: ENSAIO", "bloqueado: 4", "ensaio: 2"]
+    assert capsys.readouterr().out.splitlines() == [
+        "Modo: ENSAIO",
+        "bloqueado: 4",
+        "ensaio: 2",
+    ]
 
 
 def test_main_com_emitir(arquivos, capsys):
@@ -88,7 +92,9 @@ def test_main_devolve_1_quando_ha_falha(arquivos):
 
 
 def test_main_falha_zero_nao_e_falha(arquivos):
-    assert ex.main(argumentos(*arquivos), executar=ExecutarFalso({"ensaio": 1, "falha": 0})) == 0
+    assert (
+        ex.main(argumentos(*arquivos), executar=ExecutarFalso({"ensaio": 1, "falha": 0})) == 0
+    )
 
 
 def test_planilha_inexistente(arquivos, tmp_path, capsys):
@@ -104,7 +110,9 @@ def test_planilha_inexistente(arquivos, tmp_path, capsys):
 
 def test_banco_inexistente(arquivos, tmp_path, capsys):
     planilha, _, emails = arquivos
-    assert ex.main(argumentos(planilha, tmp_path / "x.db", emails), executar=ExecutarFalso()) == 1
+    assert (
+        ex.main(argumentos(planilha, tmp_path / "x.db", emails), executar=ExecutarFalso()) == 1
+    )
     assert "Erro: banco de regras não encontrado" in capsys.readouterr().err
 
 

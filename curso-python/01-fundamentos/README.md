@@ -341,7 +341,7 @@ Outro uso clássico do `%` é saber se um número é par: `n % 2` dá `0` para p
 
 ### Precedência: quem é calculado primeiro
 
-Como na matemática da escola, o Python não lê da esquerda para a direita. Ele segue uma ordem:
+Como na matemática da escola, o Python não faz as contas simplesmente da esquerda para a direita. Ele segue uma ordem:
 
 ```text
 1º  ( )              parênteses
@@ -801,7 +801,7 @@ Rode isto no REPL:
 3.3000000000000003
 ```
 
-Não é defeito do Python. Acontece em Excel, JavaScript, Java, C: em praticamente toda linguagem que usa float. O motivo: o computador guarda números em **binário** (base 2), e alguns decimais simples não têm representação exata em binário.
+Não é defeito do Python. Acontece em JavaScript, Java, C e em praticamente toda linguagem que usa float. Até no Excel: ele só esconde boa parte disso porque arredonda o que mostra na célula. O motivo: o computador guarda números em **binário** (base 2), e alguns decimais simples não têm representação exata em binário.
 
 Analogia: tente escrever 1/3 em decimal. Dá `0.3333...` e nunca termina; em algum momento você corta, e o valor fica um pouquinho errado. Com `0.1` em binário acontece o mesmo. O erro é minúsculo (na 17ª casa), mas aparece quando você imprime ou compara.
 

@@ -49,7 +49,7 @@ na pasta.
 ```python
 import sqlite3
 
-conexao = sqlite3.connect("regras_errado.db")   # o nome certo é regras.db
+conexao = sqlite3.connect("regras_errado.db")  # o nome certo é regras.db
 for linha in conexao.execute("SELECT titulo FROM especificacao"):
     print(linha)
 ```
@@ -59,11 +59,13 @@ for linha in conexao.execute("SELECT titulo FROM especificacao"):
 ```python
 from dataclasses import dataclass, field, replace
 
+
 @dataclass
 class ItemFila:
     op: str
     situacao: str
     motivos: list[str] = field(default_factory=list)
+
 
 a = ItemFila("24518", "emitir")
 b = replace(a, situacao="ensaio")
@@ -92,6 +94,7 @@ print(a.situacao, b.situacao, a.motivos)
 ```python
 from dataclasses import dataclass, field
 
+
 @dataclass
 class ResultadoValidacao:
     motivos: list[str] = field(default_factory=list)
@@ -99,6 +102,7 @@ class ResultadoValidacao:
     @property
     def aprovado(self) -> bool:
         return not self.motivos
+
 
 r = ResultadoValidacao()
 print(r.aprovado)

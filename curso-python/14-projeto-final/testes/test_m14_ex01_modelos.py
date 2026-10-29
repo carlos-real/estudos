@@ -12,9 +12,7 @@ def test_tolerancia_fixa_valida():
     assert (tolerancia.minimo, tolerancia.maximo) == (0.15, 0.35)
 
 
-@pytest.mark.parametrize(
-    ("minimo", "maximo"), [(20.0, None), (None, 0.35), (0.25, 0.25)]
-)
+@pytest.mark.parametrize(("minimo", "maximo"), [(20.0, None), (None, 0.35), (0.25, 0.25)])
 def test_tolerancia_fixa_com_um_lado_so_ou_limites_iguais(minimo, maximo):
     tolerancia = ex.Tolerancia("tracao", "fixa", minimo=minimo, maximo=maximo)
     assert tolerancia.tipo == "fixa"

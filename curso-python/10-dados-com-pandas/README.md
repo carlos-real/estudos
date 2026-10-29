@@ -4,34 +4,23 @@
 
 ## O que você vai aprender
 
-- Criar uma `Series` e um `DataFrame` e explicar a diferença entre os dois.
-- Ler um CSV salvo pelo Excel brasileiro (`sep=";"`, `decimal=","`, `thousands="."`,
-  `encoding`) sem perder o zero à esquerda da OP.
-- Ler uma aba, várias abas ou todas as abas de uma planilha e juntar tudo numa tabela só.
-- Inspecionar uma base nova com `shape`, `info`, `describe` e `value_counts`.
-- Selecionar com colunas, `loc`, `iloc` e filtros booleanos (`&`, `|`, `~`, `isin`,
-  `between`).
-- Criar colunas calculadas sem laço `for` e alterar valores com `.loc` (sem cair na
-  armadilha da atribuição encadeada).
-- Limpar dados: texto, números em formato brasileiro, ausentes e duplicatas.
-- Converter datas `dd/mm/aaaa`, extrair o mês e filtrar períodos.
-- Resumir com `groupby`/`agg`, cruzar tabelas com `merge` e montar tabelas dinâmicas com
-  `pivot_table`.
-- Exportar CSV para o Excel brasileiro e Excel formatado (cabeçalho, largura, painel
-  congelado, linhas reprovadas em vermelho).
-- Desenhar gráficos de barras, linhas, histograma, dispersão e um gráfico de controle
-  com média ± 3σ.
+- Criar `Series` e `DataFrame` e explicar a diferença entre os dois.
+- Ler CSV do Excel brasileiro (`sep`, `decimal`, `thousands`, `encoding`) sem perder o
+  zero à esquerda da OP, e juntar todas as abas de uma planilha numa tabela só.
+- Inspecionar uma base nova e selecionar com `loc`, `iloc` e filtros (`&`, `|`, `~`).
+- Criar colunas sem laço `for` e alterar valores com `.loc`, sem atribuição encadeada.
+- Limpar texto, números brasileiros, ausentes e duplicatas; converter datas `dd/mm/aaaa`.
+- Resumir com `groupby`/`agg`, cruzar com `merge` e montar tabelas dinâmicas.
+- Exportar CSV e Excel formatado (cabeçalho, largura, reprovados em vermelho).
+- Desenhar barras, linhas, histograma, dispersão e um gráfico de controle (média ± 3σ).
 - Responder perguntas de carreira com 133 mil salários reais da área de dados.
 
 ## Por que isso importa
 
 Você já faz análise de dados todo dia: no Excel. O pandas faz o mesmo trabalho, só que
-**escrito**. Isso muda três coisas:
-
-1. **Repetir é de graça.** O relatório do mês que vem é o mesmo script, rodado de novo.
-2. **Escala.** O Excel engasga com 1 milhão de linhas; o pandas nem percebe.
-3. **Rastreabilidade.** Cada passo da limpeza está no código. Num laboratório com
-   auditoria, isso vale ouro.
+**escrito**. Repetir fica de graça (o relatório do mês que vem é o mesmo script), a
+escala deixa de ser problema (1 milhão de linhas não assusta) e cada passo da limpeza
+fica registrado no código, o que vale ouro num laboratório com auditoria.
 
 No mercado, pandas e SQL (módulo 11) aparecem em praticamente toda vaga de analista de
 dados, engenheiro de dados e automação. E no seu projeto final, é o pandas (ou o
@@ -58,12 +47,9 @@ A convenção universal é importar assim:
 import pandas as pd
 ```
 
-**Versões.** Este módulo funciona no pandas 2.2 e no 3.x. Onde a saída muda entre as
-versões, o texto avisa. As duas diferenças que você vai ver:
-
-- No pandas 3, colunas de texto têm o tipo `str`. No 2.2 aparecem como `object`.
-- No pandas 3, o *copy-on-write* está sempre ligado: um filtro sempre se comporta como
-  uma tabela nova (seção 7 explica o que isso muda na prática).
+**Versões.** Este módulo funciona no pandas 2.2 e no 3.x. Diferenças que você vai ver:
+no pandas 3, colunas de texto têm o tipo `str` (no 2.2, `object`), e o *copy-on-write*
+está sempre ligado (a seção 7 explica o que isso muda na prática).
 
 **Como rodar os exemplos.** Todos ficam em `exemplos/` e acham a pasta `dados/` sozinhos,
 não importa de onde você rode. Na pasta `curso-python`:
@@ -71,9 +57,6 @@ não importa de onde você rode. Na pasta `curso-python`:
 ```text
 python 10-dados-com-pandas/exemplos/02_ler_csv_brasileiro.py
 ```
-
-No REPL, use o caminho a partir de `curso-python`, por exemplo
-`"10-dados-com-pandas/dados/medicoes.csv"`.
 
 **Os dados da aula** (fictícios, mas com cara de laboratório) estão em `dados/`:
 
@@ -88,9 +71,8 @@ No REPL, use o caminho a partir de `curso-python`, por exemplo
 
 O script `dados/gerar_dados.py` recria todos eles (rode se apagar algum).
 
-> 💡 **Dica:** para explorar dados, o Jupyter (ou os notebooks do VS Code) é ótimo: você
-> roda um pedaço por vez e vê a tabela formatada. Instale com `python -m pip install
-> notebook`. Mas o código que vai para produção mora em arquivos `.py`, com testes.
+> 💡 **Dica:** para explorar, os notebooks do VS Code (ou o Jupyter) são ótimos: você roda
+> um pedaço por vez. Mas o código de produção mora em arquivos `.py`, com testes.
 
 ## 2. Series e DataFrame
 
@@ -113,17 +95,11 @@ Do arquivo `exemplos/01_series_e_dataframe.py`:
 import pandas as pd
 
 espessuras = pd.Series([50.2, 49.1, 51.8, 47.9], name="espessura_um")
-print(espessuras)
 print("Média:", espessuras.mean())
 print(espessuras - 50)
 ```
 
 ```text
-0    50.2
-1    49.1
-2    51.8
-3    47.9
-Name: espessura_um, dtype: float64
 Média: 49.75000000000001
 0    0.2
 1   -0.9
@@ -148,23 +124,21 @@ df = pd.DataFrame(
         "peso_kg": [1250.5, 980.0, 1310.2, 845.7],
     }
 )
-print(df.shape)
+print(df.shape, df["peso_kg"].sum())
 print(df.dtypes)
-print("Peso total:", df["peso_kg"].sum())
 ```
 
 ```text
-(4, 4)
+(4, 4) 4386.4
 op                  str
 linha               str
 espessura_um    float64
 peso_kg         float64
 dtype: object
-Peso total: 4386.4
 ```
 
 `shape` é `(linhas, colunas)`. `dtypes` mostra o tipo de cada coluna (no pandas 2.2, as
-colunas de texto aparecem como `object`). `df["peso_kg"]` devolve a coluna como Series.
+colunas de texto aparecem como `object`). `df["peso_kg"]` é uma Series.
 
 > 🔮 **Preveja antes de rodar:** o que este código imprime?
 
@@ -191,9 +165,8 @@ ela dentro devolve só os `True`. Repare que o índice original (1 e 2) é manti
 pandas não renumera sozinho.
 </details>
 
-> 🔧 **Modifique:** crie a Series com `index=["024412-01", "024412-02", "024412-03"]` e
-> acesse um valor com `s["024412-02"]`. O índice pode ser texto, como uma chave de
-> dicionário.
+> 🔧 **Modifique:** crie a Series com `index=["b1", "b2", "b3"]` e acesse `s["b2"]`. O
+> índice pode ser texto, como a chave de um dicionário.
 
 ## 3. Lendo CSV brasileiro
 
@@ -202,21 +175,12 @@ decimal e **ponto** de milhar. O começo do nosso `medicoes.csv`:
 
 ```text
 data;op;linha;produto;bobina;espessura_um;gramatura_gm2;cof;peso_kg;observacao
-03/07/2026;024412;A;PE-40;024412-01;38,1;35,3;0,21;1.558,5;
+03/07/2026;024412;A;PE-40;024412-01;38,1;36,1;0,21;1.558,5;
 ```
 
-O `read_csv` espera o padrão americano (vírgula separa colunas). Leitura ingênua:
-
-```python
-ingenuo = pd.read_csv(DADOS / "medicoes.csv")
-print("Leitura ingênua -> formato:", ingenuo.shape)
-```
-
-```text
-Leitura ingênua -> formato: (70, 1)
-```
-
-Uma coluna só, com tudo grudado. A leitura correta (de `exemplos/02_ler_csv_brasileiro.py`):
+O `read_csv` espera o padrão americano (vírgula separa colunas). Na leitura ingênua,
+`pd.read_csv(DADOS / "medicoes.csv").shape` dá `(70, 1)`: uma coluna só, com tudo
+grudado. A leitura correta (de `exemplos/02_ler_csv_brasileiro.py`):
 
 ```python
 df = pd.read_csv(
@@ -227,7 +191,7 @@ df = pd.read_csv(
     encoding="utf-8-sig",  # UTF-8 com BOM (o "CSV UTF-8" do Excel)
     dtype={"op": str},  # OP é código, não número: preserva o zero à esquerda
 )
-print(df[["op", "bobina", "espessura_um", "cof", "peso_kg"]].head())
+print(df[["op", "bobina", "espessura_um", "cof", "peso_kg"]].head(3))
 ```
 
 ```text
@@ -235,8 +199,6 @@ print(df[["op", "bobina", "espessura_um", "cof", "peso_kg"]].head())
 0  024412  024412-01          38.1  0.21   1558.5
 1  024412  024412-02          36.4  0.24   1256.6
 2  024412  024412-03          39.6  0.27    782.2
-3  024413  024413-01          32.9  0.37    790.0
-4  024413  024413-02          36.4  0.30   1632.5
 ```
 
 Cada parâmetro resolve um problema:
@@ -266,15 +228,13 @@ O byte `0xe7` é o `ç` de "Torrefação" em cp1252. A correção é dizer o enc
 ```python
 ops = pd.read_csv(DADOS / "ops_protheus.csv", sep=";", decimal=",", thousands=".",
                   encoding="cp1252", dtype={"op": str})
-print(ops[["op", "cliente", "quantidade_kg"]].head(4))
+print(ops[["op", "cliente", "quantidade_kg"]].head(2))
 ```
 
 ```text
        op                cliente  quantidade_kg
 0  024412  Torrefação Serra Ltda         4500.0
 1  024413  Laticínios Serra Azul         3500.0
-2  024420        Agro Campo S.A.         4750.0
-3  024421  Torrefação Serra Ltda         4750.0
 ```
 
 | Como o arquivo foi salvo | `encoding=` |
@@ -283,25 +243,12 @@ print(ops[["op", "cliente", "quantidade_kg"]].head(4))
 | Excel: "CSV (separado por vírgulas)", ERPs antigos | `"cp1252"` (ou `"latin-1"`) |
 | Sistemas modernos, Linux, APIs | `"utf-8"` |
 
-> 💡 **Dica:** arquivo grande e desconhecido? Espie antes:
-> `pd.read_csv(..., nrows=5)` lê só 5 linhas e `usecols=["op", "linha"]` só as colunas
-> que você quer. Rápido e leve.
+> 💡 **Dica:** arquivo grande? Espie antes: `nrows=5` lê só 5 linhas e
+> `usecols=["op", "linha"]` só as colunas que você quer.
 
-> 🔮 **Preveja antes de rodar:** você leu com `sep=";"` mas esqueceu `decimal=","`. Qual
-> o tipo da coluna `espessura_um`, e o que acontece com `df["espessura_um"].mean()`?
-
-<details><summary>Resposta</summary>
-
-A coluna fica como **texto** (`str` no pandas 3, `object` no 2.2), porque `38,1` não é
-número para o pandas. O `mean()` dá erro:
-
-```text
-TypeError: Cannot perform reduction 'mean' with string dtype
-```
-
-No pandas 2.2 a mensagem é outra (`TypeError: Could not convert string ...`), mas a causa
-é a mesma. Moral: depois de ler, **sempre** confira `df.dtypes`.
-</details>
+> 💡 **Dica:** depois de ler, **sempre** confira `df.dtypes`. Se `espessura_um` aparecer
+> como `str` (ou `object` no 2.2), faltou `decimal=","`, e o `mean()` vai dar
+> `TypeError: Cannot perform reduction 'mean' with string dtype`.
 
 ## 4. Lendo Excel: uma aba, várias, todas
 
@@ -325,18 +272,11 @@ Com `sheet_name=None`, o pandas lê **todas** as abas e devolve um **dicionário
 
 ```python
 abas = pd.read_excel(PLANILHA, sheet_name=None, header=1, dtype={"OP": str})
-print(type(abas))
 for nome, tabela in abas.items():
     print(f"{nome}: {len(tabela)} linhas")
 ```
 
-```text
-<class 'dict'>
-Linha A: 28 linhas
-Linha B: 15 linhas
-Linha C: 10 linhas
-Linha D: 17 linhas
-```
+Saída: a Linha A tem 28 linhas; a B, 15; a C, 10; e a D, 17.
 
 Para analisar, queremos **uma** tabela, com uma coluna dizendo de que linha veio cada
 bobina. `assign` cria a coluna e `pd.concat` empilha as partes:
@@ -355,10 +295,7 @@ Total: (70, 9)
 
 `ignore_index=True` renumera 0, 1, 2... (sem ele, cada aba recomeçaria do 0). Por fim,
 nomes com acento, espaço e unidade são chatos de digitar. Renomeie logo:
-
-```python
-todas = todas.rename(columns={"OP": "op", "Espessura (µm)": "espessura_um", ...})
-```
+`todas.rename(columns={"OP": "op", "Espessura (µm)": "espessura_um", ...})`.
 
 As datas já chegam como datas (`datetime64`): o Excel guarda data como data, ao
 contrário do CSV, que guarda texto.
@@ -368,9 +305,6 @@ contrário do CSV, que guarda texto.
 > `ValueError: Passed header=[1], len of 1, but only 1 lines in file (sheet: Instruções)`.
 > Solução: descubra os nomes antes com `pd.ExcelFile(caminho).sheet_names`, escolha as
 > abas que interessam e passe a lista em `sheet_name=[...]`. É o exercício 05.
-
-> ⚠️ **Erro comum (Windows):** `PermissionError: [Errno 13] Permission denied` ao ler ou
-> gravar um `.xlsx` quase sempre é **o arquivo aberto no Excel**. Feche e rode de novo.
 
 ## 5. Inspecionando uma base nova
 
@@ -386,21 +320,11 @@ df.info()
 (70, 10)
 <class 'pandas.DataFrame'>
 RangeIndex: 70 entries, 0 to 69
-Data columns (total 10 columns):
  #   Column         Non-Null Count  Dtype
----  ------         --------------  -----
  0   data           70 non-null     str
- 1   op             70 non-null     str
- 2   linha          70 non-null     str
- 3   produto        70 non-null     str
- 4   bobina         70 non-null     str
- 5   espessura_um   70 non-null     float64
- 6   gramatura_gm2  70 non-null     float64
- 7   cof            70 non-null     float64
+ ...
  8   peso_kg        70 non-null     float64
  9   observacao     3 non-null      str
-dtypes: float64(4), str(6)
-memory usage: 5.6 KB
 ```
 
 `info()` responde: quantas linhas, quais colunas, de que tipo e **quantos valores não
@@ -408,7 +332,6 @@ vazios** cada uma tem (`observacao` só tem 3 preenchidos). Depois:
 
 ```python
 print(df[["espessura_um", "cof", "peso_kg"]].describe().round(2))
-print(df["linha"].value_counts())
 ```
 
 ```text
@@ -421,13 +344,9 @@ min           32.10   0.13   782.20
 50%           48.55   0.27  1220.00
 75%           65.18   0.31  1393.88
 max           94.40   0.44  1632.50
-linha
-A    28
-D    17
-B    15
-C    10
-Name: count, dtype: int64
 ```
+
+E `df["linha"].value_counts()` conta as bobinas por linha: A 28, D 17, B 15, C 10.
 
 O roteiro, para levar para a vida:
 
@@ -453,18 +372,8 @@ vírgula digitada errada. **Desconfiar dos dados é parte do trabalho.**
 | por posição | `df.iloc[linhas, colunas]` | depende |
 | por condição | `df[mascara]` | DataFrame |
 
-```python
-print(df.loc[0, "bobina"])
-print(df.loc[0:2, ["bobina", "cof"]])
-```
-
-```text
-024412-01
-      bobina   cof
-0  024412-01  0.21
-1  024412-02  0.24
-2  024412-03  0.27
-```
+`df.loc[0, "bobina"]` devolve `'024412-01'` (linha de rótulo 0, coluna "bobina").
+`df.loc[0:2, ["bobina", "cof"]]` devolve as linhas 0 a 2 dessas duas colunas.
 
 > 🔮 **Preveja antes de rodar:** a tabela tem 4 linhas (índice 0 a 3). Quanto vale cada
 > `len`?
@@ -527,10 +436,6 @@ E o `loc` aceita máscara e colunas juntos: `df.loc[mascara, ["bobina", "cof"]]`
 > `ValueError: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(),
 > a.any() or a.all().` O `and` quer **um** True ou False; a máscara tem 70.
 
-> 🔧 **Modifique:** no exemplo 04, liste as bobinas da linha B **ou** com COF acima de
-> 0,40. Quantas são? (Resposta: 15, todas as da linha B; a única acima de 0,40 também é
-> da B.)
-
 ## 7. Criando e alterando colunas
 
 Coluna nova = atribuição com uma conta vetorizada (de `exemplos/05_criar_colunas.py`):
@@ -552,18 +457,10 @@ print(df[["bobina", "desvio_pct", "status"]])
 
 O padrão **"valor padrão + exceções"** é o jeito mais legível de criar colunas
 condicionais: todo mundo começa `APROVADA` e o `.loc[mascara, "coluna"] = valor` troca só
-onde a condição vale. Outras ferramentas:
-
-| Quero | Use |
-|---|---|
-| traduzir códigos (`"A"` → `"Extrusora 1"`) | `df["col"].map(dicionario)` |
-| faixas numéricas (leve/média/pesada) | `pd.cut(df["peso_kg"], bins=[...], labels=[...])` |
-| apagar colunas | `df.drop(columns=[...])` |
-| renomear | `df.rename(columns={"velho": "novo"})` |
-| várias colunas novas sem mexer no original | `df.assign(nova=..., outra=...)` |
-
-`drop`, `rename` e `assign` devolvem uma tabela **nova**. Guarde o resultado:
-`df = df.drop(columns=["x"])`.
+onde a condição vale. O exemplo 05 mostra mais quatro ferramentas: `.map(dicionario)`
+(traduzir códigos), `pd.cut` (faixas: leve, média, pesada), `drop(columns=[...])` e
+`rename(columns={...})`. `drop`, `rename` e `assign` devolvem uma tabela **nova**: guarde
+o resultado (`df = df.drop(columns=["x"])`).
 
 **Cópias e o copy-on-write.** Esta é a armadilha mais famosa do pandas.
 
@@ -640,12 +537,8 @@ Primeiro eu listo os problemas, um por coluna. Depois resolvo um por vez, na ord
 `.str`:
 
 ```python
-df["linha"] = df["linha"].str.strip().str.upper()
-df["operador"] = df["operador"].str.strip().str.title()
-```
-
-```text
-['A', 'C', 'B'] ['Marcos', 'Júlia', 'Ana']
+df["linha"] = df["linha"].str.strip().str.upper()  # ['A', 'C', 'B']
+df["operador"] = df["operador"].str.strip().str.title()  # ['Marcos', 'Júlia', 'Ana']
 ```
 
 *Passo 2, números brasileiros guardados como texto.* A mesma receita do módulo 05: tira
@@ -669,14 +562,9 @@ expressões regulares.
 idênticas (antes, `" a"` e `"A"` eram diferentes):
 
 ```python
-print("Linhas idênticas repetidas:", df.duplicated().sum())
-print("Bobinas repetidas:", df.duplicated(subset=["bobina"]).sum())
+print(df.duplicated().sum())  # 1: linhas inteiras iguais
+print(df.duplicated(subset=["bobina"]).sum())  # 1: mesma bobina
 df = df.drop_duplicates(subset=["bobina"], keep="first")
-```
-
-```text
-Linhas idênticas repetidas: 1
-Bobinas repetidas: 1
 ```
 
 *Passo 4, ausentes: decida caso a caso.* Sem espessura não há o que avaliar: descarte.
@@ -689,15 +577,8 @@ df["peso_kg"] = df["peso_kg"].fillna(0)
 df = df.reset_index(drop=True)
 ```
 
-| Ferramenta | Para quê |
-|---|---|
-| `df.isna().sum()` | quantos vazios por coluna |
-| `df.dropna(subset=[...])` | descartar linhas com vazio nessas colunas |
-| `df["col"].fillna(valor)` | preencher vazios |
-| `df.duplicated(subset=[...])` | máscara das repetições |
-| `df.drop_duplicates(subset=[...], keep="first")` | descartar repetições |
-| `df["col"].astype(int)` | converter quando você tem **certeza** de que tudo converte |
-| `pd.to_numeric(..., errors="coerce")` | converter quando pode haver lixo |
+Para converter quando você tem **certeza** de que tudo converte, existe
+`df["col"].astype(int)` (ou `float`, `str`).
 
 > ⚠️ **Erro comum:** `pd.Series(["1", "n/d"]).astype(int)` dá
 > `ValueError: invalid literal for int() with base 10: 'n/d'`. Com lixo possível, use
@@ -707,10 +588,8 @@ df = df.reset_index(drop=True)
 > 💡 **Dica:** `NaN` não entra nas contas. `pd.Series([1.0, None, 3.0]).mean()` dá `2.0`
 > (média de 1 e 3), não 1.33. Às vezes é o que você quer; às vezes esconde um problema.
 
-**Inteiro com vazio.** Uma coluna de inteiros com algum vazio vira `float` (2024 vira
-`2024.0`), porque o `NaN` é um float. Se incomodar, `df["ano"].astype("Int64")` (com I
-maiúsculo) usa o inteiro do pandas que aceita ausentes (`<NA>`). Você vai ver isso no
-laboratório de salários.
+**Inteiro com vazio** vira `float` (2024 vira `2024.0`), porque `NaN` é float.
+`df["ano"].astype("Int64")` (I maiúsculo) usa o inteiro que aceita ausentes (`<NA>`).
 
 ## 9. Datas
 
@@ -761,27 +640,13 @@ Bobinas medidas em agosto: 19
 ```
 
 Subtrair datas dá um intervalo (`Timedelta`); `.dt.days` tira o número de dias. O
-exemplo 07 calcula quantos dias cada OP levou da emissão à primeira medição:
-
-```text
-       op    emissao       data  dias_ate_medir
-0  024412 2026-07-02 2026-07-03               1
-1  024413 2026-07-03 2026-07-05               2
-```
+exemplo 07 usa isso para medir quantos dias cada OP levou da emissão à primeira medição.
 
 E para agrupar por mês, `.dt.to_period("M")` transforma cada data no "mês dela":
 
 ```python
 df["periodo"] = df["data"].dt.to_period("M")
-print(df.groupby("periodo")["peso_kg"].sum())
-```
-
-```text
-periodo
-2026-07    33218.9
-2026-08    22158.0
-2026-09    29744.9
-Freq: M, Name: peso_kg, dtype: float64
+print(df.groupby("periodo")["peso_kg"].sum())  # 2026-07 33218.9, 2026-08 22158.0, ...
 ```
 
 Data inválida (`"31/09/2026"`) com `format` dá `ValueError`. Se preferir marcar e seguir,
@@ -792,16 +657,14 @@ Data inválida (`"31/09/2026"`) com `format` dá `ValueError`. Se preferir marca
 
 ## 10. Ordenando
 
+`df.sort_values("peso_kg", ascending=False)` ordena do mais pesado para o mais leve.
+Para "os 3 maiores", `nlargest` é mais direto:
+
 ```python
-print(df.sort_values("peso_kg", ascending=False)[["bobina", "peso_kg"]].head(3))
 print(df.nlargest(3, "cof")[["bobina", "cof"]])
 ```
 
 ```text
-       bobina  peso_kg
-4   024413-02   1632.5
-30  024447-05   1614.2
-64  024488-05   1601.5
        bobina   cof
 36  024458-02  0.44
 14  024430-03  0.38
@@ -831,16 +694,8 @@ De `exemplos/08_groupby_agg.py`:
 print(df.groupby("linha")["peso_kg"].sum())
 ```
 
-```text
-linha
-A    33123.8
-B    18543.5
-C    12407.7
-D    21046.8
-Name: peso_kg, dtype: float64
-```
-
-Leia da esquerda para a direita: "agrupe por linha, pegue o peso, some". Para várias
+Saída: uma Series com A 33123.8, B 18543.5, C 12407.7 e D 21046.8. Leia da esquerda
+para a direita: "agrupe por linha, pegue o peso, some". Para várias
 estatísticas de uma vez, use `agg` com **agregação nomeada**:
 `nome_da_coluna_nova=("coluna", "função")`.
 
@@ -906,8 +761,7 @@ print(t.groupby("linha").size().tolist(), t.groupby("linha")["obs"].count().toli
 [2, 1] [1, 0]
 ```
 
-`size()` conta **linhas** do grupo. `count()` conta valores **não vazios** da coluna.
-Para "quantas bobinas", use `size()` ou `count()` numa coluna sempre preenchida.
+`size()` conta **linhas** do grupo; `count()` conta valores **não vazios** da coluna.
 </details>
 
 **transform** devolve um valor **por linha** (do tamanho da tabela original), em vez de
@@ -916,12 +770,6 @@ um por grupo. Serve para comparar cada item com o próprio grupo:
 ```python
 df["media_da_op"] = df.groupby("op")["espessura_um"].transform("mean")
 df["dif_da_op"] = (df["espessura_um"] - df["media_da_op"]).round(2)
-```
-
-```text
-      bobina  espessura_um  media_da_op  dif_da_op
-0  024412-01          38.1        38.03       0.07
-1  024412-02          36.4        38.03      -1.63
 ```
 
 > ⚠️ **Erro comum:** `df.groupby("linha").mean()` com colunas de texto na tabela dá
@@ -975,8 +823,6 @@ Cinco bobinas sumiram em silêncio: são da OP 024499, medida mas não cadastrad
 O `indicator=True` cria a coluna `_merge`, que mostra de onde veio cada linha. Use-a
 sempre que estiver em dúvida.
 
-Mais três detalhes:
-
 - `validate="many_to_one"` garante que a direita não tem chave repetida. Se a tabela de
   especificações tiver o mesmo produto duas vezes, o merge para com `MergeError` (um tipo
   de `ValueError`) em vez de **duplicar** medições sem avisar.
@@ -1027,16 +873,8 @@ Para só **contar** combinações, `pd.crosstab(df["linha"], df["mes"])` é mais
 caminho inverso existe: uma planilha "larga" (um mês por coluna) vira "longa" (uma linha
 por linha+mês) com `melt`, o formato que o pandas prefere para agrupar e plotar:
 
-```python
-longa = larga.melt(id_vars="linha", var_name="mes", value_name="toneladas")
-```
-
-```text
-  linha   jul   ago   set            linha  mes  toneladas
-0     A  33.2  22.1  29.7    ──→   0     A  jul       33.2
-1     B  18.5  12.0  15.3          1     B  jul       18.5
-                                    2     A  ago       22.1  ...
-```
+`larga.melt(id_vars="linha", var_name="mes", value_name="toneladas")` (veja o exemplo
+10).
 
 ## 14. Vetorização x apply x laço for
 
@@ -1052,20 +890,9 @@ for i in df["job_title"]:
 Funciona, mas é Python puro passando por 133 mil valores, um de cada vez. O jeito pandas
 é uma linha: `(df["job_title"] == "Director").sum()`. O exemplo 11 mede os dois (e o
 `apply`, que chama uma função Python para cada valor). Na máquina em que esta aula foi
-escrita:
-
-```text
-133.349 linhas
-Resultados iguais? True -> 322
-for:            34.45 ms
-apply:          14.76 ms
-vetorizado:      6.69 ms
-Iguais? True
-apply: 25.68 ms | vetorizado: 0.64 ms
-```
-
-Com texto, a diferença é de 5 vezes; com números (a segunda medição, dividir o salário
-por 1000), passa de **40 vezes**. Os seus números vão ser outros, mas a ordem se mantém.
+escrita, contando os 322 diretores: `for` 34 ms, `apply` 15 ms, vetorizado 7 ms. Com
+números (dividir o salário por 1000), `apply` levou 26 ms e o vetorizado 0,6 ms: mais
+de **40 vezes** mais rápido. Os seus números vão ser outros, mas a ordem se mantém.
 
 A regra:
 
@@ -1117,16 +944,8 @@ with pd.ExcelWriter(caminho, engine="openpyxl") as escritor:
 
 O exemplo completo ainda pinta de amarelo as bobinas com COF fora mas liberadas
 ("COF: liberado") e formata números (`number_format = "0.000"`). Abra o
-`saida/relatorio_cof.xlsx` gerado e confira. O módulo 12 aprofunda o openpyxl.
-
-```text
-status
-APROVADA             62
-SEM ESPECIFICAÇÃO     5
-LIBERADA              2
-REPROVADA             1
-Name: count, dtype: int64
-```
+`saida/relatorio_cof.xlsx` gerado e confira: 62 aprovadas, 5 sem especificação, 2
+liberadas e 1 reprovada. O módulo 12 aprofunda o openpyxl.
 
 > 💡 **Dica:** produto sem especificação **não** é aprovado. No exemplo, o `cof_max` dele
 > é `NaN`, e `cof > NaN` dá `False`: sem a linha que marca `SEM ESPECIFICAÇÃO`, essas
@@ -1147,17 +966,6 @@ Um gráfico bom responde **uma** pergunta. Escolha o tipo pela pergunta:
 O matplotlib desenha numa **Figure** (a folha) que contém um ou mais **Axes** (cada
 gráfico, com seus eixos, título e rótulos). Quase tudo que você configura é método do
 Axes: `ax.set_title`, `ax.set_xlabel`, `ax.set_ylabel`, `ax.legend`.
-
-```text
-┌──────────── Figure ────────────┐
-│  ┌───────── Axes ───────────┐  │
-│  │  título                  │  │
-│  │  ▇▇   ▇▇                 │  │
-│  │  ▇▇   ▇▇   ▇▇            │  │
-│  └──────────────────────────┘  │
-│        rótulo do eixo x        │
-└────────────────────────────────┘
-```
 
 Há dois jeitos de desenhar, e eles se misturam bem (`exemplos/13_graficos.py`):
 
@@ -1194,20 +1002,14 @@ fig.savefig(SAIDA / "linhas_peso_semanal.png", dpi=120)
 
 Os outros dois do exemplo: `ax.hist(valores, bins=6)` (histograma) e
 `df.plot.scatter(x="espessura_um", y="gramatura_gm2")` (dispersão). A dispersão mostra
-uma correlação de 0,99 entre espessura e gramatura, o que faz sentido físico:
-gramatura ≈ espessura × densidade.
+correlação de 0,99 entre espessura e gramatura (faz sentido: gramatura ≈ espessura ×
+densidade).
 
-**Mostrar ou salvar?** `fig.savefig("arquivo.png", dpi=120)` grava a imagem (vai no
-relatório, no e-mail, no portfólio). `plt.show()` abre uma janela e **para o programa**
-até você fechá-la. Os exemplos só salvam; rode com `--mostrar` para abrir as janelas:
-
-```text
-python 10-dados-com-pandas/exemplos/13_graficos.py --mostrar
-```
-
-Em scripts automáticos (e nos testes do curso), usa-se `matplotlib.use("Agg")`: o
-matplotlib desenha só na memória, sem janela. Feche figuras que não vai mais usar com
-`plt.close(fig)` ou `plt.close("all")`, senão elas acumulam memória.
+**Mostrar ou salvar?** `fig.savefig("arquivo.png", dpi=120)` grava a imagem (relatório,
+e-mail, portfólio). `plt.show()` abre uma janela e **para o programa** até você fechá-la.
+Os exemplos só salvam; acrescente `--mostrar` ao comando para abrir as janelas. Em
+scripts automáticos (e nos testes), usa-se `matplotlib.use("Agg")`: desenha só na
+memória. Feche figuras que não vai mais usar com `plt.close("all")`.
 
 > 🔮 **Preveja antes de rodar:** quantos itens tem `ax.patches`, e qual é o texto de
 > `ax.get_ylabel()`?
@@ -1229,9 +1031,8 @@ pandas não inventa rótulo. Gráfico sem rótulo nos eixos é gráfico pela met
 os testes dos exercícios 11 e 12 conferem: eles inspecionam o objeto Axes.
 </details>
 
-> 🔧 **Modifique:** no exemplo 13, troque `plot.bar` por `plot.barh` (barras
-> horizontais). Quando os nomes das categorias são longos (cargos, clientes), barras
-> horizontais leem muito melhor.
+> 🔧 **Modifique:** no exemplo 13, troque `plot.bar` por `plot.barh`. Com nomes longos
+> (cargos, clientes), barras horizontais leem muito melhor.
 
 **E o Power BI?** No mercado, muitos painéis são feitos no Power BI (ou Tableau, Looker
 Studio). Eles não competem com o pandas, se completam: o Python faz a parte pesada e
@@ -1320,9 +1121,9 @@ work_year vazio: 10
 Linhas idênticas a outra: 68722
 ```
 
-Três achados antes de qualquer conta: 2020 e 2021 têm pouquíssimos registros (não
-compare com 2024 sem cuidado); 10 linhas sem ano (por isso `work_year` veio como float,
-e o script converte para `Int64`); e **68 mil linhas idênticas a outra**. Duplicata?
+Três achados antes de qualquer conta: 2020 e 2021 têm poucos registros; 10 linhas sem
+ano (por isso `work_year` veio como float e o script converte para `Int64`); e **68 mil
+linhas idênticas a outra**. Duplicata?
 Talvez não: sem um identificador da pessoa, duas pessoas com mesmo cargo, nível, país e
 salário geram linhas iguais. Decisão consciente: manter, e registrar essa decisão. Em
 análise de dados, **escrever as premissas** é metade do trabalho.
@@ -1336,9 +1137,7 @@ df["nivel"] = pd.Categorical(
     df["experience_level"].map(NIVEIS), categories=list(NIVEIS.values()), ordered=True
 )
 df["salario_mil_usd"] = df["salary_in_usd"] / 1000
-por_nivel = df.groupby("nivel", observed=True)["salario_mil_usd"].agg(
-    ["count", "median", "mean"]
-)
+df.groupby("nivel", observed=True)["salario_mil_usd"].agg(["count", "median", "mean"])
 ```
 
 ```text
@@ -1357,16 +1156,8 @@ menos que isso").
 
 **Pergunta 2: quais cargos aparecem mais?**
 
-```text
-Cargos diferentes: 387
-job_title
-Data Scientist               17244
-Software Engineer            14955
-Data Engineer                14794
-Data Analyst                 12209
-Engineer                      9412
-...
-```
+São 387 cargos diferentes. Os quatro primeiros do `value_counts()`: Data Scientist
+(17.244), Software Engineer (14.955), Data Engineer (14.794) e Data Analyst (12.209).
 
 **Pergunta 3: cargo x nível** (mediana, mil USD), com `pivot_table`:
 
@@ -1414,18 +1205,9 @@ amostra.
 
 **Pergunta 5: e quem mora no Brasil?**
 
-```text
-Registros: 85
-           count  median
-nivel
-Júnior         5    40.0
-Pleno         32    57.0
-Sênior        45    66.7
-Executivo      3   110.0
-```
-
-Só 85 registros, a maioria pleno e sênior, e provavelmente gente que trabalha para fora
-(salário em dólar). Serve como pista, não como tabela salarial do Brasil.
+São só 85 registros: 5 júnior (mediana 40 mil USD), 32 pleno (57), 45 sênior (66,7) e 3
+executivo (110). Provavelmente gente que trabalha para fora (salário em dólar). Serve
+como pista, não como tabela salarial do Brasil.
 
 O script ainda mostra a evolução por ano e salva `saida/salario_por_nivel.png`, um bom
 começo para um projeto de portfólio.
@@ -1436,42 +1218,21 @@ começo para um projeto de portfólio.
 
 ## Lendo mensagens de erro deste módulo
 
-**`KeyError: 'Espessura'`**
-A coluna não existe com esse nome. Rode `print(df.columns.tolist())` e compare: acento,
-maiúscula, espaço sobrando ou unidade no nome (`"Espessura (µm)"`). Renomeie logo depois
-de ler.
+| Mensagem | O que significa e como corrigir |
+|---|---|
+| `KeyError: 'Espessura'` | A coluna não tem esse nome. `print(df.columns.tolist())` e compare acento, maiúscula, espaço e unidade. Renomeie logo após ler. |
+| `UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe7` | O arquivo não é UTF-8. Tente `encoding="cp1252"`. |
+| `ValueError: The truth value of a Series is ambiguous` | `and`, `or`, `not` ou `if` com uma Series. Use `&`, `\|`, `~` com parênteses. |
+| `TypeError: Cannot perform reduction 'mean' with string dtype` | A coluna é texto: faltou `decimal`/`thousands` ou há lixo. Use `pd.to_numeric(..., errors="coerce")`. |
+| `ValueError: You are trying to merge on str and int64 columns` | A chave tem tipos diferentes nas duas tabelas. Padronize (de preferência como texto). |
+| `ChainedAssignmentError` (3.x) ou `SettingWithCopyWarning` (2.2) | Você fez `df[...][...] = valor`. Use `df.loc[mascara, "coluna"] = valor`. |
+| `ValueError: day is out of range for month` (ou `doesn't match format`) | Data inexistente ou em outro formato. Corrija na origem ou use `errors="coerce"`. |
+| `PermissionError: [Errno 13] Permission denied: '...xlsx'` | O arquivo está aberto no Excel (Windows bloqueia). Feche-o e rode de novo. |
+| `ImportError: Missing optional dependency 'openpyxl'` | Instale: `python -m pip install openpyxl` (com o venv ativado). |
 
-**`UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe7 in position 56`**
-O arquivo não está em UTF-8. Tente `encoding="cp1252"` (Windows/ERP antigo).
-
-**`ValueError: The truth value of a Series is ambiguous...`**
-Você usou `and`, `or`, `not` ou um `if` com uma Series inteira. Em máscaras, use `&`,
-`|`, `~` com parênteses.
-
-**`TypeError: Cannot perform reduction 'mean' with string dtype`** (ou
-`dtype 'str' does not support operation 'mean'`)
-A coluna é texto. Faltou `decimal=","` ou `thousands="."` na leitura, ou há lixo
-(`"n/d"`) na coluna: use `pd.to_numeric(..., errors="coerce")`.
-
-**`ValueError: You are trying to merge on str and int64 columns for key 'op'`**
-A chave tem tipos diferentes nas duas tabelas. Converta uma delas (`astype(str)`), e
-cuidado com zeros à esquerda que já se perderam.
-
-**`ChainedAssignmentError`** (pandas 3) ou **`SettingWithCopyWarning`** (pandas 2.2)
-Você fez `df[...][...] = valor`. A alteração não chega na tabela original. Use
-`df.loc[mascara, "coluna"] = valor`.
-
-**`ValueError: time data "31/09/2026" doesn't match format "%d/%m/%Y"`** (ou
-`day is out of range for month`)
-Data inexistente ou em outro formato. Corrija na origem ou use `errors="coerce"` e trate
-os `NaT`.
-
-**`PermissionError: [Errno 13] Permission denied: '...xlsx'`**
-O arquivo está aberto no Excel (Windows não deixa outro programa gravar). Feche-o.
-
-**`ModuleNotFoundError: No module named 'openpyxl'`** (ou `ImportError: Missing optional
-dependency 'openpyxl'`)
-Instale com `python -m pip install openpyxl`, com o ambiente virtual ativado.
+Para ler o traceback inteiro: comece pela **última linha** (o tipo do erro) e suba até a
+primeira linha que aponta para um arquivo **seu**. As linhas de dentro do pandas quase
+nunca são o problema.
 
 ## Boas práticas
 
@@ -1505,10 +1266,7 @@ def conferir(medicoes: pd.DataFrame, specs: pd.DataFrame) -> pd.DataFrame:
     esp_fora = ~df["espessura_um"].between(
         df["espessura_nominal"] - folga, df["espessura_nominal"] + folga
     )
-    folga_g = df["gramatura_nominal"] * df["tolerancia_pct"] / 100
-    gram_fora = ~df["gramatura_gm2"].between(
-        df["gramatura_nominal"] - folga_g, df["gramatura_nominal"] + folga_g
-    )
+    # ... gram_fora é igual, com a gramatura ...
     cof_fora = df["cof"] > df["cof_max"]
     cof_liberado = df["observacao"].fillna("").str.contains("cof: liberado", case=False)
 
@@ -1520,29 +1278,14 @@ def conferir(medicoes: pd.DataFrame, specs: pd.DataFrame) -> pd.DataFrame:
 
     df["status"] = "APROVADA"
     df.loc[df["motivo"] != "", "status"] = "REPROVADA"
-    df.loc[df["espessura_nominal"].isna(), ["status", "motivo"]] = [
-        "PENDENTE",
-        "produto sem especificação",
-    ]
-    df.loc[(df["op"].notna()) & (df["produto"].isna()), ["status", "motivo"]] = [
-        "PENDENTE",
-        "OP sem cadastro no ERP",
-    ]
+    # ... e por último as PENDÊNCIAS: produto sem especificação, OP sem cadastro
     return df
 ```
 
-Saída (trecho):
+Resultado: 54 aprovadas, 10 pendentes e 6 reprovadas. As reprovadas:
 
 ```text
-status
-APROVADA     54
-PENDENTE     10
-REPROVADA     6
-Name: count, dtype: int64
 linha    bobina    status                    motivo
-    A 024483-01  PENDENTE produto sem especificação
-  ...
-    A 024499-05  PENDENTE    OP sem cadastro no ERP
     B 024433-01 REPROVADA                 gramatura
     B 024458-02 REPROVADA                       COF
     C 024451-02 REPROVADA      espessura; gramatura
@@ -1625,9 +1368,8 @@ Como fazer: abra `exercicios/exNN_...py`, leia o enunciado, escreva o código no
 python curso.py testar 10 ex01
 ```
 
-Os testes criam DataFrames pequenos e arquivos temporários; nenhum usa o arquivo grande
-de salários. Para os gráficos, eles usam o backend "Agg" e inspecionam o objeto Axes
-(título, rótulos, quantidade de barras e linhas), então nenhuma janela abre.
+Os testes usam DataFrames pequenos e arquivos temporários (nunca o arquivo grande). Nos
+gráficos, usam o backend "Agg" e inspecionam o Axes (título, rótulos, barras, linhas).
 
 ## Desafio do módulo
 

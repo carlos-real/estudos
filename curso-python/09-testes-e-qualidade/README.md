@@ -29,39 +29,21 @@ sistema.
 No laboratório você já pensa assim: ninguém libera um laudo sem conferir o instrumento
 com um padrão de referência. Um teste automatizado é o padrão de referência do código.
 
-No mercado, vagas de dados, automação e backend pedem `pytest`, Git, pull request e
-"código limpo" na descrição. Em entrevista técnica, mostrar um repositório com testes e
-commits bem escritos vale mais que um certificado.
-
-E no projeto final (o Validador de Certificados), um erro numa regra de tolerância
-libera bobina reprovada para o cliente. Os testes são a sua rede de segurança.
+Vagas de dados, automação e backend pedem `pytest`, Git, pull request e "código limpo";
+um repositório com testes e bons commits vale mais que um certificado. E no projeto
+final, um erro numa regra de tolerância libera bobina reprovada: os testes são a sua
+rede de segurança.
 
 ## 1. Por que testar
 
-Você já testa o seu código: roda o script, olha a saída e confere "de olho". Isso é um
-**teste manual**. Funciona uma vez. O problema é a segunda, a terceira, a vigésima vez.
-
-```text
-Teste manual                         Teste automatizado
------------------------------------  -----------------------------------
-roda e confere de olho               o código confere o código
-esquece casos raros                  os casos ficam escritos para sempre
-lento: minutos por mudança           rápido: segundos para centenas de casos
-"acho que está certo"                "16 passed"
-```
+Você já testa o seu código: roda o script e confere a saída "de olho". Isso é um **teste
+manual**. Funciona uma vez. O problema é a segunda, a terceira, a vigésima vez.
 
 Um teste automatizado é uma função que chama o seu código com uma entrada conhecida e
-**confere** se a saída é a esperada. Se não for, ele grita.
-
-Os testes trazem quatro ganhos:
-
-1. **Pegam regressões.** Você corrige um bug e, sem querer, quebra outra coisa. O teste
-   antigo avisa na hora.
-2. **Documentam.** `test_bordas_estao_dentro` explica a regra melhor que um comentário.
-3. **Dão coragem para mudar.** Com testes, refatorar deixa de ser um risco.
-4. **Melhoram o design.** Código difícil de testar costuma ser código mal dividido.
-
-Existem testes de tamanhos diferentes. Pense numa pirâmide:
+**confere** se a saída é a esperada. Ele **pega regressões** (você corrige um bug, quebra
+outra coisa, e o teste antigo avisa), **documenta** (`test_bordas_estao_dentro` explica a
+regra), **dá coragem para mudar** e **melhora o design**: código difícil de testar
+costuma ser código mal dividido.
 
 ```text
           /\        ponta a ponta: o sistema inteiro (robô no TOTVS)
@@ -73,13 +55,12 @@ Existem testes de tamanhos diferentes. Pense numa pirâmide:
     /------------\  muitos, rápidos, baratos
 ```
 
-Neste módulo o foco é a base: **testes de unidade**. São eles que você vai escrever
-todos os dias.
+Neste módulo o foco é a base da pirâmide: **testes de unidade**.
 
 ## 2. `assert`: a peça mais simples
 
-`assert` confere uma condição. Se ela for verdadeira, nada acontece. Se for falsa, o
-Python levanta `AssertionError`. Depois da vírgula vem uma mensagem opcional.
+`assert` confere uma condição. Se for verdadeira, nada acontece. Se for falsa, o Python
+levanta `AssertionError`. Depois da vírgula vem uma mensagem opcional.
 
 ```python
 def calcular_limites(nominal, tolerancia_pct):
@@ -96,21 +77,11 @@ assert minimo == 18.0, f"mínimo errado: esperava 18.0, veio {minimo}"
 AssertionError: mínimo errado: esperava 18.0, veio 19.0
 ```
 
-O exemplo completo está em `exemplos/01_assert_basico.py`. Rode na pasta do módulo:
+Mais casos em `exemplos/01_assert_basico.py` (rode na pasta do módulo).
 
-```text
-> python exemplos/01_assert_basico.py
-1) assert verdadeiro passou em silêncio
-2) assert falso levantou AssertionError (sem mensagem)
-3) mensagem do erro: mínimo errado: esperava 18.0, veio 19.0
-4) 0.1 + 0.2 == 0.3? False  (valor real: 0.30000000000000004)
-5) com tolerância a comparação passa
-```
-
-> ⚠️ **Erro comum:** usar `assert` para validar dados do usuário no programa de
-> produção. O Python pode ser executado com `python -O`, que **desliga todos os
-> asserts**. Para validar entrada, use `if` + `raise ValueError(...)` (módulo 06).
-> `assert` é para testes e para conferências internas do programador.
+> ⚠️ **Erro comum:** usar `assert` para validar dados no programa de produção. O Python
+> pode rodar com `python -O`, que **desliga todos os asserts**. Para validar entrada, use
+> `if` + `raise ValueError(...)` (módulo 06). `assert` é para testes.
 
 > 🔮 **Preveja antes de rodar:** o que acontece com esta linha no REPL?
 >
@@ -121,35 +92,24 @@ O exemplo completo está em `exemplos/01_assert_basico.py`. Rode na pasta do mó
 <details><summary>Resposta</summary>
 
 Levanta `AssertionError: a soma não fechou`. Em float, `0.1 + 0.2` vale
-`0.30000000000000004` (módulo 01), então a comparação exata é falsa. Na seção 6 você
-vai ver o jeito certo de comparar floats em testes: `pytest.approx`.
+`0.30000000000000004` (módulo 01), então a comparação exata é falsa. Na seção 6 você vê
+o jeito certo de comparar floats em testes: `pytest.approx`.
 
 </details>
 
 ## 3. pytest: primeiros passos
 
 Dá para testar só com `assert`, mas o **pytest** acrescenta o que falta: encontra os
-testes sozinho, roda todos, mostra um relatório e explica **por que** cada falha
-aconteceu. Ele já está no `requirements.txt` do curso. Se precisar instalar:
+testes sozinho, roda todos e explica **por que** cada falha aconteceu. Ele já está no
+`requirements.txt` do curso (`python -m pip install pytest`, se precisar).
 
-```text
-python -m pip install pytest
-```
-
-### As regras de descoberta
-
-O pytest procura testes seguindo nomes:
-
-- **arquivos** `test_*.py` (ou `*_test.py`);
-- dentro deles, **funções** cujo nome começa com `test`;
-- e classes cujo nome começa com `Test` (sem `__init__`).
-
-Não existe registro, nem "main". Seguiu o padrão de nome, virou teste.
+**Regras de descoberta.** O pytest procura **arquivos** `test_*.py` (ou `*_test.py`) e,
+dentro deles, **funções** cujo nome começa com `test` (e classes que começam com `Test`).
+Seguiu o padrão de nome, virou teste. Não existe registro nem "main".
 
 ### O mini projeto do módulo
 
-Em `exemplos/mini_projeto_laudo/` há um projeto pequeno, organizado como um projeto
-real:
+Em `exemplos/mini_projeto_laudo/` há um projeto pequeno, organizado como um real:
 
 ```text
 mini_projeto_laudo/
@@ -200,7 +160,7 @@ def test_limites_com_tolerancia_de_5_porcento():
 
 ### Rodando
 
-Entre na pasta do mini projeto e rode o pytest pelo Python do ambiente virtual
+Entre na pasta do mini projeto e chame o pytest pelo Python do ambiente virtual
 (`python -m pytest` garante que é o pytest do seu `.venv`):
 
 ```text
@@ -234,169 +194,90 @@ tests/test_observacao.py::test_status_desconhecido_levanta_erro PASSED   [100%]
 ============================== 16 passed in 0.04s ==============================
 ```
 
-As linhas do cabeçalho (`platform`, `rootdir`, `plugins`) mudam de computador para
-computador: no Windows aparece `win32` e um caminho `C:\...`. O resto é igual.
-
-Sem o `-v`, a saída é compacta: um caractere por teste.
-
-```text
-> python -m pytest -q
-................                                                         [100%]
-16 passed in 0.02s
-```
-
-| Símbolo | Significa |
-|---|---|
-| `.` | passou |
-| `F` | falhou: um `assert` deu falso |
-| `E` | erro: exceção inesperada, fora do `assert` (ou na preparação do teste) |
-| `s` | pulado (skip) |
-
-### Opções que você vai usar todo dia
+O cabeçalho (`platform`, `rootdir`, `plugins`) muda de computador para computador: no
+Windows aparece `win32` e um caminho `C:\...`. Com `-q` em vez de `-v`, a saída é um
+caractere por teste: `.` passou, `F` falhou (um `assert` deu falso), `E` erro (exceção
+inesperada fora do `assert`).
 
 | Comando | Para quê |
 |---|---|
-| `python -m pytest` | roda tudo |
 | `python -m pytest -v` | um teste por linha, com o nome |
 | `python -m pytest -x` | para na **primeira** falha (ótimo no TDD) |
 | `python -m pytest -k bordas` | só testes cujo nome contém "bordas" |
 | `python -m pytest --lf` | só os que falharam na última rodada (*last failed*) |
 | `python -m pytest -s` | mostra os `print` (normalmente o pytest os esconde) |
-| `python -m pytest tests/test_laudo.py::test_media_de_tres_medicoes` | um teste só |
-| `python -m pytest --collect-only -q` | lista os testes sem rodar |
 
-```text
-> python -m pytest -k bordas -v
-...
-collecting ... collected 16 items / 11 deselected / 5 selected
-
-tests/test_laudo.py::test_avaliar_respeita_as_bordas[19.0-APROVADO] PASSED [ 20%]
-tests/test_laudo.py::test_avaliar_respeita_as_bordas[20.0-APROVADO] PASSED [ 40%]
-tests/test_laudo.py::test_avaliar_respeita_as_bordas[21.0-APROVADO] PASSED [ 60%]
-tests/test_laudo.py::test_avaliar_respeita_as_bordas[18.99-REPROVADO] PASSED [ 80%]
-tests/test_laudo.py::test_avaliar_respeita_as_bordas[21.01-REPROVADO] PASSED [100%]
-
-======================= 5 passed, 11 deselected in 0.02s =======================
-```
-
-> 💡 **Dica:** o `python curso.py testar 09 ex01` que você usa desde o módulo 00 é só um
-> atalho: por baixo, ele chama `python -m pytest` com `-v --tb=short` no arquivo de teste
-> do exercício. Agora você sabe rodar o pytest direto, com qualquer opção.
+> 💡 **Dica:** o `python curso.py testar 09 ex01` que você usa desde o módulo 00 é um
+> atalho: por baixo, ele chama `python -m pytest -v --tb=short` no arquivo de teste do
+> exercício. Agora você sabe rodar o pytest direto, com qualquer opção.
 
 ## 4. Lendo uma falha do pytest
 
 Uma falha não é uma bronca: é um relatório. Para ver um, coloquei um bug de propósito
-numa cópia do mini projeto: troquei `<=` por `<` em `avaliar`. Resultado (cortei a
-segunda falha, que é igual à primeira):
+numa cópia do mini projeto, trocando `<=` por `<` em `avaliar`:
 
 ```text
-> python -m pytest
-...
-tests/test_laudo.py ..F.F.......                                         [ 75%]
-tests/test_observacao.py ....                                            [100%]
-
+> python -m pytest -q --tb=short
+..F.F...........                                                         [100%]
 =================================== FAILURES ===================================
 ________________ test_avaliar_respeita_as_bordas[19.0-APROVADO] ________________
-
-valor = 19.0, esperado = 'APROVADO'
-
-    @pytest.mark.parametrize(
-        ("valor", "esperado"),
-        [
-            (19.0, "APROVADO"),  # na borda inferior
-            (20.0, "APROVADO"),
-            (21.0, "APROVADO"),  # na borda superior
-            (18.99, "REPROVADO"),
-            (21.01, "REPROVADO"),
-        ],
-    )
-    def test_avaliar_respeita_as_bordas(valor, esperado):
->       assert avaliar(valor, 19.0, 21.0) == esperado
-E       AssertionError: assert 'REPROVADO' == 'APROVADO'
-E         
-E         - APROVADO
-E         ? ^
-E         + REPROVADO
-E         ? ^^
-
-tests/test_laudo.py:35: AssertionError
-...
+tests/test_laudo.py:35: in test_avaliar_respeita_as_bordas
+    assert avaliar(valor, 19.0, 21.0) == esperado
+E   AssertionError: assert 'REPROVADO' == 'APROVADO'
+E     
+E     - APROVADO
+E     ? ^
+E     + REPROVADO
+E     ? ^^
+________________ test_avaliar_respeita_as_bordas[21.0-APROVADO] ________________
+tests/test_laudo.py:35: in test_avaliar_respeita_as_bordas
+    assert avaliar(valor, 19.0, 21.0) == esperado
+E   AssertionError: assert 'REPROVADO' == 'APROVADO'
+E     
+E     - APROVADO
+E     ? ^
+E     + REPROVADO
+E     ? ^^
 =========================== short test summary info ============================
 FAILED tests/test_laudo.py::test_avaliar_respeita_as_bordas[19.0-APROVADO] - ...
 FAILED tests/test_laudo.py::test_avaliar_respeita_as_bordas[21.0-APROVADO] - ...
-========================= 2 failed, 14 passed in 0.05s =========================
+2 failed, 14 passed in 0.34s
 ```
 
-Leia de cima para baixo, sempre nesta ordem:
+Leia sempre nesta ordem:
 
 1. **Qual teste?** A faixa `____ test_avaliar_respeita_as_bordas[19.0-APROVADO] ____`
-   diz o nome e o caso (valor 19.0).
-2. **Com quais dados?** `valor = 19.0, esperado = 'APROVADO'`.
-3. **Qual linha?** A seta `>` aponta o `assert` que falhou.
-4. **Obtido x esperado.** `assert 'REPROVADO' == 'APROVADO'`: à esquerda o que o código
+   traz o nome e o caso.
+2. **Onde?** `tests/test_laudo.py:35`, na linha do `assert`.
+3. **Obtido x esperado.** `assert 'REPROVADO' == 'APROVADO'`: à esquerda o que o código
    devolveu, à direita o que o teste esperava.
-5. **Onde fica?** `tests/test_laudo.py:35`.
-6. **Padrão.** No resumo final, só as bordas (19.0 e 21.0) falharam. Isso já aponta o
-   bug: a comparação nas bordas.
+4. **Padrão.** No resumo, só as bordas (19.0 e 21.0) falharam. Isso já aponta o bug: a
+   comparação nas bordas.
 
-Com floats e `approx`, o pytest mostra a tolerância usada. Aqui coloquei outro bug:
-dividir por `len(valores) - 1` na média.
-
-```text
-_________________________ test_media_de_tres_medicoes __________________________
-
-medicoes_espessura = [20.1, 19.8, 20.4]
-
-    def test_media_de_tres_medicoes(medicoes_espessura):
->       assert media(medicoes_espessura) == pytest.approx(20.1)
-E       assert 30.15 == 20.1 ± 2.0e-05
-E         
-E         comparison failed
-E         Obtained: 30.15
-E         Expected: 20.1 ± 2.0e-05
-```
-
-`30.15` é `60.3 / 2` em vez de `60.3 / 3`. O número obtido é uma pista: pergunte
-"que conta dá 30.15?".
-
-> 💡 **Dica:** quando a saída for longa, use `--tb=short` (traceback curto) ou `-x`
-> (para na primeira falha). Uma falha de cada vez.
+Sem o `--tb=short`, o pytest mostra também o código do teste inteiro e os valores dos
+parâmetros (`valor = 19.0, esperado = 'APROVADO'`). Com `approx`, mostra a tolerância:
+um bug que divide a média por `len(valores) - 1` aparece como
+`assert 30.15 == 20.1 ± 2.0e-05`. O número obtido é uma pista: "que conta dá 30.15?"
+(`60.3 / 2`, em vez de `60.3 / 3`).
 
 ## 5. Anatomia de um bom teste
 
-### O padrão AAA
+**O padrão AAA.** Todo teste tem três partes: **Arrange** (preparar os dados), **Act**
+(chamar o código, de preferência uma vez) e **Assert** (conferir). Separe-as com linha em
+branco ou comentário, como no teste da seção 3.
 
-Todo teste tem três partes. Separe-as com uma linha em branco ou comentário:
+**Nomes que contam a história.** O nome aparece no relatório de falha: em vez de
+`test_1` ou `test_erro`, use `test_media_de_lista_vazia_levanta_erro`.
 
-- **Arrange (preparar):** monte os dados.
-- **Act (agir):** chame o código testado, de preferência **uma** vez.
-- **Assert (conferir):** confira o resultado.
-
-### Nomes que contam a história
-
-O nome do teste aparece no relatório de falha. Ele deve dizer a regra:
-
-| Ruim | Bom |
-|---|---|
-| `test_1` | `test_media_de_tres_medicoes` |
-| `test_avaliar` | `test_avaliar_respeita_as_bordas` |
-| `test_erro` | `test_media_de_lista_vazia_levanta_erro` |
-
-### Regras de ouro
-
-- **Um comportamento por teste.** Se o nome precisa de "e", talvez sejam dois testes.
-- **Testes independentes.** Nenhum teste depende de outro ter rodado antes. A ordem
-  não pode importar.
-- **Rápidos.** Sem internet, sem banco real, sem `sleep`. Testes lentos deixam de ser
-  rodados.
-- **Determinísticos.** O mesmo código dá sempre o mesmo resultado. Nada de "às vezes
-  falha".
+**Regras de ouro.** Um comportamento por teste (se o nome precisa de "e", talvez sejam
+dois). Testes independentes: a ordem não pode importar. Rápidos: sem internet, sem banco
+real, sem `sleep`. Determinísticos: o mesmo código dá sempre o mesmo resultado.
 
 ### Como escolher os casos (o pensamento por trás)
 
-Não dá para testar todos os números do mundo. Então agrupe as entradas em "famílias" que
-devem se comportar igual e teste **um representante de cada** mais as **bordas** entre
-elas. Para `avaliar(valor, 19.0, 21.0)`:
+Não dá para testar todos os números do mundo. Agrupe as entradas em "famílias" que devem
+se comportar igual e teste **um representante de cada**, mais as **bordas** entre elas.
+Para `avaliar(valor, 19.0, 21.0)`:
 
 ```text
    REPROVADO      |        APROVADO         |     REPROVADO
@@ -405,41 +286,20 @@ elas. Para `avaliar(valor, 19.0, 21.0)`:
   (logo abaixo) (borda)    (meio)       (borda) (logo acima)
 ```
 
-Cinco casos cobrem a regra inteira. Bugs adoram as bordas (`<` no lugar de `<=`), por
-isso elas nunca ficam de fora. Para listas, lembre também: vazia, um elemento, muitos.
-Para números: zero, negativo, decimal. Para texto: vazio, espaços, acentos.
+Cinco casos cobrem a regra inteira. Bugs adoram as bordas (`<` no lugar de `<=`). Para
+listas, lembre também: vazia, um elemento, muitos. Para números: zero, negativo, decimal.
+Para texto: vazio, espaços, acentos.
 
 ## 6. Floats e erros: `pytest.approx` e `pytest.raises`
 
-### approx
+**approx.** Nunca compare floats com `==` exato. `pytest.approx` aceita uma pequena
+diferença (por padrão, um milionésimo do valor). Funciona com listas, tuplas e
+dicionários, e você escolhe a tolerância com `abs=` (absoluta) ou `rel=` (relativa).
+Rode `exemplos/02_approx_e_raises.py`: `20.1 == pytest.approx(20.0)` dá `False`, mas
+`20.1 == pytest.approx(20.0, abs=0.2)` dá `True`.
 
-Nunca compare floats com `==` exato. Use `pytest.approx`, que aceita uma pequena
-diferença (por padrão, um milionésimo do valor):
-
-```python
-assert media([20.1, 19.8, 20.4]) == pytest.approx(20.1)
-```
-
-Ele também funciona com listas, tuplas e dicionários, e você pode escolher a tolerância
-com `abs=` (absoluta) ou `rel=` (relativa). Rode `exemplos/02_approx_e_raises.py`:
-
-```text
-> python exemplos/02_approx_e_raises.py
-0.1 + 0.2 == approx(0.3)? True
-20.1 == approx(20.0)?      False
-20.1 == approx(20.0, abs=0.2)? True
-20.1 == approx(20.0, rel=0.01)? True
-lista: True
-dict:  True
-raises: ZeroDivisionError capturado como esperado
-raises + match: a mensagem bateu
-mensagem capturada: invalid literal for int() with base 10: 'abc'
-```
-
-### raises
-
-Quando o comportamento correto é **levantar um erro**, o teste usa `pytest.raises` como
-bloco `with`. O teste passa se o erro acontecer, e falha se não acontecer.
+**raises.** Quando o comportamento correto é **levantar um erro**, use `pytest.raises`
+como bloco `with`. O teste passa se o erro acontecer, e falha se não acontecer.
 
 ```python
 def test_media_de_lista_vazia_levanta_erro():
@@ -449,19 +309,19 @@ def test_media_de_lista_vazia_levanta_erro():
 
 - `match=` confere a mensagem com uma expressão regular (`re.search`, módulo 05). Se a
   mensagem tiver parênteses ou pontos, use `match=re.escape("valor (kg) inválido")`.
-- `as excinfo` guarda o erro para você inspecionar depois do bloco:
-  `str(excinfo.value)`.
+- `with pytest.raises(ValueError) as excinfo:` guarda o erro; depois do bloco,
+  `str(excinfo.value)` é a mensagem.
 
 > ⚠️ **Erro comum:** `pytest.raises(Exception)`. Ele aceita **qualquer** erro, até um
 > `NameError` causado por um bug, e o teste passa por acaso. Sempre use o tipo exato.
 
-> ⚠️ **Erro comum:** colocar mais de uma linha dentro do `with pytest.raises`. A linha que
+> ⚠️ **Erro comum:** colocar várias linhas dentro do `with pytest.raises`. A linha que
 > levanta o erro deve ser a última do bloco; o que vem depois dela nunca roda.
 
 ## 7. Vários casos: `@pytest.mark.parametrize`
 
 Testar cinco valores copiando o teste cinco vezes é repetição. O `parametrize` roda a
-mesma função com cada linha de uma tabela:
+mesma função para cada linha de uma tabela:
 
 ```python
 @pytest.mark.parametrize(
@@ -478,26 +338,12 @@ def test_avaliar_respeita_as_bordas(valor, esperado):
     assert avaliar(valor, 19.0, 21.0) == esperado
 ```
 
-Cada linha vira um teste separado no relatório, com o caso entre colchetes:
-`test_avaliar_respeita_as_bordas[19.0-APROVADO]`. Se um caso falhar, os outros continuam
-rodando.
-
+Cada linha vira um teste separado, com o caso entre colchetes:
+`test_avaliar_respeita_as_bordas[19.0-APROVADO]`. Se um caso falha, os outros continuam.
 Quando os valores são longos ou têm acentos, o nome gerado fica feio
-(`Tra\xe7\xe3o: reprovado-esperado1`). Dê nomes com `ids=`:
-
-```python
-@pytest.mark.parametrize(
-    ("observacao", "esperado"),
-    [
-        ("COF: liberado", {"COF": True}),
-        ("Tração: reprovado", {"TRAÇÃO": False}),
-        ("COF: liberado; Selagem: reprovado", {"COF": True, "SELAGEM": False}),
-    ],
-    ids=["um-liberado", "um-reprovado", "dois-ensaios"],
-)
-def test_ler_liberacoes(observacao, esperado):
-    assert ler_liberacoes(observacao) == esperado
-```
+(`Tra\xe7\xe3o: reprovado-esperado1`). Dê nomes aos casos com
+`ids=["um-liberado", "um-reprovado", "dois-ensaios"]` como último argumento do
+`parametrize` (veja `tests/test_observacao.py` no mini projeto).
 
 > 🔮 **Preveja antes de rodar:** quantos testes o pytest conta neste arquivo?
 >
@@ -516,14 +362,15 @@ Saída real: `8 passed in 0.01s`.
 </details>
 
 > 🔧 **Modifique:** no mini projeto, acrescente ao `test_avaliar_respeita_as_bordas` o caso
-> `(0.0, "REPROVADO")` e rode `python -m pytest -k bordas -v`. Agora mude o esperado de
+> `(0.0, "REPROVADO")` e rode `python -m pytest -k bordas -v`. Depois mude o esperado de
 > propósito para `"APROVADO"` e leia a falha.
 
 ## 8. Fixtures: preparando o terreno
 
 Vários testes precisam dos mesmos dados: uma lista de medições, um arquivo, uma conexão.
-Uma **fixture** é uma função que prepara esse "terreno". O teste a pede pelo **nome do
-parâmetro**, e o pytest entrega o valor pronto.
+Uma **fixture** é uma função que prepara esse terreno. O teste a pede pelo **nome do
+parâmetro** e o pytest entrega o valor pronto. Pense na bancada que o técnico arruma antes
+de cada ensaio: a fixture arruma a bancada, o teste faz o ensaio.
 
 ```python
 @pytest.fixture
@@ -536,19 +383,14 @@ def test_media_de_tres_medicoes(medicoes_espessura):
     assert media(medicoes_espessura) == pytest.approx(20.1)
 ```
 
-Pense numa bancada que o técnico arruma antes de cada ensaio: a fixture arruma a
-bancada, o teste faz o ensaio.
-
-Detalhes importantes:
-
 - **Uma fixture nova para cada teste** (por padrão). Se um teste altera a lista, o
-  próximo recebe uma lista nova e intacta.
+  próximo recebe outra, intacta.
 - **Fixture pode usar fixture.** No mini projeto, `arquivo_medicoes` pede `tmp_path` e
   `medicoes_espessura`.
-- **`conftest.py`** é o lugar das fixtures compartilhadas. O pytest carrega esse arquivo
-  sozinho, e toda fixture dele fica disponível para os testes da pasta, sem `import`.
+- **`conftest.py`** guarda as fixtures compartilhadas. O pytest carrega esse arquivo
+  sozinho, e as fixtures dele ficam disponíveis para os testes da pasta, sem `import`.
 - **Limpeza com `yield`.** O que vem antes do `yield` prepara; o que vem depois roda no
-  fim do teste, mesmo que ele falhe. É o lugar de fechar arquivos e conexões:
+  fim do teste, mesmo que ele falhe:
 
 ```python
 @pytest.fixture
@@ -558,7 +400,7 @@ def conexao():
     con.close()                         # limpa no final
 ```
 
-> 🔮 **Preveja antes de rodar:** rodando com `python -m pytest -s`, quantas vezes aparece
+> 🔮 **Preveja antes de rodar:** com `python -m pytest -s`, quantas vezes aparece
 > "criando bobina"? O segundo teste passa?
 >
 > ```python
@@ -579,18 +421,17 @@ def conexao():
 
 <details><summary>Resposta</summary>
 
-Aparece **duas vezes**, e os dois testes passam (`2 passed`). A fixture roda de novo
-para cada teste, então o segundo recebe um dicionário novo, com o peso original. É isso
-que deixa os testes independentes.
+Aparece **duas vezes**, e os dois testes passam (`2 passed`). A fixture roda de novo para
+cada teste, então o segundo recebe um dicionário novo, com o peso original. É isso que
+deixa os testes independentes.
 
 </details>
 
 ## 9. Arquivos de verdade em pasta temporária: `tmp_path`
 
-Testar código que lê ou grava arquivos tem um problema: você não quer sujar seu
-computador nem depender de um arquivo que só existe na sua máquina. A fixture pronta
+Para testar código que lê ou grava arquivos sem sujar seu computador, a fixture pronta
 `tmp_path` entrega um `Path` (módulo 06) para uma **pasta temporária nova, só deste
-teste**.
+teste**. O padrão é: criar o arquivo do caso, chamar a função, conferir.
 
 ```python
 def test_ler_medicoes_ignora_linhas_vazias(tmp_path):
@@ -599,32 +440,14 @@ def test_ler_medicoes_ignora_linhas_vazias(tmp_path):
     assert ler_medicoes(arquivo) == [20.1, 19.8]
 ```
 
-O padrão é sempre: **criar o arquivo** com o conteúdo do caso, **chamar** a função,
-**conferir**. Quando vários testes criam arquivos, uma *fixture fábrica* evita repetição:
-a fixture devolve uma função que cria arquivos.
-
-```python
-@pytest.fixture
-def criar_arquivo(tmp_path):
-    def _criar(conteudo, nome="medicoes.txt"):
-        caminho = tmp_path / nome
-        caminho.write_text(conteudo, encoding="utf-8")
-        return caminho
-
-    return _criar
-
-
-def test_arquivo_vazio_devolve_lista_vazia(criar_arquivo):
-    assert ler_medicoes(criar_arquivo("")) == []
-```
+Quando vários testes criam arquivos, uma *fixture fábrica* evita repetição: em vez de um
+valor, ela devolve uma **função** que cria arquivos. Veja a fixture `criar_arquivo` no
+teste do exercício 08 (`testes/test_m09_ex08_ler_medicoes.py`).
 
 ## 10. O que foi impresso e o que foi registrado: `capsys` e `caplog`
 
-### capsys
-
-Funções que imprimem também se testam. A fixture `capsys` captura tudo o que foi para o
-terminal; `capsys.readouterr()` devolve o que saiu até aquele momento, em `.out` (saída
-normal) e `.err` (saída de erro).
+**capsys.** Funções que imprimem também se testam. `capsys.readouterr()` devolve o que
+saiu no terminal até aquele momento, em `.out` (saída normal) e `.err` (saída de erro).
 
 ```python
 def test_conferir_op_sem_acessar_o_erp(monkeypatch, capsys, medicoes_espessura):
@@ -637,7 +460,8 @@ def test_conferir_op_sem_acessar_o_erp(monkeypatch, capsys, medicoes_espessura):
     assert saida == "OP 12345: média 20.10 em [19.00, 21.00] -> APROVADO\n"
 ```
 
-Repare no `\n` no fim: o `print` acrescenta a quebra de linha.
+Repare no `\n` no fim: o `print` acrescenta a quebra de linha (o `monkeypatch` da
+primeira linha fica para a seção 11).
 
 > 🔮 **Preveja antes de rodar:** este teste passa ou falha?
 >
@@ -657,10 +481,8 @@ Repare no `\n` no fim: o `print` acrescenta a quebra de linha.
 
 </details>
 
-### caplog
-
-Para código que usa `logging` (seção 17), a fixture `caplog` captura os registros de log.
-Cada registro tem nível (`levelname`), nome do logger (`name`) e mensagem
+**caplog.** Para código que usa `logging` (seção 17), a fixture `caplog` captura os
+registros. Cada registro tem nível (`levelname`), nome do logger (`name`) e mensagem
 (`getMessage()`); `caplog.text` junta tudo num texto só.
 
 ```python
@@ -678,30 +500,29 @@ Por padrão o logging só deixa passar WARNING para cima. Para capturar INFO, ch
 
 O `conferir_op` do mini projeto consulta o ERP. Nos testes, não dá para depender do
 TOTVS: é lento, precisa de rede e senha, e os dados mudam. A fixture `monkeypatch`
-**troca uma peça durante o teste** e desfaz a troca sozinha no final.
+**troca uma peça durante o teste** e desfaz a troca sozinha no final:
 
 ```python
 monkeypatch.setattr(laudo, "buscar_nominal_no_erp", lambda op: 20.0)
 ```
 
 Lê-se: "no módulo `laudo`, durante este teste, `buscar_nominal_no_erp` passa a ser uma
-função que sempre devolve 20.0". O que mais ela faz:
+função que sempre devolve 20.0".
 
 | Chamada | Efeito durante o teste |
 |---|---|
 | `monkeypatch.setattr(modulo, "nome", novo)` | troca uma função ou atributo |
-| `monkeypatch.setenv("LAB_OPERADOR", "Maria")` | cria/altera variável de ambiente |
+| `monkeypatch.setenv("LAB_OPERADOR", "Maria")` | cria ou altera variável de ambiente |
 | `monkeypatch.delenv("LAB_OPERADOR", raising=False)` | apaga a variável (se existir) |
 | `monkeypatch.chdir(tmp_path)` | muda a pasta atual |
 
 > ⚠️ **Erro comum:** trocar a peça no lugar errado. `conferir_op` procura o nome
-> `buscar_nominal_no_erp` **dentro do módulo `laudo`** na hora em que roda. Por isso
+> `buscar_nominal_no_erp` **dentro do módulo `laudo`** na hora em que roda, por isso
 > trocamos `laudo.buscar_nominal_no_erp`. Regra: troque onde a função é **usada**.
 
-### A alternativa elegante: injeção de dependência
-
-Quando você escreve o código, dá para evitar o `monkeypatch`: receba a dependência como
-parâmetro, com o valor real como padrão (funções são valores, módulo 04).
+**A alternativa elegante: injeção de dependência.** Quando é você quem escreve o código,
+receba a dependência como parâmetro, com o valor real como padrão (funções são valores,
+módulo 04). O teste passa a função falsa direto, sem `monkeypatch`:
 
 ```python
 def conferir_op(op, valores, tolerancia_pct, buscar_nominal=buscar_nominal_no_erp):
@@ -715,28 +536,27 @@ def test_conferir_op_com_erp_falso():
 ```
 
 > 💡 **Dica:** prefira injeção de dependência no código novo; use `monkeypatch` para código
-> que você não pode mudar e para variáveis de ambiente. Os dois aparecem no mercado e nos
-> módulos 12 e 13 (APIs e robôs testados sem internet).
+> que você não pode mudar e para variáveis de ambiente. Os dois voltam nos módulos 12 e 13
+> (APIs e robôs testados sem internet).
 
 ## 12. Exemplo resolvido: testes para uma função que você não escreveu
 
-Três exercícios deste módulo pedem o contrário do normal: a função existe e **você
-escreve os testes**. O curso confere se seus testes aprovam a versão certa e reprovam
-versões com bug. Veja como eu penso um caso parecido, passo a passo.
+Três exercícios deste módulo invertem o papel: a função existe e **você escreve os
+testes**. O curso confere se eles aprovam a versão certa e reprovam versões com bug. Veja
+como eu penso um caso parecido, passo a passo.
 
 **O problema:** testar `contar_fora(valores, minimo, maximo)`, que conta quantos valores
 estão fora de `[minimo, maximo]`, com as bordas dentro.
 
-**Passo 1, listar as regras.** Releio a especificação e anoto cada regra numa linha:
+**Passo 1, listar as regras.** Releio a especificação e anoto uma regra por linha:
 (a) conta os de fora; (b) bordas estão dentro; (c) lista vazia dá 0.
 
 **Passo 2, um caso por regra.** Para (a), uma lista com valores dentro e fora, e um
 resultado que não seja óbvio (2, não 0). Para (b), valores exatamente nas bordas. Para
 (c), lista vazia.
 
-**Passo 3, perguntar "que bug este caso pega?".** O caso das bordas pega quem usou `<=`
-no lugar de `<`. O caso da lista vazia pega quem divide ou indexa sem conferir. Se um
-caso não pega nenhum bug novo, ele é repetido.
+**Passo 3, perguntar "que bug este caso pega?".** O das bordas pega quem usou `<=` no
+lugar de `<`. Se um caso não pega nenhum bug novo, é repetido.
 
 **Passo 4, escrever, com mensagens úteis:**
 
@@ -762,26 +582,18 @@ Um teste que nunca falha não protege nada. Sempre confira que ele **consegue** 
 
 ## 13. TDD passo a passo: vermelho → verde → refatorar
 
-TDD (*Test-Driven Development*, desenvolvimento guiado por testes) inverte a ordem: o
-teste vem **antes** do código. O ciclo tem três passos curtos:
+TDD (*Test-Driven Development*) inverte a ordem: o teste vem **antes** do código. O ciclo
+tem três passos curtos:
 
 ```text
-   +-----------+        +-----------+        +-------------+
-   | VERMELHO  | -----> |   VERDE   | -----> | REFATORAR   |
-   | escreva um|        | escreva o |        | melhore o   |
-   | teste que |        | código    |        | código com  |
-   | falha     |        | mínimo    |        | tudo verde  |
-   +-----------+        +-----------+        +-------------+
-         ^                                          |
-         +------------------------------------------+
-                     próximo comportamento
+VERMELHO: teste que falha -> VERDE: código mínimo -> REFATORAR: melhora com tudo verde
+   ^                                                                    |
+   +------------------------ próximo comportamento ---------------------+
 ```
 
-Por que funciona: você pensa no **uso** antes da implementação, avança em passos
-pequenos e termina com testes para tudo.
-
-Vamos construir `ler_liberacoes`, que lê a observação de liberação da planilha do
-projeto final: `"COF: liberado; Selagem: reprovado"` deve virar
+Você pensa no **uso** antes da implementação, avança em passos pequenos e termina com
+testes para tudo. Vamos construir `ler_liberacoes`, que lê a observação de liberação da
+planilha do projeto final: `"COF: liberado; Selagem: reprovado"` deve virar
 `{"COF": True, "SELAGEM": False}`.
 
 ### Ciclo 1: o caso mais simples
@@ -796,43 +608,27 @@ def test_um_ensaio_liberado():
     assert ler_liberacoes("COF: liberado") == {"COF": True}
 ```
 
-O arquivo `observacao.py` ainda nem existe. Rodando:
+O arquivo `observacao.py` ainda nem existe. Trecho da saída:
 
 ```text
 > python -m pytest tests/test_observacao.py -q
-==================================== ERRORS ====================================
-__________________ ERROR collecting tests/test_observacao.py ___________________
-ImportError while importing test module '.../mini_projeto_laudo/tests/test_observacao.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.13/importlib/__init__.py:88: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/test_observacao.py:1: in <module>
-    from observacao import ler_liberacoes
+...
 E   ModuleNotFoundError: No module named 'observacao'
-=========================== short test summary info ============================
-ERROR tests/test_observacao.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+...
 1 error in 0.16s
 ```
 
-(Encurtei o caminho do arquivo.) Vermelho também conta: o teste pediu algo que não existe.
+Vermelho também conta: o teste pediu algo que não existe.
 
-**Verde.** O código **mínimo** para passar. Sim, mínimo mesmo:
+**Verde.** O código **mínimo** para passar. Mínimo mesmo:
 
 ```python
 def ler_liberacoes(observacao: str) -> dict[str, bool]:
     return {"COF": True}
 ```
 
-```text
-.                                                                        [100%]
-1 passed in 0.00s
-```
-
-Parece trapaça, mas tem um motivo: provamos que o teste está ligado ao código. Quem vai
-forçar a lógica de verdade é o próximo teste.
+Resultado: `1 passed`. Parece trapaça, mas prova que o teste está ligado ao código. Quem
+vai forçar a lógica de verdade é o próximo teste.
 
 ### Ciclo 2: generalizar
 
@@ -845,23 +641,9 @@ def test_um_ensaio_reprovado():
 
 ```text
 .F                                                                       [100%]
-=================================== FAILURES ===================================
-___________________________ test_um_ensaio_reprovado ___________________________
-
-    def test_um_ensaio_reprovado():
+...
 >       assert ler_liberacoes("Tração: reprovado") == {"TRAÇÃO": False}
 E       AssertionError: assert {'COF': True} == {'TRAÇÃO': False}
-E         
-E         Left contains 1 more item:
-E         {'COF': True}
-E         Right contains 1 more item:
-E         {'TRAÇÃO': False}
-E         Use -v to get more diff
-
-tests/test_observacao.py:9: AssertionError
-=========================== short test summary info ============================
-FAILED tests/test_observacao.py::test_um_ensaio_reprovado - AssertionError: a...
-1 failed, 1 passed in 0.02s
 ```
 
 **Verde.** Agora sim, separar ensaio e status:
@@ -872,10 +654,7 @@ def ler_liberacoes(observacao: str) -> dict[str, bool]:
     return {ensaio.strip().upper(): status.strip() == "liberado"}
 ```
 
-```text
-..                                                                       [100%]
-2 passed in 0.01s
-```
+Resultado: `2 passed`.
 
 ### Ciclo 3: vários ensaios
 
@@ -890,7 +669,6 @@ def test_varios_ensaios_separados_por_ponto_e_virgula():
 ```text
 ..F                                                                      [100%]
 ...
-    def ler_liberacoes(observacao: str) -> dict[str, bool]:
 >       ensaio, status = observacao.split(":")
         ^^^^^^^^^^^^^^
 E       ValueError: too many values to unpack (expected 2)
@@ -900,7 +678,7 @@ observacao.py:2: ValueError
 
 O erro está no **nosso** código: com dois ensaios, o `split(":")` devolve três pedaços.
 
-**Verde.** Primeiro separar por `;`, depois cada item por `:`:
+**Verde.** Primeiro separar por `;`, depois cada item por `:`. Resultado: `3 passed`.
 
 ```python
 def ler_liberacoes(observacao: str) -> dict[str, bool]:
@@ -911,15 +689,10 @@ def ler_liberacoes(observacao: str) -> dict[str, bool]:
     return resultado
 ```
 
-```text
-...                                                                      [100%]
-3 passed in 0.01s
-```
-
 ### Ciclo 4: status desconhecido é erro
 
-Hoje, `"COF: pendente"` vira `{"COF": False}`, como se fosse reprovado. Isso é perigoso.
-A regra nova: status desconhecido levanta `ValueError`.
+Hoje, `"COF: pendente"` vira `{"COF": False}`, como se fosse reprovado. Perigoso. Regra
+nova: status desconhecido levanta `ValueError`.
 
 **Vermelho.**
 
@@ -931,42 +704,20 @@ def test_status_desconhecido_levanta_erro():
 
 ```text
 ...F                                                                     [100%]
-=================================== FAILURES ===================================
-____________________ test_status_desconhecido_levanta_erro _____________________
-
-    def test_status_desconhecido_levanta_erro():
+...
 >       with pytest.raises(ValueError, match="pendente"):
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E       Failed: DID NOT RAISE ValueError
 ```
 
-**Verde.**
-
-```python
-def ler_liberacoes(observacao: str) -> dict[str, bool]:
-    resultado = {}
-    for item in observacao.split(";"):
-        ensaio, status = item.split(":")
-        status = status.strip()
-        if status == "liberado":
-            resultado[ensaio.strip().upper()] = True
-        elif status == "reprovado":
-            resultado[ensaio.strip().upper()] = False
-        else:
-            raise ValueError(f"status desconhecido: {status!r}")
-    return resultado
-```
-
-```text
-....                                                                     [100%]
-4 passed in 0.01s
-```
+**Verde.** Dentro do laço, um `if status == "liberado"` / `elif status == "reprovado"` e,
+no `else`, `raise ValueError(f"status desconhecido: {status!r}")`. Resultado: `4 passed`.
 
 ### Refatorar
 
 Tudo verde. Agora, **sem mudar o comportamento**, melhoro o código: o `if/elif` vira um
-dicionário de status válidos, e a leitura de um item ganha uma função com nome. Os testes
-também são refatorados: três testes iguais viram um `parametrize`.
+dicionário de status válidos, e a leitura de um item ganha uma função com nome. Os três
+primeiros testes, iguais na forma, viram um `parametrize` (o da seção 7).
 
 ```python
 STATUS_VALIDOS = {"liberado": True, "reprovado": False}
@@ -986,37 +737,24 @@ def ler_liberacoes(observacao: str) -> dict[str, bool]:
     return dict(_ler_item(item) for item in observacao.split(";"))
 ```
 
-```text
-> python -m pytest tests/test_observacao.py -v
-...
-tests/test_observacao.py::test_ler_liberacoes[um-liberado] PASSED        [ 25%]
-tests/test_observacao.py::test_ler_liberacoes[um-reprovado] PASSED       [ 50%]
-tests/test_observacao.py::test_ler_liberacoes[dois-ensaios] PASSED       [ 75%]
-tests/test_observacao.py::test_status_desconhecido_levanta_erro PASSED   [100%]
-```
-
-Este é o `observacao.py` que está no mini projeto. Repare como os testes deram coragem
-para reescrever a função inteira no passo de refatorar.
+Rodando de novo, os 4 testes continuam passando. Este é o `observacao.py` do mini
+projeto. Repare como os testes deram coragem para reescrever a função inteira.
 
 > 🔧 **Modifique:** o técnico às vezes digita `"COF: LIBERADO"`. Faça um ciclo de TDD:
 > escreva o teste (vermelho), mude uma linha de `_ler_item` (verde) e rode tudo.
 
 > 💡 **Dica:** no TDD, rode com `-x` para parar na primeira falha e trabalhe **um teste
-> por vez**. Nos exercícios: `python -m pytest 09-testes-e-qualidade/testes/test_m09_ex08_ler_medicoes.py -x`.
+> por vez**. Nos exercícios, na pasta `curso-python`:
+> `python -m pytest 09-testes-e-qualidade/testes/test_m09_ex08_ler_medicoes.py -x`.
 
 ## 14. Cobertura de testes (conceito)
 
 **Cobertura** responde: "quais linhas do meu código rodaram durante os testes?". A
-ferramenta mais usada é o plugin `pytest-cov`:
+ferramenta mais usada é o plugin `pytest-cov` (`python -m pip install pytest-cov`). No
+mini projeto:
 
 ```text
-python -m pip install pytest-cov
-python -m pytest --cov=laudo --cov=observacao --cov-report=term-missing
-```
-
-No mini projeto:
-
-```text
+> python -m pytest --cov=laudo --cov=observacao --cov-report=term-missing
 ................                                                         [100%]
 ================================ tests coverage ================================
 _______________ coverage: platform linux, python 3.13.16-final-0 _______________
@@ -1030,12 +768,12 @@ TOTAL              39      2    95%
 16 passed in 0.09s
 ```
 
-A coluna `Missing` é a parte útil: são as linhas que **nenhum** teste executou.
+A coluna `Missing` lista as linhas que **nenhum** teste executou:
 
 - Linha 12 de `laudo.py`: o `raise` de "nominal deve ser positivo". Esquecemos de testar
-  nominal zero ou negativo. Isso é uma lacuna real.
-- Linha 47: o `raise ConnectionError` da consulta ao ERP. Ela nunca roda nos testes de
-  propósito, porque trocamos a função com `monkeypatch`. Lacuna aceitável.
+  nominal zero ou negativo. Lacuna real.
+- Linha 47: o `raise ConnectionError` do ERP, que trocamos com `monkeypatch` de propósito.
+  Lacuna aceitável.
 
 > ⚠️ **Erro comum:** perseguir 100% como meta. Cobertura mostra o que **não** foi testado,
 > mas não prova que o resto foi bem testado: um teste sem `assert` "cobre" linhas e não
@@ -1049,32 +787,22 @@ A coluna `Missing` é a parte útil: são as linhas que **nenhum** teste executo
 Revisar espaço em branco e import esquecido é trabalho de máquina. O **ruff** faz duas
 coisas, muito rápido:
 
-- `ruff check`: **lint**. Procura problemas: import não usado, variável esquecida,
+- `ruff check` (**lint**) procura problemas: import não usado, variável esquecida,
   armadilhas conhecidas.
-- `ruff format`: **formatação**. Padroniza espaços, quebras de linha e aspas. Não muda o
-  comportamento, só a aparência.
+- `ruff format` (**formatação**) padroniza espaços, quebras de linha e aspas. Muda a
+  aparência, nunca o comportamento. (`black` e `isort`, que você conhece de nome, fazem
+  parte do que o ruff faz, num programa só.)
 
-### A configuração do curso
-
-O arquivo `ruff.toml`, na raiz do curso, vale para todos os módulos:
-
-```text
-line-length = 95          linhas de até 95 caracteres
-target-version = "py310"  o código precisa rodar no Python 3.10+
-
-[lint]
-select = ["E", "F", "W", "I", "B", "UP"]
-```
+O arquivo `ruff.toml`, na raiz do curso, vale para todos os módulos: linhas de até 95
+caracteres, código compatível com Python 3.10+ e estas famílias de regras:
 
 | Código | Família | Exemplo do que pega |
 |---|---|---|
 | `E`, `W` | estilo (pycodestyle) | dois imports na mesma linha, espaço no fim da linha |
-| `F` | erros prováveis (pyflakes) | import não usado, variável nunca usada, nome indefinido |
+| `F` | erros prováveis (pyflakes) | import não usado, variável nunca usada |
 | `I` | ordem dos imports (isort) | imports fora da ordem padrão |
 | `B` | armadilhas (bugbear) | lista como valor padrão de parâmetro |
 | `UP` | modernização (pyupgrade) | `"%s" % x` no lugar de f-string |
-
-### Na prática
 
 O `exemplos/05_ruff_na_pratica.py` cria um arquivo bagunçado numa pasta temporária e roda
 o ruff nele. O arquivo:
@@ -1114,9 +842,8 @@ Found 8 errors.
 
 Cada linha traz `arquivo:linha:coluna: CÓDIGO mensagem`. O `[*]` marca o que o ruff
 conserta sozinho com `ruff check --fix`. Os outros três exigem você: apagar `total`,
-trocar o `%` por f-string e resolver o `avisos=[]`. (Sem `--output-format concise`, o
-ruff mostra cada problema com o trecho do código e uma sugestão; as mensagens podem
-variar um pouco entre versões.)
+trocar o `%` por f-string e resolver o `avisos=[]`. (Sem `--output-format concise`, cada
+problema vem com o trecho do código e uma sugestão.)
 
 > 🔮 **Preveja antes de rodar:** o B006 não é frescura. Lembra do módulo 04? O que este
 > código imprime?
@@ -1140,83 +867,27 @@ variar um pouco entre versões.)
 ```
 
 A lista padrão é criada **uma vez**, quando a função é definida, e é reaproveitada em
-todas as chamadas. O aviso da primeira OP "vaza" para a segunda. A correção é
+todas as chamadas: o aviso da primeira OP "vaza" para a segunda. A correção é
 `avisos=None` e, dentro, `if avisos is None: avisos = []`. O ruff pegou um bug real.
 
 </details>
 
-Para a formatação, `ruff format --diff` mostra o que mudaria, sem mexer no arquivo:
+No dia a dia: `ruff check .` lista os problemas da pasta, `ruff check --fix .` conserta
+os que têm `[*]`, `ruff format --diff .` mostra o que a formatação mudaria, `ruff format .`
+formata tudo e `ruff format --check .` só confere (útil no CI).
 
-```text
-> ruff format --diff limites.py
---- limites.py
-+++ limites.py
-@@ -1,3 +1,3 @@
--def limites(nominal,tol):
--    margem=nominal*tol/100
--    return (nominal-margem , nominal+margem)
-+def limites(nominal, tol):
-+    margem = nominal * tol / 100
-+    return (nominal - margem, nominal + margem)
-
-1 file would be reformatted
-```
-
-| Comando | O que faz |
-|---|---|
-| `ruff check .` | lista os problemas da pasta |
-| `ruff check --fix .` | conserta os que têm `[*]` |
-| `ruff format .` | formata todos os arquivos |
-| `ruff format --check .` | só confere (útil no CI); não muda nada |
-
-### No VS Code
-
-Instale a extensão **Ruff** (da Astral) e, no `settings.json` do VS Code, peça para
-formatar e organizar os imports ao salvar:
-
-```json
-{
-  "[python]": {
-    "editor.defaultFormatter": "charliermarsh.ruff",
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
-      "source.organizeImports": "explicit"
-    }
-  }
-}
-```
-
-> 💡 **Dica:** `black` e `isort`, que você conhece de nome, fazem parte do que o ruff faz,
-> num programa só. Em projetos antigos você ainda vai encontrá-los; a ideia é a mesma.
+> 💡 **Dica:** no VS Code, instale a extensão **Ruff** (da Astral), escolha-a como
+> formatador padrão de Python e ligue **Format On Save** nas configurações. O código passa
+> a ser formatado sempre que você salva.
 
 ## 16. Type hints e mypy (conceito)
 
-Você usa type hints desde o módulo 01, nos exercícios: `def media(valores: list[float])
--> float`. Eles dizem o que a função espera e o que devolve.
-
-O ponto que pouca gente sabe: **o Python não confere os type hints ao rodar.** Veja
-`exemplos/07_type_hints.py`:
-
-```text
-> python exemplos/07_type_hints.py
-Anotações: {'pesos': list[float], 'return': <class 'float'>}
-NF 4512: 3 bobina(s), 469.2 kg
-juntar('10', '20') = 1020 <- o Python não reclamou
-```
-
-`juntar` foi anotada com `int`, recebeu textos e devolveu `"1020"`. Quem confere os tipos
-é uma ferramenta separada, o **mypy**, que lê o código **sem executá-lo**:
-
-```text
-> python -m pip install mypy
-> mypy exemplos/07_type_hints.py
-exemplos/07_type_hints.py:34: error: Argument 1 to "juntar" has incompatible type "str"; expected "int"  [arg-type]
-exemplos/07_type_hints.py:34: error: Argument 2 to "juntar" has incompatible type "str"; expected "int"  [arg-type]
-Found 2 errors in 1 file (checked 1 source file)
-```
-
-Outro exemplo, com três bugs que só apareceriam rodando o programa num caso específico:
+Você lê type hints desde o módulo 01, nos exercícios: `def media(valores: list[float]) ->
+float`. Eles dizem o que a função espera e o que devolve. O ponto que pouca gente sabe:
+**o Python não confere os type hints ao rodar.** Em `exemplos/07_type_hints.py`, a função
+`juntar(a: int, b: int) -> int` recebe `"10"` e `"20"` e devolve `"1020"`, sem reclamar. Quem confere os tipos
+é uma ferramenta separada, o **mypy**, que lê o código **sem executá-lo**. Num arquivo
+`pesos.py`, com três problemas que só apareceriam rodando o programa num caso específico:
 
 ```python
 def somar_pesos(pesos: list[float]) -> float:
@@ -1234,6 +905,7 @@ print(total.upper())
 ```
 
 ```text
+> python -m pip install mypy
 > mypy pesos.py
 pesos.py:7: error: Incompatible return value type (got "None", expected "float")  [return-value]
 pesos.py:11: error: List item 0 has incompatible type "str"; expected "float"  [list-item]
@@ -1243,23 +915,14 @@ Found 4 errors in 1 file (checked 1 source file)
 ```
 
 A linha 7 é a mais interessante: a anotação promete `float`, mas a função pode devolver
-`None`. Se for de propósito, a anotação certa é `-> float | None`, e aí o mypy obriga
-quem chama a tratar o `None`.
+`None`. Se for de propósito, a anotação certa é `-> float | None`, e o mypy passa a
+obrigar quem chama a tratar o `None`.
 
-Resumo das anotações mais usadas:
-
-| Anotação | Significa |
-|---|---|
-| `int`, `float`, `str`, `bool` | tipos simples |
-| `list[float]`, `dict[str, float]` | lista de floats, dicionário texto → float |
-| `tuple[float, float]` | tupla com exatamente dois floats |
-| `float \| None` | float ou None |
-| `Callable[[list[float]], float]` | função que recebe lista de floats e devolve float |
-
-O `Callable` (de `collections.abc`) aparece nos exercícios "escreva os testes": a função
+Nos exercícios "escreva os testes" aparece `Callable[[list[float]], float]` (de
+`collections.abc`): "uma função que recebe lista de floats e devolve float". A sua função
 de teste recebe **outra função** como parâmetro.
 
-> 💡 **Dica:** type hints são **graduais**: comece anotando as funções públicas. O VS Code
+> 💡 **Dica:** type hints são **graduais**: comece pelas funções públicas. O VS Code
 > (Pylance) já usa as anotações para autocompletar e sublinhar erros enquanto você digita.
 
 ## 17. logging: os prints dos profissionais
@@ -1276,14 +939,10 @@ gravidade. É para isso que existe o módulo `logging`.
 | `ERROR` | uma operação falhou | "não consegui ler o valor da OP 12347" |
 | `CRITICAL` | o programa não consegue continuar | "planilha de regras não encontrada" |
 
-O padrão de uso tem três partes:
-
-1. Em cada módulo, um logger com nome: `logger = logging.getLogger(__name__)`.
-2. **Uma vez**, no início do programa (no `main`), a configuração com
-   `logging.basicConfig(...)`: nível mínimo, formato e destino.
-3. No código, `logger.info(...)`, `logger.warning(...)` etc.
-
-Trecho de `exemplos/03_logging_inspecao.py`:
+O padrão de uso tem três partes: (1) em cada módulo, um logger com nome,
+`logger = logging.getLogger(__name__)`; (2) **uma vez**, no início do programa, a
+configuração com `logging.basicConfig(...)`; (3) no código, `logger.info(...)`,
+`logger.warning(...)` etc. Trecho de `exemplos/03_logging_inspecao.py`:
 
 ```python
 logging.basicConfig(
@@ -1313,58 +972,29 @@ ValueError: could not convert string to float: 'vinte'
 Log gravado em: inspecao.log
 ```
 
-A data e a hora serão as do seu computador. O mesmo conteúdo foi gravado em
-`exemplos/saida/inspecao.log`, em UTF-8 (sem problema de acento no Bloco de Notas).
-
-Repare em três detalhes do exemplo:
+A data e a hora serão as do seu computador (encurtei o caminho do arquivo). O mesmo
+conteúdo foi gravado em `exemplos/saida/inspecao.log`, em UTF-8. Repare:
 
 - `logger.exception(...)`, dentro de um `except`, registra no nível ERROR **com o
   traceback completo**. É o que você vai querer ler no dia seguinte.
-- `logger.debug(...)` não apareceu, porque o nível mínimo é INFO. Para investigar um
-  problema, mude para `level=logging.DEBUG` sem tocar no resto do código.
-- `logger.info("OP %s: %.2f", op, valor)`: os valores vão como argumentos e o logging
-  só monta o texto se a mensagem for aparecer. f-string também funciona; esse estilo é o
-  tradicional.
-
-> 🔮 **Preveja antes de rodar:** o que aparece no terminal?
->
-> ```python
-> import logging
->
-> logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-> logging.debug("lendo a planilha")
-> logging.info("OP 12345 conferida")
-> logging.warning("OP 12346 fora da tolerância")
-> ```
-
-<details><summary>Resposta</summary>
-
-```text
-INFO: OP 12345 conferida
-WARNING: OP 12346 fora da tolerância
-```
-
-DEBUG está abaixo de INFO, então fica de fora.
-
-</details>
+- O `logger.debug(...)` do exemplo não apareceu, porque o nível mínimo é INFO. Para
+  investigar um problema, mude para `level=logging.DEBUG` sem tocar no resto do código.
+- O exemplo usa o estilo tradicional, `logger.info("OP %s: %.2f", op, valor)`, em que o
+  texto só é montado se a mensagem for aparecer. f-string também funciona.
 
 > ⚠️ **Erro comum:** chamar `basicConfig` dentro de funções ou em vários módulos. Só a
-> primeira chamada vale; as outras são ignoradas em silêncio. Configure uma vez, no
-> `main`.
+> primeira chamada vale; as outras são ignoradas em silêncio. Configure uma vez, no `main`.
 
 ## 18. Depuração: `breakpoint()` e o debugger do VS Code
 
-Depurar é investigar. O método é o mesmo de uma análise de não conformidade no
-laboratório:
+Depurar é investigar, com o método de uma análise de não conformidade: (1)
+**reproduza** com um caso pequeno, de preferência um teste que falha; (2) **observe** o
+que entra, o que sai e onde muda; (3) **formule uma hipótese** ("o total está sendo
+zerado a cada volta"); (4) **teste a hipótese** no REPL ou no depurador; (5) **corrija**
+e mantenha o teste, que impede a volta do bug.
 
-1. **Reproduza** o problema com um caso pequeno (de preferência, um teste que falha).
-2. **Observe** os dados: o que entra, o que sai, onde muda.
-3. **Formule uma hipótese** ("o total está sendo zerado a cada volta").
-4. **Teste a hipótese** no REPL ou no depurador, antes de mexer no código.
-5. **Corrija** e mantenha o teste: ele vira proteção contra a volta do bug.
-
-`print` ajuda no passo 2, mas o **depurador** é mais poderoso: ele **pausa** o programa
-numa linha e deixa você olhar todas as variáveis e avançar uma linha por vez.
+`print` ajuda a observar, mas o **depurador** é mais poderoso: ele **pausa** o programa
+numa linha e deixa você ver todas as variáveis e avançar uma linha por vez.
 
 ### breakpoint() e o pdb
 
@@ -1377,9 +1007,9 @@ Média calculada: 0.1000
 Média esperada:  0.3233  (0,32 + 0,35 + 0,30) / 3
 ```
 
-Dentro de `media_cof` há um `breakpoint()`, que só é ativado com `--depurar`. Quando o
-Python chega nele, abre o **pdb**, o depurador que vem com o Python. Sessão real (os
-comandos digitados aparecem depois de `(Pdb)`; encurtei os caminhos):
+Dentro de `media_cof` há um `breakpoint()`, ativado com `--depurar`. Quando o Python
+chega nele, abre o **pdb**, o depurador que vem com o Python. Trecho de uma sessão real
+(os comandos digitados vêm depois de `(Pdb)`; encurtei os caminhos):
 
 ```text
 > python exemplos/04_depuracao.py --depurar
@@ -1388,26 +1018,7 @@ comandos digitados aparecem depois de `(Pdb)`; encurtei os caminhos):
 (Pdb) n
 > .../exemplos/04_depuracao.py(27)media_cof()
 -> total = 0.0
-(Pdb) n
-> .../exemplos/04_depuracao.py(28)media_cof()
--> for leitura in leituras:
-(Pdb) n
-> .../exemplos/04_depuracao.py(29)media_cof()
--> valor = converter(leitura)
-(Pdb) p leitura
-'0,32'
-(Pdb) n
-> .../exemplos/04_depuracao.py(30)media_cof()
--> total = valor  # BUG de propósito: deveria ser total += valor
-(Pdb) p valor, total
-(0.32, 0.0)
-(Pdb) n
-> .../exemplos/04_depuracao.py(28)media_cof()
--> for leitura in leituras:
-(Pdb) n
-> .../exemplos/04_depuracao.py(29)media_cof()
--> valor = converter(leitura)
-(Pdb) n
+...
 > .../exemplos/04_depuracao.py(30)media_cof()
 -> total = valor  # BUG de propósito: deveria ser total += valor
 (Pdb) p valor, total
@@ -1418,92 +1029,65 @@ comandos digitados aparecem depois de `(Pdb)`; encurtei os caminhos):
 (Pdb) p total
 0.35
 (Pdb) c
-Leituras: ['0,32', '0,35', '0,30']
-Média calculada: 0.1000
-Média esperada:  0.3233  (0,32 + 0,35 + 0,30) / 3
 ```
 
-Na segunda volta, o `total` deveria ser `0.32 + 0.35 = 0.67`, mas virou `0.35`: o total
-foi **substituído**, não somado. Hipótese confirmada, bug achado: `total = valor` deveria
-ser `total += valor`.
+Na segunda volta, antes da linha 30, `valor` é 0.35 e `total` é 0.32. Depois dela, o
+`total` deveria ser `0.32 + 0.35 = 0.67`, mas virou `0.35`: foi **substituído**, não
+somado. Hipótese confirmada: `total = valor` deveria ser
+`total += valor`.
 
 | Comando pdb | Faz |
 |---|---|
 | `n` (next) | executa a linha atual e para na próxima |
 | `s` (step) | entra na função chamada na linha atual |
 | `c` (continue) | segue até o próximo breakpoint (ou o fim) |
-| `p expr` | mostra o valor de uma expressão: `p total`, `p len(leituras)` |
-| `pp expr` | mostra "bonito" (dicionários e listas grandes) |
-| `l` (list) | mostra o código em volta da linha atual |
-| `w` (where) | mostra a pilha de chamadas |
+| `p expr` / `pp expr` | mostra o valor de uma expressão (`pp` formata listas e dicionários) |
+| `l` (list) / `w` (where) | mostra o código em volta / a pilha de chamadas |
 | `q` (quit) | encerra o programa |
 
 > 💡 **Dica:** `python -m pytest --pdb` abre o pdb **no ponto exato da falha** de um teste.
-> E a variável de ambiente `PYTHONBREAKPOINT=0` desliga todos os `breakpoint()` sem
-> apagar nenhum. Antes do commit, procure e remova os `breakpoint()` esquecidos.
+> E a variável de ambiente `PYTHONBREAKPOINT=0` desliga todos os `breakpoint()`. Antes do
+> commit, remova os `breakpoint()` esquecidos.
 
-> ⚠️ **Erro comum:** a partir do Python 3.13, o pdb para **na própria linha** do
-> `breakpoint()`; em versões anteriores, para na linha seguinte. Se a sua tela estiver uma
-> linha diferente da sessão acima, é isso.
+> ⚠️ **Erro comum:** estranhar a linha onde o pdb para. A partir do Python 3.13, ele para
+> **na própria linha** do `breakpoint()`; em versões anteriores, na linha seguinte.
 
 ### O debugger do VS Code
 
 O VS Code faz o mesmo com cliques:
 
-1. Abra `exemplos/04_depuracao.py` e clique à esquerda do número da linha
-   `total = valor` (ou aperte **F9**). Aparece uma bolinha vermelha: o *breakpoint*.
-2. Aperte **F5** e escolha **Python Debugger: Current File**. O programa para na linha
-   marcada.
-3. No painel **Variables**, veja `leitura`, `valor` e `total`. Em **Watch**, acrescente
+1. Abra `exemplos/04_depuracao.py`, clique à esquerda do número da linha `total = valor`
+   (ou **F9**): aparece a bolinha vermelha do *breakpoint*.
+2. **F5** → **Python Debugger: Current File**. O programa para ali. O painel
+   **Variables** mostra `leitura`, `valor` e `total`; em **Watch**, acrescente
    expressões como `total + valor`.
-4. Avance com **F10** (próxima linha), **F11** (entrar na função), **Shift+F11** (sair
-   da função) e **F5** (continuar).
-5. Na **Debug Console**, digite qualquer expressão Python com as variáveis do momento.
-6. Clique com o botão direito na bolinha e escolha **Edit Breakpoint** para criar um
-   *breakpoint condicional*, por exemplo `leitura == "0,30"`: ele só para quando a
-   condição é verdadeira. Ótimo para a linha 3.000 de uma planilha.
+3. Avance com **F10** (próxima linha), **F11** (entrar na função), **Shift+F11** (sair
+   dela) e **F5** (continuar). Na **Debug Console**, digite qualquer expressão Python.
+4. Botão direito na bolinha → **Edit Breakpoint** cria um *breakpoint condicional*
+   (`leitura == "0,30"`): só para quando a condição é verdadeira.
 
 Para depurar um **teste**, configure o pytest no VS Code (ícone do frasco, **Testing** →
-**Configure Python Tests** → **pytest** → pasta `curso-python`). Depois, clique com o
-botão direito no teste e escolha **Debug Test**.
+**Configure Python Tests** → **pytest** → pasta `curso-python`) e use **Debug Test** no
+botão direito do teste.
 
 ## 19. Git no dia a dia
 
-No módulo 00 você usou Git sozinho, na branch principal. Num time, o fluxo é outro:
-ninguém mexe direto na `main`. Cada mudança nasce numa **branch**, vira um **pull
-request** (PR), passa por **revisão** e só então entra na `main`.
+No módulo 00 você usou Git sozinho, na branch principal. Num time, ninguém mexe direto na
+`main`: cada mudança nasce numa **branch**, vira um **pull request** (PR), passa por
+**revisão** e só então entra na `main`, que fica sempre funcionando.
 
-```text
-main     o---o-----------------------o----->   (sempre funcionando)
-              \                     /
-branch         o---o---o           /   corrige-borda-tolerancia
-                        \         /
-                         PR + revisão + testes passando -> merge
-```
-
-### Passo a passo
-
-O fluxo abaixo foi executado num repositório de exemplo. No seu computador, o Git pode
-mostrar as mensagens em português.
+Fluxo executado num repositório de exemplo (no seu computador, o Git pode responder em
+português):
 
 ```text
 > git switch -c corrige-borda-tolerancia
 Switched to a new branch 'corrige-borda-tolerancia'
 ```
 
-Você edita o código (e roda os testes!). Antes de fazer o commit, **sempre** confira o que
-mudou:
+Você edita o código e roda os testes. Antes do commit, **sempre** confira o que mudou
+(`git status` lista os arquivos; `git diff` mostra as linhas):
 
 ```text
-> git status
-On branch corrige-borda-tolerancia
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-	modified:   tolerancia.py
-
-no changes added to commit (use "git add" and/or "git commit -a")
-
 > git diff
 diff --git a/tolerancia.py b/tolerancia.py
 index 3524197..d5f5cb5 100644
@@ -1515,41 +1099,28 @@ index 3524197..d5f5cb5 100644
 +    return "APROVADO" if minimo <= valor <= maximo else "REPROVADO"
 ```
 
-Linhas com `-` saíram, linhas com `+` entraram. Agora o commit, com título e corpo
-(cada `-m` vira um parágrafo):
+Linhas com `-` saíram, com `+` entraram. Agora o commit, com título e corpo (cada `-m`
+vira um parágrafo):
 
 ```text
 > git add tolerancia.py
 > git commit -m "Corrige bordas na avaliação de tolerância" -m "Valores iguais ao mínimo ou ao máximo estão dentro da especificação. Antes, uma bobina com espessura exatamente no limite era reprovada."
 [corrige-borda-tolerancia cf2cfbb] Corrige bordas na avaliação de tolerância
  1 file changed, 1 insertion(+), 1 deletion(-)
-
-> git log --oneline
-cf2cfbb Corrige bordas na avaliação de tolerância
-2b87869 Adiciona avaliação de tolerância
 ```
 
 Por fim, `git push -u origin corrige-borda-tolerancia` manda a branch para o GitHub, que
-oferece um botão **Compare & pull request**.
+oferece o botão **Compare & pull request**.
 
 ### Commits pequenos, mensagens boas
 
 Um commit é **uma ideia**: "corrige a borda", e não "corrige a borda, muda o relatório e
-renomeia três funções". Commits pequenos são fáceis de revisar e de desfazer.
-
-| Ruim | Bom |
-|---|---|
-| `ajustes` | `Corrige bordas na avaliação de tolerância` |
-| `commit final agora vai` | `Adiciona leitura da observação de liberação` |
-| `mudei umas coisas` | `Troca prints de aviso por logging` |
-| `wip` | `Extrai cálculo de limites para função própria` |
-
-Regras práticas: título no imperativo ("Corrige", "Adiciona", "Remove"), até uns 50
-caracteres, sem ponto final. Se precisar explicar, deixe uma linha em branco e escreva
-**por que** mudou (o "o quê" o diff já mostra).
-
-> 💡 **Dica:** `git add -p` mostra cada trecho alterado e pergunta se ele entra no commit.
-> É o jeito de separar duas ideias que você misturou no mesmo arquivo.
+renomeia três funções". Commits pequenos são fáceis de revisar e de desfazer. Mensagens
+como `ajustes` ou `commit final agora vai` não dizem nada; `Troca prints de aviso por
+logging` diz. Título no imperativo ("Corrige", "Adiciona", "Remove"), com até uns 50 caracteres e sem
+ponto final. Se precisar, deixe uma linha em branco e explique **por que** mudou (o "o
+quê" o diff já mostra). `git add -p` mostra cada trecho alterado e pergunta se ele entra
+no commit: é o jeito de separar duas ideias misturadas no mesmo arquivo.
 
 ### Pull request e revisão de código
 
@@ -1564,47 +1135,38 @@ Por que
 
 Como testar
 - python -m pytest -k bordas
-- Rodar a conferência da OP 12345: deve sair APROVADO.
 ```
 
-**Revisão de código** é outra pessoa lendo o seu PR antes do merge. Não é julgamento: é
-a segunda conferência do laudo.
+**Revisão de código** é outra pessoa lendo o seu PR antes do merge: a segunda conferência
+do laudo. **Como autor:** PR pequeno, testes passando, ruff limpo, descrição clara;
+releia o próprio diff antes de pedir revisão. **Como revisor:** o código faz o que a
+descrição diz? Há teste para o caso novo? Os nomes são claros? Comente o código, nunca a
+pessoa, e sugira ("que tal extrair isto para uma função?") em vez de ordenar.
 
-- **Como autor:** PR pequeno, testes passando, ruff limpo, descrição clara. Releia o
-  próprio diff antes de pedir revisão.
-- **Como revisor:** o código faz o que a descrição diz? Há teste para o caso novo? Os
-  nomes são claros? Comente sobre o código, nunca sobre a pessoa, e sugira ("que tal
-  extrair isto para uma função?") em vez de ordenar.
-
-> ⚠️ **Erro comum:** fazer commit de senha, token ou planilha com dados de cliente. Uma
-> vez no GitHub, considere vazado (o histórico guarda tudo). Use variáveis de ambiente
-> (como no exercício 04) e um `.gitignore` para arquivos como `.env` e `saida/`.
+> ⚠️ **Erro comum:** fazer commit de senha, token ou planilha com dados de cliente. Uma vez
+> no GitHub, considere vazado: o histórico guarda tudo. Use variáveis de ambiente (como no
+> exercício 04) e um `.gitignore` para arquivos como `.env` e `saida/`.
 
 ## 20. Código limpo e refatoração
 
 Código é lido muito mais vezes do que é escrito, inclusive por você daqui a seis meses.
-"Código limpo" é código fácil de ler e de mudar. Algumas regras práticas:
+Regras práticas:
 
 - **Nomes que contam a história:** `margem`, `tolerancia_pct`, `media_cof`. Nada de `x`,
-  `d`, `t`, `aux2`.
-- **Funções pequenas que fazem uma coisa.** Se para descrever a função você usa "e"
-  ("lê o arquivo **e** confere **e** imprime"), divida.
+  `d`, `aux2`.
+- **Funções pequenas que fazem uma coisa.** Se a descrição tem "e" ("lê o arquivo **e**
+  confere **e** imprime"), divida.
 - **Sem números mágicos:** `if valor > 0.35` não diz nada; `if valor > COF_MAXIMO` diz.
-- **Sem repetição:** a mesma regra em dois lugares vai divergir um dia.
-- **Retorno antecipado:** trate os casos especiais no começo e evite `if` dentro de `if`.
+- **Sem repetição** (a mesma regra em dois lugares vai divergir um dia) e com **retorno
+  antecipado** (casos especiais no começo, sem `if` dentro de `if`).
 - **Separe cálculo de impressão:** uma função que **devolve** o texto do relatório é fácil
   de testar; uma que só imprime precisa de `capsys`.
-- **Comentário explica o porquê**, não o quê. `# soma 1` é ruído;
-  `# a norma conta a borda como aprovada` é ouro.
+- **Comentário explica o porquê**, não o quê: `# a norma conta a borda como aprovada`.
 
-### Refatorar é mudar a estrutura sem mudar o comportamento
-
-E só se faz com rede de segurança: testes passando antes **e** depois. Diante de código
-antigo sem testes, o primeiro passo é escrever um **teste de caracterização**: ele
-registra o que o código faz **hoje**, certo ou errado.
-
-O `exemplos/06_refatoracao.py` mostra o antes e o depois de uma função de conferência.
-Antes:
+**Refatorar é mudar a estrutura sem mudar o comportamento**, e só se faz com testes
+passando antes **e** depois. Diante de código antigo sem testes, o primeiro passo é um
+**teste de caracterização**: ele registra o que o código faz **hoje**, certo ou errado.
+O `exemplos/06_refatoracao.py` mostra o antes:
 
 ```python
 def proc(d, t):
@@ -1623,11 +1185,11 @@ def proc(d, t):
     return r
 ```
 
-Depois:
+E o depois, com nomes claros, uma função pequena para a regra que se repetia e type hints
+(`Medicao` e `Limites` são apelidos de tipo definidos no arquivo):
 
 ```python
 def situacao(valor: float, limites: Limites) -> str:
-    """'OK' se o valor está dentro dos limites (inclusive), senão 'FORA'."""
     minimo, maximo = limites
     return "OK" if minimo <= valor <= maximo else "FORA"
 
@@ -1649,156 +1211,99 @@ Depois: [('101', 'OK'), ('102', 'OK'), ('103', 'FORA'), ('104', 'FORA'), ('105',
 Mesmo resultado: refatoração segura.
 ```
 
-Repare num detalhe: o código antigo **ignora** ensaios sem tolerância (o COF da OP 106
-sumiu do resultado). Isso parece um bug, mas a refatoração **manteve** o comportamento.
-Refatorar e corrigir são passos separados, em commits separados. Misturar os dois é o
-jeito mais rápido de não saber o que quebrou.
+Repare: o código antigo **ignora** ensaios sem tolerância (o COF da OP 106 sumiu do
+resultado). Parece um bug, mas a refatoração **manteve** o comportamento. Refatorar e
+corrigir são passos separados, em commits separados; misturar os dois é o jeito mais
+rápido de não saber o que quebrou.
 
-As refatorações mais comuns, todas de baixo risco com testes:
-
-| Refatoração | Quando |
-|---|---|
-| Renomear | o nome não diz o que a coisa é |
-| Extrair função | um trecho tem um propósito claro (ou se repete) |
-| Extrair constante | aparece um número mágico |
-| Substituir if/elif por dicionário | mapeamento fixo de valores (como no TDD da seção 13) |
-| Separar cálculo de saída | a função calcula e imprime ao mesmo tempo |
-
-> 🔧 **Modifique:** em `exemplos/06_refatoracao.py`, acrescente às `MEDICOES` o caso
-> `("107", "esp", 19.0)` e rode. A refatoração continua segura? Agora troque `<=` por `<`
-> em `situacao` e rode de novo: o `assert` de caracterização pega a mudança?
+> 🔧 **Modifique:** em `exemplos/06_refatoracao.py`, troque `<=` por `<` em `situacao` e
+> rode. O `assert` de caracterização pega a mudança? Desfaça e acrescente às `MEDICOES` o
+> caso `("107", "esp", 19.0)`: a refatoração continua segura?
 
 ## Lendo mensagens de erro deste módulo
 
-**`NotImplementedError: Implemente esta função`.** O teste chamou o seu exercício e ainda
-encontrou o `raise NotImplementedError`. É o ponto de partida de todo exercício: apague a
-linha e escreva o código.
+| Mensagem | O que significa | Como resolver |
+|---|---|---|
+| `NotImplementedError: Implemente esta função` | o teste chamou o exercício e achou o `raise` | apague a linha e escreva o código |
+| `ERROR collecting ... ModuleNotFoundError` | o `import` do arquivo de teste falhou; o teste nem começou | confira nome do arquivo, pasta de onde rodou e se o código existe |
+| `fixture 'tmp_pat' not found` | o parâmetro não corresponde a nenhuma fixture | erro de digitação ou fixture num `conftest.py` de outra pasta |
+| `Failed: DID NOT RAISE ValueError` | o código terminou sem o erro esperado | falta o `raise`, ou o caso não é inválido como você pensou |
+| `Regex pattern did not match.` | o erro certo aconteceu, mas a mensagem não bate com o `match=` | compare `Expected regex` com `Actual message` |
+| `assert 30.15 == 20.1 ± 2.0e-05` | comparação com `approx` falhou | descubra que conta produz o valor obtido |
+| `Unknown 'parametrise' mark, did you mean 'parametrize'?` | erro de digitação no decorator | é `parametrize`, com z |
+| `no tests ran` (código de saída 5) | o pytest não achou testes | prefixos `test_`/`test` nos nomes, ou pasta errada |
+| ruff `F401`, `F841` | import ou variável sem uso | apague; `I001` se resolve com `ruff check --fix` |
+| mypy `Incompatible return value type` | a função promete um tipo e pode devolver outro | corrija o código ou a anotação (`float \| None`) |
 
-**`ModuleNotFoundError: No module named 'observacao'` (ERROR collecting).** O teste nem
-começou: o `import` do arquivo de teste falhou. Confira o nome do arquivo, a pasta de onde
-você rodou o pytest e se o arquivo do código existe. No TDD, é o primeiro vermelho.
-
-**`fixture 'tmp_pat' not found`.** O nome do parâmetro do teste não corresponde a
-nenhuma fixture. O pytest lista as disponíveis logo abaixo:
-
-```text
-E       fixture 'tmp_pat' not found
->       available fixtures: anyio_backend, ..., arquivo_medicoes, capfd, capfdbinary, caplog, capsys, ..., medicoes_espessura, monkeypatch, ..., tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
-```
-
-(Lista encurtada.) Quase sempre é erro de digitação ou fixture definida num `conftest.py`
-fora da pasta dos testes.
-
-**`Failed: DID NOT RAISE ValueError`.** Você usou `pytest.raises(ValueError)`, mas o
-código terminou sem erro. Ou falta o `raise` no código, ou o caso de teste não é inválido
-como você pensava.
-
-**`AssertionError: Regex pattern did not match.`** O erro certo aconteceu, mas a mensagem
-não bate com o `match=`:
-
-```text
-E       AssertionError: Regex pattern did not match.
-E         Expected regex: 'linha 2'
-E         Actual message: "linha 3: valor inválido 'abc'"
-```
-
-**`assert 30.15 == 20.1 ± 2.0e-05`.** Comparação com `approx` falhou. O número obtido é a
-pista: descubra que conta produz aquele valor.
-
-**`Failed: Unknown 'parametrise' mark, did you mean 'parametrize'?`** Erro de digitação
-no decorator: é `parametrize`, com z.
-
-**`no tests ran` (código de saída 5).** O pytest não achou nenhum teste: arquivo sem o
-prefixo `test_`, função sem o prefixo `test`, ou você está na pasta errada.
-
-**`ruff: F401 ... imported but unused`, `F841 ... never used`.** Sobra de código: apague o
-import ou a variável. `I001`: rode `ruff check --fix` para ordenar os imports.
-
-**`mypy: Incompatible return value type (got "None", expected "float")`.** A função
-promete um tipo e pode devolver outro. Corrija o código ou a anotação (`float | None`).
+Dica: o `fixture not found` vem seguido da lista de fixtures disponíveis
+(`available fixtures: ..., caplog, capsys, ..., tmp_path, ...`). Procure nela o nome certo.
 
 ## Boas práticas
 
 - Rode os testes **antes** de começar a mexer (para saber que estava verde) e depois de
   cada mudança pequena.
-- Todo bug corrigido ganha um teste que falhava antes da correção. Assim ele nunca volta.
-- Um teste que nunca falhou pode estar testando nada. Quebre o código de propósito uma
-  vez e veja o teste ficar vermelho.
+- Todo bug corrigido ganha um teste que falhava antes da correção. Assim ele não volta.
+- Um teste que nunca falhou pode estar testando nada: quebre o código de propósito uma vez
+  e veja o vermelho.
 - Teste comportamento, não implementação: confira **o que** a função devolve, não
-  **como** ela faz por dentro. Assim você pode refatorar sem reescrever os testes.
+  **como** ela faz. Assim você refatora sem reescrever os testes.
 - Nada de internet, banco real, data/hora atual ou aleatoriedade sem controle nos testes
-  de unidade. Injete a dependência ou use `monkeypatch`.
-- `ruff check` e `ruff format` antes de cada commit. Melhor ainda: no "salvar" do VS Code.
+  de unidade: injete a dependência ou use `monkeypatch`.
+- `ruff check` e `ruff format` antes de cada commit (melhor ainda: ao salvar no VS Code).
 - `logging` para o que o programa faz; `print` só para o resultado que o usuário pediu.
-- Commits pequenos, mensagens no imperativo, uma ideia por commit. Branch para cada
-  mudança.
+- Uma branch por mudança, commits pequenos, mensagens no imperativo.
 - Refatorar e corrigir bug são passos separados.
 
 ## No mundo real
 
 **Situação:** o laboratório decidiu que a gramatura da linha B passa a ter tolerância de
-nominal ± 4%, em vez de mínimo e máximo fixos. Você mantém o validador de certificados.
-Veja o caminho completo, do pedido ao merge, como acontece num time.
+nominal ± 4% (nominal 22 g/m²), em vez de mínimo e máximo fixos. Você mantém o validador
+de certificados. O caminho, do pedido ao merge:
 
-**1. Branch.** `git switch -c gramatura-linha-b-percentual`.
+1. **Branch:** `git switch -c gramatura-linha-b-percentual`.
+2. **Teste primeiro (vermelho)**, com os números da norma. 22 ± 4% dá limites 21,12 e
+   22,88; as bordas e os vizinhos logo fora são os casos que importam:
 
-**2. Teste primeiro (vermelho).** O pedido vira um teste, com os números da norma:
+   ```python
+   @pytest.mark.parametrize(
+       ("valor", "esperado"),
+       [(21.12, "OK"), (22.88, "OK"), (21.11, "FORA"), (22.89, "FORA")],
+       ids=["borda-inferior", "borda-superior", "logo-abaixo", "logo-acima"],
+   )
+   def test_gramatura_linha_b_usa_nominal_22_mais_ou_menos_4_porcento(valor, esperado):
+       regra = buscar_regra("B", "gramatura")
+       assert classificar(valor, regra) == esperado
+   ```
 
-```python
-@pytest.mark.parametrize(
-    ("valor", "esperado"),
-    [(21.12, "OK"), (22.88, "OK"), (21.11, "FORA"), (22.89, "FORA")],
-    ids=["borda-inferior", "borda-superior", "logo-abaixo", "logo-acima"],
-)
-def test_gramatura_linha_b_usa_nominal_22_mais_ou_menos_4_porcento(valor, esperado):
-    regra = buscar_regra("B", "gramatura")
-    assert classificar(valor, regra) == esperado
-```
+3. **Código mínimo (verde)** e **refatoração**, com `python -m pytest -x` a cada passo.
+4. **Qualidade, commits e PR:** `ruff check .`, `ruff format .`, `python -m pytest -q`;
+   commits pequenos ("Adiciona regra de tolerância percentual") e um PR com "o que muda /
+   por que / como testar".
+5. **Integração contínua (CI):** um robô roda os testes a cada push. No GitHub isso se
+   chama **GitHub Actions**, configurado em `.github/workflows/testes.yml`:
 
-(22 ± 4% dá limites 21,12 e 22,88. As bordas e os vizinhos logo fora são os casos que
-importam.)
+   ```yaml
+   name: testes
+   on: [push, pull_request]
+   jobs:
+     qualidade:
+       runs-on: windows-latest
+       steps:
+         - uses: actions/checkout@v4
+         - uses: actions/setup-python@v5
+           with:
+             python-version: "3.12"
+         - run: python -m pip install -r requirements.txt
+         - run: ruff check .
+         - run: ruff format --check .
+         - run: python -m pytest -q
+   ```
 
-**3. Código mínimo (verde)**, depois **refatoração**, com `python -m pytest -x` a cada
-passo.
-
-**4. Qualidade.** `ruff check .`, `ruff format .` e a suíte inteira:
-`python -m pytest -q`. Tudo verde.
-
-**5. Commits pequenos**: "Adiciona regra de tolerância percentual", "Usa tolerância
-percentual na gramatura da linha B", "Atualiza teste de caracterização do relatório".
-
-**6. Pull request** com "o que muda / por que / como testar", citando a revisão da
-especificação.
-
-**7. Integração contínua (CI).** Em projetos profissionais, um robô roda os testes a cada
-push. No GitHub isso se chama **GitHub Actions** e é configurado num arquivo
-`.github/workflows/testes.yml`:
-
-```yaml
-name: testes
-on: [push, pull_request]
-jobs:
-  qualidade:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: python -m pip install -r requirements.txt
-      - run: ruff check .
-      - run: ruff format --check .
-      - run: python -m pytest -q
-```
-
-Se algo falhar, o PR fica com um X vermelho e ninguém faz merge por engano.
-
-**8. Revisão.** A colega pergunta: "e a linha A, que continua com mínimo e máximo fixos,
-tem teste?". Você acrescenta o teste num commit novo, ela aprova, e o merge acontece.
-
-**9. Produção.** Na semana seguinte, alguém mexe na leitura da planilha e quebra sem
-querer o cálculo da linha B. O CI fica vermelho no PR dessa pessoa, **antes** de qualquer
-certificado errado sair. É para esse dia que os testes existem.
+6. **Revisão:** a colega pergunta "e a linha A, que continua com mínimo e máximo fixos,
+   tem teste?". Você acrescenta o teste num commit novo, ela aprova, e o merge acontece.
+7. **Uma semana depois**, alguém mexe na leitura da planilha e quebra sem querer o cálculo
+   da linha B. O CI fica vermelho no PR dessa pessoa, **antes** de qualquer certificado
+   errado sair. É para esse dia que os testes existem.
 
 ## Resumo
 
@@ -1811,9 +1316,8 @@ certificado errado sair. É para esse dia que os testes existem.
 | preparar dados reutilizáveis | `@pytest.fixture` (compartilhada em `conftest.py`) |
 | limpar depois do teste | `yield` dentro da fixture |
 | arquivo temporário | fixture `tmp_path` (um `Path`) |
-| capturar `print` | fixture `capsys`: `capsys.readouterr().out` |
-| capturar log | fixture `caplog`: `caplog.records`, `caplog.text` |
-| trocar função / variável de ambiente | fixture `monkeypatch`: `setattr`, `setenv`, `delenv` |
+| capturar `print` / log | `capsys.readouterr().out` / `caplog.records`, `caplog.text` |
+| trocar função / variável de ambiente | `monkeypatch.setattr`, `setenv`, `delenv` |
 | rodar testes | `python -m pytest` (`-v`, `-q`, `-x`, `-k nome`, `--lf`, `-s`, `--pdb`) |
 | cobertura | `python -m pytest --cov=modulo --cov-report=term-missing` |
 | lint / formatação | `ruff check --fix .` / `ruff format .` |
@@ -1825,15 +1329,15 @@ certificado errado sair. É para esse dia que os testes existem.
 
 ## Você domina este módulo se...
 
-- [ ] Consigo escrever um teste no padrão AAA e explicar, sem consultar, o que cada parte
-      da saída de uma falha do pytest significa.
-- [ ] Sei escolher casos de teste pensando em famílias de entrada e bordas, e explicar
-      por que `pytest.raises(Exception)` é uma armadilha.
+- [ ] Escrevo um teste no padrão AAA e explico, sem consultar, cada parte da saída de uma
+      falha do pytest.
+- [ ] Escolho casos de teste pensando em famílias de entrada e bordas, e sei explicar por
+      que `pytest.raises(Exception)` é uma armadilha.
 - [ ] Uso `parametrize`, uma fixture minha e as fixtures `tmp_path`, `capsys` e
       `monkeypatch` sem olhar a aula.
-- [ ] Consigo desenvolver uma função pequena em TDD, dizendo em qual passo do ciclo estou.
-- [ ] Consigo explicar a diferença entre `ruff check` e `ruff format`, e entre o que o
-      Python faz com type hints e o que o mypy faz.
+- [ ] Desenvolvo uma função pequena em TDD, dizendo em qual passo do ciclo estou.
+- [ ] Explico a diferença entre `ruff check` e `ruff format`, e entre o que o Python faz
+      com type hints e o que o mypy faz.
 - [ ] Troco `print` por `logging` com nível e formato certos, e sei onde chamar
       `basicConfig`.
 - [ ] Acho um bug com `breakpoint()` ou com o debugger do VS Code, inspecionando variáveis
@@ -1845,14 +1349,14 @@ certificado errado sair. É para esse dia que os testes existem.
 
 Este módulo tem três tipos de exercício:
 
-- **Implementar (TDD):** os testes já existem e são a especificação. Leia os testes,
-  rode, veja falhar e faça passar, um por vez.
-- **Conserte o bug:** o arquivo **não** começa com `NotImplementedError`. O código já está
+- **Implementar (TDD):** os testes já existem e são a especificação. Leia, rode, veja
+  falhar e faça passar, um por vez.
+- **Conserte o bug (leitura de código):** não há `NotImplementedError`; o código já está
   lá, com defeitos. Leia, preveja o que ele faz, rode os testes e corrija.
-- **Escreva os testes:** a função a testar é **recebida como parâmetro** e você escreve
-  os asserts. O curso roda os seus testes contra uma versão certa (nada pode falhar) e
-  contra versões com bug (cada uma tem de ser reprovada). Veja o exemplo resolvido da
-  seção 12. Para usar `pytest.raises`, escreva `import pytest` no topo do arquivo.
+- **Escreva os testes:** a função a testar chega **como parâmetro** e você escreve os
+  asserts. O curso roda os seus testes contra uma versão certa (nada pode falhar) e contra
+  versões com bug (cada uma tem de ser reprovada). Veja o exemplo resolvido da seção 12.
+  Para usar `pytest.raises`, escreva `import pytest` no topo do arquivo.
 
 | Nº | Exercício | Tipo | Nível | O que pratica |
 |---|---|---|---|---|
@@ -1894,12 +1398,12 @@ Enunciado completo: [desafio/README.md](desafio/README.md).
 ## Para ir além
 
 - Documentação do pytest (em inglês, com ótimos exemplos): https://docs.pytest.org/
-- `logging` — HOWTO oficial: https://docs.python.org/pt-br/3/howto/logging.html
-- `pdb` — o depurador do Python: https://docs.python.org/pt-br/3/library/pdb.html
-- `typing` — type hints: https://docs.python.org/pt-br/3/library/typing.html
+- `logging`, HOWTO oficial: https://docs.python.org/pt-br/3/howto/logging.html
+- `pdb`, o depurador do Python: https://docs.python.org/pt-br/3/library/pdb.html
+- `typing`, type hints: https://docs.python.org/pt-br/3/library/typing.html
 - Ruff (regras e configuração): https://docs.astral.sh/ruff/
 - mypy, primeiros passos: https://mypy.readthedocs.io/en/stable/getting_started.html
 - Depuração no VS Code: https://code.visualstudio.com/docs/python/debugging
 - Livro gratuito *Pro Git*, em português: https://git-scm.com/book/pt-br/v2
-- Leitura extra: Kent Beck, *TDD: Desenvolvimento Guiado por Testes*; Robert C. Martin,
-  *Código Limpo* (os primeiros capítulos, sobre nomes e funções, já valem o livro).
+- Leituras extras: Kent Beck, *TDD: Desenvolvimento Guiado por Testes*; Robert C. Martin,
+  *Código Limpo* (os capítulos sobre nomes e funções já valem o livro).

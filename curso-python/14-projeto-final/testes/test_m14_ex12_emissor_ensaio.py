@@ -6,9 +6,7 @@ ex = carregar(__file__, "ex12_emissor_ensaio")
 
 
 def item(op="24518", nf="123456", situacao="emitir", peso=1250.5):
-    return ex.ItemFila(
-        op=op, nf=nf, peso_kg=peso, situacao=situacao, especificacao="PADRAO-A"
-    )
+    return ex.ItemFila(op=op, nf=nf, peso_kg=peso, situacao=situacao, especificacao="PADRAO-A")
 
 
 class EmissorFalso(ex.Emissor):
