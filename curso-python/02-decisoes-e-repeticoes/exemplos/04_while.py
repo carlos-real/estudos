@@ -10,13 +10,15 @@ while contador > 0:
     contador -= 1  # sem esta linha, loop infinito!
 print("Partiu!")
 
-# 2) Quantos anos para dobrar um capital a 10% ao ano?
-capital = 1000.0
-anos = 0
-while capital < 2000:
-    capital *= 1.10
-    anos += 1
-print(f"Dobrou em {anos} anos: R$ {capital:.2f}")
+# 2) Em quantos dias o estoque de resina fica abaixo do estoque de segurança?
+estoque_kg = 5000.0
+consumo_diario_kg = 380.0
+estoque_seguranca_kg = 1000.0
+dias = 0
+while estoque_kg >= estoque_seguranca_kg:
+    estoque_kg -= consumo_diario_kg
+    dias += 1
+print(f"Em {dias} dias o estoque cai para {estoque_kg:.0f} kg: hora de comprar.")
 
 # 3) O computador adivinha um número de 1 a 100 (busca binária)
 secreto = 37
