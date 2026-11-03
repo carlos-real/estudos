@@ -128,7 +128,7 @@ def montar_markdown() -> str:
 CSS = """
 @page { size: %(pagina)s; margin: %(margem)s; }
 html { font-size: %(fonte)s; }
-body { font-family: Inter, 'Segoe UI', 'DejaVu Sans', sans-serif, 'Noto Color Emoji';
+body { font-family: 'DejaVu Sans', 'Segoe UI', Arial, sans-serif, 'Noto Color Emoji';
        color: #1b2330; line-height: 1.5; max-width: none; margin: 0; padding: 0; }
 h1 { font-size: 1.9em; color: #0d4a6b; border-bottom: 3px solid #0d4a6b;
      padding-bottom: .2em; break-before: page; margin-top: 0; }
@@ -137,12 +137,15 @@ h3 { font-size: 1.12em; margin-top: 1.3em; break-after: avoid; }
 h4, h5 { font-size: 1em; break-after: avoid; }
 p, li { orphans: 3; widows: 3; }
 a { color: #0b6e99; text-decoration: none; }
-code { font-family: 'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace;
+code { font-family: 'DejaVu Sans Mono', Consolas, monospace;
+       font-variant-ligatures: none; font-feature-settings: 'liga' 0, 'calt' 0;
        font-size: .86em; background: #eef2f5; padding: .05em .3em; border-radius: 3px; }
 pre { background: #f5f7f9; border: 1px solid #d9e0e6; border-left: 4px solid #0d4a6b;
       padding: .6em .8em; border-radius: 4px; white-space: pre-wrap; word-break: break-word;
       font-size: .92em; line-height: 1.35; }
 pre code { background: none; padding: 0; font-size: 1em; }
+pre > code.sourceCode > span { text-indent: 0 !important; padding-left: 0 !important; }
+pre > code.sourceCode { white-space: pre-wrap !important; }
 blockquote { margin: 1em 0; padding: .5em .9em; background: #f3f8fb;
              border-left: 4px solid #4c9bc4; color: #24323f; }
 blockquote p { margin: .3em 0; }
@@ -182,13 +185,32 @@ def gerar(formato: str, html_base: Path, navegador: str, tmp: Path) -> Path:
             "--no-sandbox",
             "--disable-gpu",
             "--no-pdf-header-footer",
+            "--generate-pdf-document-outline",
             f"--print-to-pdf={destino}",
             html.as_uri(),
         ],
         check=True,
         capture_output=True,
     )
+    compactar(destino)
     return destino
+
+
+def compactar(pdf: Path) -> None:
+    """Reduz o PDF pela metade com o pikepdf, se ele estiver instalado (opcional)."""
+    try:
+        import pikepdf
+    except ImportError:
+        return
+    temporario = pdf.with_suffix(".tmp.pdf")
+    with pikepdf.open(pdf) as documento:
+        documento.save(
+            temporario,
+            compress_streams=True,
+            recompress_flate=True,
+            object_stream_mode=pikepdf.ObjectStreamMode.generate,
+        )
+    temporario.replace(pdf)
 
 
 def main() -> int:

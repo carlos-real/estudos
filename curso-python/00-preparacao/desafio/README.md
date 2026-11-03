@@ -64,7 +64,7 @@ O seu não precisa ficar igual: o formato é livre. A versão do Python será a 
 
 - [ ] O verificador de ambiente mostra todas as linhas com ✔.
 - [ ] `python curso.py testar 00` passa nos 19 testes.
-- [ ] `python curso.py progresso` mostra `00 Preparacao ... 3/3`.
+- [ ] `python curso.py progresso` mostra `✔ 00 Preparação do ambiente ... 3/3`.
 - [ ] `python 00-preparacao/desafio/meu_cartao.py` roda sem erro e mostra as 4
       informações pedidas.
 - [ ] O `meu_cartao.py` tem pelo menos uma função com `return` que é chamada no script.

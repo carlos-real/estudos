@@ -1,0 +1,50 @@
+name: Curso de Python
+
+on:
+  push:
+    paths:
+      - "curso-python/**"
+      - ".github/workflows/curso-python.yml"
+  pull_request:
+    paths:
+      - "curso-python/**"
+      - ".github/workflows/curso-python.yml"
+
+jobs:
+  solucoes:
+    name: Soluções oficiais e estilo
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: curso-python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar dependências
+        run: python -m pip install -r requirements.txt
+      - name: Soluções passam nos testes
+        run: python curso.py solucoes
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Formatação (ruff)
+        run: ruff format --check .
+
+  projeto-final:
+    name: Projeto final (Validador de Certificados)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: curso-python/14-projeto-final/projeto-completo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar o projeto
+        run: python -m pip install -e ".[dev]"
+      - name: Testes
+        run: python -m pytest -q
+      - name: Série de exemplo em modo ensaio
+        run: validador --planilha dados/planilha_valores.xlsx --regras dados/regras.db --emails dados/emails

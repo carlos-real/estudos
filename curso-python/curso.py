@@ -30,7 +30,14 @@ def listar_modulos() -> list[Path]:
 
 
 def titulo(modulo: Path) -> str:
+    """Título do módulo, lido da primeira linha da aula ("# Módulo 03 — Coleções")."""
     numero, nome = PADRAO_MODULO.match(modulo.name).groups()
+    aula = modulo / "README.md"
+    if aula.exists():
+        primeira = aula.read_text(encoding="utf-8").partition("\n")[0]
+        achado = re.match(r"#\s*Módulo\s+\d+\s*[—-]\s*(.+)", primeira)
+        if achado:
+            return f"{numero} {achado.group(1).split(':')[0].strip()}"
     return f"{numero} {nome.replace('-', ' ').title()}"
 
 
@@ -160,7 +167,7 @@ def cmd_progresso(args: argparse.Namespace) -> int:
         total_feitos += feitos
         total_geral += total
         marca = "✔" if feitos == total else " "
-        print(f"{marca} {titulo(modulo):<34} {barra(feitos, total)} {feitos:>2}/{total}")
+        print(f"{marca} {titulo(modulo):<48} {barra(feitos, total)} {feitos:>2}/{total}")
         if args.detalhes:
             linha = "   " + "  ".join(
                 f"{ex}{'✔' if ok else '·'}" for ex, ok in sorted(exercicios.items())
@@ -176,7 +183,7 @@ def cmd_modulos(args: argparse.Namespace) -> int:
     for modulo in listar_modulos():
         testes = modulo / "testes"
         qtd = len(list(testes.glob("test_*.py"))) if testes.exists() else 0
-        print(f"{titulo(modulo):<36} {qtd:>2} exercícios")
+        print(f"{titulo(modulo):<50} {qtd:>2} exercícios")
     return 0
 
 

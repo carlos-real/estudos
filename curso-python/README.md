@@ -13,6 +13,8 @@ para mostrar.
 
 - **15 módulos** com aula completa, exemplos executáveis, exercícios corrigidos
   automaticamente, desafio e quiz.
+- **191 exercícios** conferidos por **1.868 testes automáticos**, do mais fácil (★☆☆) ao
+  desafiador (★★★), com exercícios de revisão que misturam assuntos de módulos anteriores.
 - **Soluções oficiais comentadas** para cada exercício (abra só depois de tentar).
 - **Projeto final** baseado num problema real de laboratório de qualidade.
 - **Guia de carreira**: qual trilha seguir, o que estudar além do curso e como conseguir

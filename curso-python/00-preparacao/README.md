@@ -986,13 +986,16 @@ python curso.py progresso -d
 ```text
 Conferindo seus exercícios, aguarde...
 
-  00 Preparacao                      ███████░░░░░░░░░░░░░  1/3
+  00 Preparação do ambiente                        ███████░░░░░░░░░░░░░  1/3
    ex01✔  ex02·  ex03·
+  01 Fundamentos                                   ░░░░░░░░░░░░░░░░░░░░  0/14
+   ex01·  ex02·  ex03·  ...
+  ...
 
-Total: 1/3 exercícios (33%)
+Total: 1/191 exercícios (1%)
 ```
 
-(Quando houver mais módulos no curso, cada um aparece numa linha.)
+(Cada módulo aparece numa linha; o resumo acima foi encurtado.)
 
 > ⚠️ **Erro comum:** rodar `python curso.py ...` fora da pasta `curso-python`. Resultado:
 > `can't open file '...\curso.py': [Errno 2] No such file or directory`. Volte com
