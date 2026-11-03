@@ -733,7 +733,7 @@ outras regras do formato. Vamos criar o arquivo e ler com `csv.reader`:
 >>> import csv
 >>> conteudo = 'lote;linha;espessura;observacao\nL001;A;25,4;COF: liberado\nL002;A;27,9;"Selagem; refazer"\n'
 >>> Path("medicoes.csv").write_text(conteudo, encoding="utf-8-sig")
-91
+89
 >>> with open("medicoes.csv", encoding="utf-8-sig", newline="") as arquivo:
 ...     for linha in csv.reader(arquivo, delimiter=";"):
 ...         print(linha)
@@ -1113,3 +1113,279 @@ Com problema: {'b.csv': "valor inválido (could not convert string to float: 'ab
 O exercício 14 usa essa mesma ideia, com um detalhe a mais: o arquivo com erro precisa
 ficar de fora **inteiro**, mesmo que as primeiras linhas estivessem certas.
 
+## Lendo mensagens de erro deste módulo
+
+- **`FileNotFoundError: [Errno 2] No such file or directory: 'dados/regras.json'`**: o
+  caminho não existe **a partir da pasta onde você rodou o comando**. Confira com
+  `Path("dados/regras.json").resolve()` onde o Python está procurando. Solução
+  definitiva: `Path(__file__).resolve().parent` (seção 7).
+- **`PermissionError: [Errno 13] Permission denied: 'resultado.csv'`**: no Windows,
+  quase sempre o arquivo está aberto no Excel. Feche e rode de novo. Também acontece
+  ao tentar abrir uma **pasta** como se fosse arquivo.
+- **`UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe7 in position 31`**:
+  arquivo cp1252 lido como UTF-8. Use a estratégia da seção 8.
+- **`KeyError: 'lote'`** ao ler um CSV: confira o BOM (use `utf-8-sig`), o
+  `delimiter=";"` e espaços no nome da coluna (`" lote"`). Imprima
+  `list(linha.keys())` para ver as chaves de verdade.
+- **`json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes:
+  line 1 column 2 (char 1)`**: JSON com aspas simples ou com vírgula sobrando depois do
+  último item. JSON só aceita aspas duplas e não aceita vírgula no fim.
+- **`TypeError: Object of type set is not JSON serializable`**: você tentou gravar algo
+  que o JSON não conhece (set, Path, objetos). Converta antes (`sorted(conjunto)`,
+  `str(caminho)`).
+- **`ValueError: I/O operation on closed file.`**: usou o arquivo **depois** do bloco
+  `with`, quando ele já foi fechado. Faça a leitura dentro do bloco.
+- **`io.UnsupportedOperation: not writable`**: abriu em modo leitura (o padrão) e tentou
+  gravar. Passe `"w"` ou `"a"`.
+- **`FileExistsError: [Errno 17] File exists: 'certificado_L001.pdf'`**: o modo `"x"`
+  (ou `mkdir` sem `exist_ok=True`) encontrou o arquivo ou a pasta já criados.
+- **Traceback com "During handling of the above exception, another exception
+  occurred"**: um erro aconteceu **dentro** do seu `except`. Confira o código do
+  tratamento. (Se a frase for "was the direct cause of", foi um `raise ... from`
+  proposital.)
+
+## Boas práticas
+
+- **Capture só o que sabe tratar**, com o tipo exato. Nada de `except:` sozinho.
+- **`try` curto**: dentro dele, só as linhas que podem levantar o erro tratado.
+- **Erros do domínio com nome do domínio**: `ArquivoInvalido`, `ValorForaDaTolerancia`,
+  numa família com uma mãe (`ErroDeQualidade`).
+- **Mensagem de erro com contexto**: arquivo, linha, coluna e valor.
+- **`raise ... from erro`** ao trocar um erro técnico por um erro com mais contexto.
+- **Sempre `with open(...)`** e **sempre `encoding=`** em arquivos de texto.
+- **`pathlib` em vez de juntar texto** para montar caminhos; `Path(__file__)` para achar
+  os arquivos do projeto.
+- **CSV com o módulo `csv`**, nunca com `split(";")`; para o Excel brasileiro:
+  `delimiter=";"`, vírgula decimal, `utf-8-sig` e `newline=""`.
+- **JSON legível**: `ensure_ascii=False` e `indent=2`.
+- **Grave de forma atômica** arquivos importantes (temporário + `replace`).
+- **Em lote, um arquivo ruim não derruba os outros**: `try/except` dentro do `for`,
+  erros registrados num dicionário ou num log.
+
+## No mundo real
+
+Fim do turno na linha A. O analista exporta as medições do Excel e precisa saber, antes
+de liberar a expedição, quais lotes estão dentro da especificação. As regras de
+tolerância ficam num JSON (`dados/regras_tolerancia.json`), uma entrada por linha de
+produção: espessura e gramatura com tolerância sobre o nominal, COF com mínimo e máximo
+fixos.
+
+```json
+"A": {
+  "espessura": {"nominal": 25.0, "tolerancia_pct": 10},
+  "gramatura": {"nominal": 23.0, "tolerancia_pct": 5},
+  "cof": {"min": 0.15, "max": 0.3}
+}
+```
+
+O programa abaixo junta o módulo inteiro: lê o CSV com o encoding certo, valida o
+cabeçalho e os números (com mensagens que dizem a linha), carrega as regras do JSON,
+confere cada lote e grava o resultado para o Excel.
+
+```python
+import csv
+import json
+from pathlib import Path
+
+DADOS = Path(__file__).resolve().parent.parent / "dados"
+SAIDA = Path(__file__).resolve().parent / "saida"
+ENSAIOS = ("espessura", "gramatura", "cof")
+
+
+class ErroDeQualidade(Exception):
+    """Base dos erros do sistema de qualidade."""
+
+
+class ArquivoInvalido(ErroDeQualidade):
+    """O arquivo existe, mas não está no formato esperado."""
+
+
+def numero_br(texto):
+    return float(texto.strip().replace(".", "").replace(",", "."))
+
+
+def ler_texto_excel(caminho):
+    try:
+        return caminho.read_text(encoding="utf-8-sig")
+    except UnicodeDecodeError:
+        return caminho.read_text(encoding="cp1252")
+
+
+def carregar_regras(caminho):
+    try:
+        with open(caminho, encoding="utf-8") as arquivo:
+            return json.load(arquivo)
+    except json.JSONDecodeError as erro:
+        raise ArquivoInvalido(f"{caminho.name}: JSON inválido (linha {erro.lineno})") from erro
+
+
+def faixa(regra):
+    """Converte a regra do JSON em (mínimo, máximo): nominal ± % ou mín/máx fixos."""
+    if "nominal" in regra:
+        variacao = regra["nominal"] * regra["tolerancia_pct"] / 100
+        return regra["nominal"] - variacao, regra["nominal"] + variacao
+    return regra["min"], regra["max"]
+
+
+def ler_medicoes(caminho):
+    linhas = list(csv.reader(ler_texto_excel(caminho).splitlines(), delimiter=";"))
+    if not linhas:
+        raise ArquivoInvalido(f"{caminho.name}: arquivo vazio")
+    cabecalho = [nome.strip().lower() for nome in linhas[0]]
+    faltando = {"lote", "linha", *ENSAIOS} - set(cabecalho)
+    if faltando:
+        raise ArquivoInvalido(f"{caminho.name}: faltam as colunas {sorted(faltando)}")
+    medicoes = []
+    for numero, valores in enumerate(linhas[1:], start=2):
+        registro = dict(zip(cabecalho, valores, strict=False))
+        try:
+            for ensaio in ENSAIOS:
+                registro[ensaio] = numero_br(registro[ensaio])
+        except ValueError as erro:
+            raise ArquivoInvalido(f"{caminho.name}, linha {numero}: {erro}") from erro
+        medicoes.append(registro)
+    return medicoes
+
+
+def conferir(medicao, regras_da_linha):
+    problemas = []
+    for ensaio in ENSAIOS:
+        minimo, maximo = faixa(regras_da_linha[ensaio])
+        if not minimo <= medicao[ensaio] <= maximo:
+            problemas.append(
+                f"{ensaio} {medicao[ensaio]} fora de [{minimo:.2f}, {maximo:.2f}]"
+            )
+    return problemas
+
+
+def main():
+    regras = carregar_regras(DADOS / "regras_tolerancia.json")
+    medicoes = ler_medicoes(DADOS / "medicoes_linha_a.csv")
+    SAIDA.mkdir(exist_ok=True)
+    destino = SAIDA / "conferencia_linha_a.csv"
+    with open(destino, "w", encoding="utf-8-sig", newline="") as arquivo:
+        escritor = csv.writer(arquivo, delimiter=";")
+        escritor.writerow(["lote", "status", "motivo"])
+        for medicao in medicoes:
+            problemas = conferir(medicao, regras[medicao["linha"]])
+            status = "REPROVADO" if problemas else "APROVADO"
+            escritor.writerow([medicao["lote"], status, "; ".join(problemas)])
+            print(f"{medicao['lote']}: {status:<9} {'; '.join(problemas)}".rstrip())
+    print(f"Resultado gravado em {destino.name}")
+
+
+# Roda main() só quando o arquivo é executado diretamente (detalhes no módulo 07).
+if __name__ == "__main__":
+    main()
+```
+
+Resultado ao rodar `python 06-arquivos-e-erros/exemplos/09_conferencia_da_linha.py`:
+
+```text
+A-0153: APROVADO
+A-0154: REPROVADO espessura 27.9 fora de [22.50, 27.50]
+A-0155: REPROVADO gramatura 21.2 fora de [21.85, 24.15]; cof 0.33 fora de [0.15, 0.30]
+Resultado gravado em conferencia_linha_a.csv
+```
+
+Repare nas decisões: as regras corrompidas **param** o programa (sem regra não há
+conferência), com `ArquivoInvalido` dizendo a linha do JSON; o CSV é validado na
+entrada; a função `faixa` esconde a diferença entre "nominal ± %" e "mín/máx"; e o
+resultado sai num CSV que o pessoal da qualidade abre com duplo clique. O desafio deste
+módulo leva isso para a pasta inteira, com as quatro linhas de produção.
+
+## Resumo
+
+| Tarefa | Como |
+|---|---|
+| Tratar um erro | `try: ... except ValueError as erro: ...` |
+| Vários tipos | `except (KeyError, ValueError):` ou um `except` para cada |
+| Só se não deu erro / sempre | `else:` / `finally:` |
+| Levantar | `raise ValueError("mensagem com contexto")` |
+| Encadear | `raise ArquivoInvalido("...") from erro` |
+| Relançar o mesmo | `raise` sozinho, dentro do `except` |
+| Exceção própria | `class ArquivoInvalido(ErroDeQualidade): """Docstring."""` |
+| Ler texto | `with open(c, encoding="utf-8") as f: texto = f.read()` |
+| Linha a linha | `for linha in f: linha.strip()` |
+| Gravar / acrescentar | `open(c, "w", ...)` (apaga) / `open(c, "a", ...)` |
+| Caminhos | `Path("dados") / "regras.json"`, `.name`, `.stem`, `.suffix`, `.parent` |
+| Pastas | `mkdir(parents=True, exist_ok=True)`, `iterdir()`, `glob("*.csv")` |
+| Atalhos | `read_text`, `write_text`, `read_bytes` (sempre com `encoding=` no texto) |
+| Pasta do script | `Path(__file__).resolve().parent` |
+| Arquivo do Excel | tente `"utf-8-sig"`; `except UnicodeDecodeError`: `"cp1252"` |
+| Ler CSV BR | `csv.DictReader(f, delimiter=";")` com `open(..., newline="")` |
+| Gravar CSV BR | `csv.DictWriter(f, fieldnames=..., delimiter=";")`, `"utf-8-sig"`, `newline=""` |
+| JSON | `json.load(f)`, `json.dump(d, f, ensure_ascii=False, indent=2)` |
+| JSON quebrado | `except json.JSONDecodeError as erro: erro.lineno` |
+| Gravação segura | grava `nome.tmp` e depois `tmp.replace(destino)` |
+
+## Você domina este módulo se...
+
+- [ ] Leio um traceback de baixo para cima e digo em que linha do **meu** código está o
+      problema.
+- [ ] Explico sem consultar a diferença entre `except`, `else` e `finally`.
+- [ ] Sei por que `except:` sozinho é perigoso e capturo só o tipo certo.
+- [ ] Crio uma família de exceções próprias e uso `raise ... from erro`.
+- [ ] Escolho o modo de abertura certo (`"r"`, `"w"`, `"a"`, `"x"`) e sei qual deles
+      apaga o arquivo.
+- [ ] Leio e gravo CSV no padrão do Excel brasileiro sem `KeyError` por causa do BOM e
+      sem linhas em branco.
+- [ ] Leio e gravo JSON com acentos legíveis e trato um JSON quebrado com mensagem
+      clara.
+- [ ] Processo uma pasta inteira sem que um arquivo ruim derrube os outros.
+
+## Exercícios
+
+| Nº | Exercício | Nível | O que pratica |
+|---|---|---|---|
+| 01 | `ex01_ler_numero` | ★☆☆ | `try/except ValueError`, valor padrão |
+| 02 | `ex02_conferir_tolerancia` | ★☆☆ | `raise` com exceção própria e `ValueError` |
+| 03 | `ex03_ler_linhas` | ★☆☆ | `with open`, ler linha a linha, `encoding` |
+| 04 | `ex04_registrar_evento` | ★☆☆ | modo `"a"`, `mkdir(parents=True)` |
+| 05 | `ex05_listar_planilhas` | ★☆☆ | `pathlib`: `iterdir`, `suffix`, `is_file` |
+| 06 | `ex06_ler_texto_excel` | ★★☆ | BOM, `UnicodeDecodeError`, fallback cp1252 |
+| 07 | `ex07_ler_csv_br` | ★★☆ | `csv.DictReader` com `;` e vírgula decimal |
+| 08 | `ex08_escrever_csv_br` | ★★☆ | `csv.DictWriter`, `utf-8-sig`, `newline=""` |
+| 09 | `ex09_hierarquia_excecoes` | ★★☆ | criar exceções, capturar pela "mãe" |
+| 10 | `ex10_carregar_config` | ★★☆ | JSON, `ArquivoInvalido`, `raise ... from` |
+| 11 | `ex11_depurar_media` | ★★☆ | leitura de código: prever e consertar |
+| 12 | `ex12_salvar_json_seguro` | ★★★ | gravação atômica, limpeza e `raise` |
+| 13 | `ex13_revisao_ler_medicoes` | ★★★ | revisão: CSV validado + acentos e números BR (módulos 02, 03 e 05) |
+| 14 | `ex14_revisao_conferir_pasta` | ★★★ | revisão: lote de arquivos + funções e contadores (módulos 02 a 05) |
+
+Como fazer: abra `exercicios/exNN_...py`, leia o enunciado, escreva o código no lugar de
+`raise NotImplementedError` e rode, na pasta `curso-python`:
+
+```text
+python curso.py testar 06 ex01
+```
+
+Os testes criam arquivos numa pasta temporária (`tmp_path` do pytest): nada é gravado
+na sua pasta do curso. Para testar o módulo inteiro: `python curso.py testar 06`.
+
+## Desafio do módulo
+
+**Conferência de laudos em lote.** Um programa que lê os CSVs das quatro linhas de
+produção em `dados/laudos/` (em encodings diferentes, um com número digitado errado e
+outro sem uma coluna), aplica as regras de tolerância do JSON, respeita a observação de
+liberação ("COF: liberado") e gera um CSV para o Excel, um resumo em JSON e um log de
+erros, sem parar no primeiro problema. Enunciado completo em
+[desafio/README.md](desafio/README.md).
+
+## Quiz
+
+Teste o que ficou: [quiz.md](quiz.md).
+
+## Para ir além
+
+- Erros e exceções (tutorial oficial): https://docs.python.org/pt-br/3/tutorial/errors.html
+- Hierarquia das exceções nativas:
+  https://docs.python.org/pt-br/3/library/exceptions.html#exception-hierarchy
+- Leitura e escrita de arquivos: https://docs.python.org/pt-br/3/tutorial/inputoutput.html#reading-and-writing-files
+- `pathlib`: https://docs.python.org/pt-br/3/library/pathlib.html
+- `csv`: https://docs.python.org/pt-br/3/library/csv.html
+- `json`: https://docs.python.org/pt-br/3/library/json.html
+- Leitura extra: capítulos 9 e 10 (arquivos e pastas) do livro gratuito *Automate the
+  Boring Stuff with Python*: https://automatetheboringstuff.com/2e/chapter9/
+- Leitura extra: o verbete EAFP (o estilo "tentar e tratar") no glossário oficial:
+  https://docs.python.org/pt-br/3/glossary.html#term-EAFP

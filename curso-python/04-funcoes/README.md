@@ -852,7 +852,7 @@ OP-4514 (A): média 47.15 µm, 1 fora -> REPROVADA
 Turno: 1/3 OPs aprovadas
 ```
 
-O primeiro impulso é escrever tudo num `for` só, com ifs e contas misturados. Funciona (está em `exemplos/09_decomposicao.py`, na função `relatorio_monolitico`), mas tem 25 linhas, quatro níveis de indentação, e nenhum pedaço pode ser testado sozinho.
+O primeiro impulso é escrever tudo num `for` só, com ifs e contas misturados. Funciona (está em `exemplos/09_decomposicao.py`, na função `relatorio_monolitico`), mas tem 23 linhas, quatro níveis de indentação, e nenhum pedaço pode ser testado sozinho.
 
 **Passo 2. Os passos em português:**
 
