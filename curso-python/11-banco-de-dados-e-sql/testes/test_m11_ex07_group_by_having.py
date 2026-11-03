@@ -22,7 +22,11 @@ def conexao():
 
 
 def test_fora_por_caracteristica(conexao):
-    assert ex.fora_por_caracteristica(conexao) == [("espessura", 3), ("cof", 2), ("gramatura", 1)]
+    assert ex.fora_por_caracteristica(conexao) == [
+        ("espessura", 3),
+        ("cof", 2),
+        ("gramatura", 1),
+    ]
 
 
 def test_empate_em_ordem_alfabetica(conexao):
@@ -42,7 +46,11 @@ def test_sem_nenhum_fora_devolve_lista_vazia(conexao):
 
 def test_ops_com_duas_ou_mais_cargas(conexao):
     resultado = ex.ops_com_varias_cargas(conexao, 2)
-    assert [(op, cargas) for op, cargas, _ in resultado] == [(24518, 2), (24528, 2), (24541, 2)]
+    assert [(op, cargas) for op, cargas, _ in resultado] == [
+        (24518, 2),
+        (24528, 2),
+        (24541, 2),
+    ]
     assert [peso for *_, peso in resultado] == pytest.approx([3080.5, 2750.5, 3750.25])
 
 

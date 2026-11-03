@@ -35,7 +35,10 @@ def test_ops_da_linha_no_periodo(conexao, linha, inicio, fim, esperado):
 
 
 def test_periodo_inclui_as_pontas(conexao):
-    assert ex.ops_da_linha_no_periodo(conexao, "B", "2026-10-21", "2026-10-22") == [24527, 24528]
+    assert ex.ops_da_linha_no_periodo(conexao, "B", "2026-10-21", "2026-10-22") == [
+        24527,
+        24528,
+    ]
 
 
 def test_ensaios_pendentes(conexao):

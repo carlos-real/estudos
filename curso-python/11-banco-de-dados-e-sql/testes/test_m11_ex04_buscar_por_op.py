@@ -43,6 +43,8 @@ def test_ensaios_de_outra_op(conexao):
     assert (1, "cof", 0.43) in resultado
 
 
-@pytest.mark.parametrize(("numero", "esperado"), [(24534, True), (24551, True), (99999, False)])
+@pytest.mark.parametrize(
+    ("numero", "esperado"), [(24534, True), (24551, True), (99999, False)]
+)
 def test_existe_op(conexao, numero, esperado):
     assert ex.existe_op(conexao, numero) is esperado

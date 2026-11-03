@@ -29,7 +29,9 @@ def test_insere_e_devolve_a_quantidade(conexao):
     lote = [(24518, 1, "espessura", 38.8), (24518, 1, "cof", 0.31), (24518, 2, "cof", None)]
     assert ex.inserir_ensaios(conexao, lote) == 3
     assert total(conexao) == 3
-    linhas = conexao.execute("SELECT op, bobina, caracteristica, valor FROM ensaio ORDER BY id")
+    linhas = conexao.execute(
+        "SELECT op, bobina, caracteristica, valor FROM ensaio ORDER BY id"
+    )
     assert linhas.fetchall() == lote
 
 

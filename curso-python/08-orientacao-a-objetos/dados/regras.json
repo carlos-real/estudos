@@ -1,0 +1,67 @@
+{
+  "linhas": {
+    "A": {
+      "fixas": {"cof": {"minimo": 0.10, "maximo": 0.30}, "tração": {"minimo": 20}},
+      "padrao": {
+        "titulo": "Filme PE 20 µm",
+        "texto": "Padrão da linha A",
+        "tolerancias": {
+          "espessura": {"nominal": 20, "percentual": 10},
+          "gramatura": {"nominal": 18.4, "percentual": 10}
+        }
+      }
+    },
+    "B": {
+      "fixas": {"cof": {"minimo": 0.10, "maximo": 0.30}, "tração": {"minimo": 20}},
+      "padrao": {
+        "titulo": "Filme PE 25 µm",
+        "texto": "Padrão da linha B",
+        "tolerancias": {
+          "espessura": {"nominal": 25, "percentual": 10},
+          "gramatura": {"nominal": 23.0, "percentual": 10}
+        }
+      }
+    },
+    "C": {
+      "fixas": {"cof": {"minimo": 0.10, "maximo": 0.30}, "tração": {"minimo": 25}},
+      "padrao": {
+        "titulo": "Filme PE 40 µm",
+        "texto": "Padrão da linha C",
+        "tolerancias": {
+          "espessura": {"nominal": 40, "percentual": 10},
+          "gramatura": {"nominal": 36.8, "percentual": 10}
+        }
+      }
+    },
+    "D": {
+      "fixas": {"cof": {"maximo": 0.35}, "tração": {"minimo": 25}},
+      "padrao": {
+        "titulo": "Filme PE 60 µm",
+        "texto": "Padrão da linha D",
+        "tolerancias": {
+          "espessura": {"nominal": 60, "percentual": 8},
+          "gramatura": {"nominal": 55.2, "percentual": 8}
+        }
+      }
+    }
+  },
+  "especificacoes_op": {
+    "OP245106": {
+      "titulo": "Café Montanha - embalagem a vácuo",
+      "texto": "Espessura 25 ± 1 µm conforme pedido de compra 4471",
+      "tolerancias": {
+        "espessura": {"minimo": 24.0, "maximo": 26.0},
+        "gramatura": {"nominal": 23.0, "percentual": 10}
+      }
+    },
+    "OP245109": {
+      "titulo": "Laticínios Serra Azul - linha premium",
+      "texto": "COF entre 0,15 e 0,25 para máquina automática",
+      "tolerancias": {
+        "espessura": {"nominal": 40, "percentual": 10},
+        "gramatura": {"nominal": 36.8, "percentual": 10},
+        "cof": {"minimo": 0.15, "maximo": 0.25}
+      }
+    }
+  }
+}

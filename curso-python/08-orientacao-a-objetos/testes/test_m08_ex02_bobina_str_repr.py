@@ -36,7 +36,8 @@ def test_repr_parece_codigo():
 def test_lista_de_bobinas_usa_repr():
     bobinas = [ex.Bobina("L1", 1, 10.0), ex.Bobina("L1", 2, 12.5)]
     assert str(bobinas) == (
-        "[Bobina(lote='L1', numero=1, peso_kg=10.0), Bobina(lote='L1', numero=2, peso_kg=12.5)]"
+        "[Bobina(lote='L1', numero=1, peso_kg=10.0), "
+        "Bobina(lote='L1', numero=2, peso_kg=12.5)]"
     )
 
 

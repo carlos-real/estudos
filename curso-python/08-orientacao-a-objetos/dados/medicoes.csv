@@ -1,0 +1,25 @@
+op;ensaio;valor;unidade;observacao
+OP245101;espessura;20,4;µm;
+OP245101;gramatura;18,8;g/m²;
+OP245101;cof;0,21;;
+OP245101;tração;31,0;MPa;
+OP245103;espessura;44,5;µm;
+OP245103;gramatura;39,5;g/m²;
+OP245103;cof;0,25;;
+OP245103;tração;28,4;MPa;
+OP245104;espessura;59,5;µm;
+OP245104;gramatura;54,6;g/m²;
+OP245104;cof;0,33;;
+OP245104;tração;30,2;MPa;
+OP245106;espessura;26,3;µm;
+OP245106;gramatura;23,6;g/m²;
+OP245106;cof;0,28;;
+OP245106;tração;24,9;MPa;
+OP245109;espessura;40,4;µm;
+OP245109;gramatura;36,9;g/m²;
+OP245109;cof;0,27;;COF: pendente
+OP245109;tração;27,0;MPa;
+OP245118;espessura;25,6;µm;
+OP245118;gramatura;23,6;g/m²;
+OP245118;cof;0,33;;COF: liberado
+OP245118;tração;26,5;MPa;

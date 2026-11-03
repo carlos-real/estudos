@@ -56,7 +56,8 @@ except sqlite3.IntegrityError as erro:
     print("Segundo padrão para a linha A ->", erro)
 try:
     regras.execute(
-        "INSERT INTO tolerancia (titulo, caracteristica, tipo) VALUES ('ESP-0412', 'cor', 'livre')"
+        "INSERT INTO tolerancia (titulo, caracteristica, tipo) "
+        "VALUES ('ESP-0412', 'cor', 'livre')"
     )
 except sqlite3.IntegrityError as erro:
     print("Tipo inválido ->", erro)

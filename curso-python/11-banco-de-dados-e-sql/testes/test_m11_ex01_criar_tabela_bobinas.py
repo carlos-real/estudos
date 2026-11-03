@@ -15,12 +15,16 @@ def conexao():
 
 
 def inserir(con, op, numero, peso):
-    con.execute("INSERT INTO bobina (op, numero, peso_kg) VALUES (?, ?, ?)", (op, numero, peso))
+    con.execute(
+        "INSERT INTO bobina (op, numero, peso_kg) VALUES (?, ?, ?)", (op, numero, peso)
+    )
 
 
 def test_tabela_existe(conexao):
     ex.criar_tabela_bobinas(conexao)
-    nomes = [n for (n,) in conexao.execute("SELECT name FROM sqlite_master WHERE type='table'")]
+    nomes = [
+        n for (n,) in conexao.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    ]
     assert "bobina" in nomes, "a tabela deve se chamar 'bobina'"
 
 

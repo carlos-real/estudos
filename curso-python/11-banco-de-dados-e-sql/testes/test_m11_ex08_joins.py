@@ -23,8 +23,16 @@ def conexao():
 
 def test_relatorio_ops_da_linha_d(conexao):
     assert ex.relatorio_ops(conexao, "D") == [
-        {"numero": 24541, "cliente": "Torrefação Serra Ltda", "produto": "Laminado PET/PE 62 µm"},
-        {"numero": 24546, "cliente": "Laticínios Serra Azul", "produto": "Laminado BOPP/PE 55 µm"},
+        {
+            "numero": 24541,
+            "cliente": "Torrefação Serra Ltda",
+            "produto": "Laminado PET/PE 62 µm",
+        },
+        {
+            "numero": 24546,
+            "cliente": "Laticínios Serra Azul",
+            "produto": "Laminado BOPP/PE 55 µm",
+        },
         {"numero": 24551, "cliente": "Agro Campo S.A.", "produto": "Laminado PET/PE 62 µm"},
     ]
 

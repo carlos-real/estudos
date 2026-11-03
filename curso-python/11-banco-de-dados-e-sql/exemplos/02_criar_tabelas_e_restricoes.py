@@ -31,8 +31,14 @@ testes = [
     ("NOT NULL", "INSERT INTO cliente (nome) VALUES (NULL)"),
     ("UNIQUE", "INSERT INTO cliente (nome) VALUES ('Agro Campo S.A.')"),
     ("CHECK", "INSERT INTO op (numero, cliente_id, quantidade_kg) VALUES (24521, 1, -5)"),
-    ("FOREIGN KEY", "INSERT INTO op (numero, cliente_id, quantidade_kg) VALUES (24522, 99, 10)"),
-    ("PRIMARY KEY", "INSERT INTO op (numero, cliente_id, quantidade_kg) VALUES (24520, 1, 10)"),
+    (
+        "FOREIGN KEY",
+        "INSERT INTO op (numero, cliente_id, quantidade_kg) VALUES (24522, 99, 10)",
+    ),
+    (
+        "PRIMARY KEY",
+        "INSERT INTO op (numero, cliente_id, quantidade_kg) VALUES (24520, 1, 10)",
+    ),
 ]
 for regra, comando in testes:
     try:

@@ -21,7 +21,11 @@ mostrar(
 # COUNT(*) conta linhas; COUNT(coluna) conta valores NÃO nulos
 mostrar(
     banco,
-    "SELECT COUNT(*) AS linhas, COUNT(valor) AS medidos FROM ensaio WHERE caracteristica = 'cof'",
+    """
+    SELECT COUNT(*) AS linhas, COUNT(valor) AS medidos
+    FROM ensaio
+    WHERE caracteristica = 'cof'
+    """,
 )
 
 mostrar(

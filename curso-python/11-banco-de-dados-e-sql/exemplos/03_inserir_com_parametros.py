@@ -26,7 +26,9 @@ print("id gerado:", cursor.lastrowid)
 
 # 3) Muitas linhas de uma vez: executemany com uma lista de tuplas.
 cargas = [(24520, "123458", 2400.0), (24521, "123459", 2950.0), (24518, "123470", 1830.0)]
-cursor = conexao.executemany("INSERT INTO expedicao (op, nf, peso_kg) VALUES (?, ?, ?)", cargas)
+cursor = conexao.executemany(
+    "INSERT INTO expedicao (op, nf, peso_kg) VALUES (?, ?, ?)", cargas
+)
 print("linhas inseridas:", cursor.rowcount)
 conexao.commit()
 

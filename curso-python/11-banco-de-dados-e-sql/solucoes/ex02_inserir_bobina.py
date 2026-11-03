@@ -22,5 +22,7 @@ def inserir_bobina(conexao: sqlite3.Connection, op: int, numero: int, peso_kg: f
 def contar_bobinas(conexao: sqlite3.Connection, op: int) -> int:
     """Quantidade de bobinas da OP."""
     # COUNT(*) sempre devolve exatamente uma linha (com 0 se não houver nada).
-    (quantidade,) = conexao.execute("SELECT COUNT(*) FROM bobina WHERE op = ?", (op,)).fetchone()
+    (quantidade,) = conexao.execute(
+        "SELECT COUNT(*) FROM bobina WHERE op = ?", (op,)
+    ).fetchone()
     return quantidade
