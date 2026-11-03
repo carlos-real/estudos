@@ -78,7 +78,11 @@ def ler_email(caminho: Path) -> Pedido:
     texto = corpo.get_content() if corpo is not None else ""
     if corpo is not None and corpo.get_content_type() == "text/html":
         texto = RE_TAG.sub(" ", texto)
-    achados = {"OP": RE_OP.search(texto), "NF": RE_NF.search(texto), "peso": RE_PESO.search(texto)}
+    achados = {
+        "OP": RE_OP.search(texto),
+        "NF": RE_NF.search(texto),
+        "peso": RE_PESO.search(texto),
+    }
     for campo, achado in achados.items():
         if achado is None:
             raise ValueError(f"{campo} não encontrado no e-mail")
@@ -95,7 +99,9 @@ def carregar_ops(caminho: Path) -> dict[str, dict]:
         return {linha["op"]: linha for linha in csv.DictReader(arquivo, delimiter=";")}
 
 
-def montar_fila(pasta: Path, ops: dict[str, dict]) -> tuple[list[Pedido], list[tuple[str, str]]]:
+def montar_fila(
+    pasta: Path, ops: dict[str, dict]
+) -> tuple[list[Pedido], list[tuple[str, str]]]:
     """Devolve (fila de pedidos válidos, pendências [(arquivo, motivo)])."""
     fila: list[Pedido] = []
     pendencias: list[tuple[str, str]] = []
@@ -177,7 +183,9 @@ def processar(fila: list[Pedido], emitir, registro: Path, ensaio: bool) -> None:
             log.info("OP %s / NF %s já emitida antes: pulando", pedido.op, pedido.nf)
             continue
         acoes = planejar(pedido, ensaio)
-        log.info("OP %s: plano com %d ações, termina em %s", pedido.op, len(acoes), acoes[-1][1])
+        log.info(
+            "OP %s: plano com %d ações, termina em %s", pedido.op, len(acoes), acoes[-1][1]
+        )
         if ensaio:
             pedido.status = "ENSAIO"
             continue
@@ -211,9 +219,13 @@ def gerar_excel(fila: list[Pedido], pendencias: list[tuple[str, str]], caminho: 
     wb = Workbook()
     ws = wb.active
     ws.title = "Fila"
-    ws.append(["Arquivo", "OP", "NF", "Peso (kg)", "Linha", "Produto", "Especificação", "Status"])
+    ws.append(
+        ["Arquivo", "OP", "NF", "Peso (kg)", "Linha", "Produto", "Especificação", "Status"]
+    )
     for p in fila:
-        ws.append([p.arquivo, p.op, p.nf, p.peso_kg, p.linha, p.produto, p.especificacao, p.status])
+        ws.append(
+            [p.arquivo, p.op, p.nf, p.peso_kg, p.linha, p.produto, p.especificacao, p.status]
+        )
     for (celula,) in ws.iter_rows(min_row=2, min_col=4, max_col=4):
         celula.number_format = "#,##0.00"
     estilizar(ws, 8)

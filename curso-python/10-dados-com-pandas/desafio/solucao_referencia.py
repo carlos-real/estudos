@@ -120,7 +120,8 @@ def formatar_aba(aba, tabela: pd.DataFrame) -> None:
 
 def gravar_excel(caminho: Path, resumo: pd.DataFrame, mes_df: pd.DataFrame) -> None:
     colunas = ["data", "linha", "op", "cliente", "produto", "bobina", "espessura_um",
-               "gramatura_gm2", "cof", "peso_kg", "observacao", "status", "motivo"]  # fmt: skip
+               "gramatura_gm2", "cof", "peso_kg", "observacao", "status",
+               "motivo"]  # fmt: skip
     medicoes = mes_df[colunas].copy()
     medicoes["data"] = medicoes["data"].dt.date  # sem a hora 00:00:00 no Excel
     nao_conformes = medicoes[medicoes["status"] != "APROVADA"]
