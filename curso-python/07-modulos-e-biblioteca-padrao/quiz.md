@@ -39,6 +39,7 @@ d) Substitui o `requirements.txt`.
 
 ```python
 from datetime import date, timedelta
+
 print(date(2026, 2, 27) + timedelta(days=2))
 ```
 
@@ -46,6 +47,7 @@ print(date(2026, 2, 27) + timedelta(days=2))
 
 ```python
 from datetime import date
+
 print((date(2026, 12, 25) - date(2026, 10, 29)).days)
 ```
 
@@ -53,6 +55,7 @@ print((date(2026, 12, 25) - date(2026, 10, 29)).days)
 
 ```python
 from datetime import datetime
+
 emissao = datetime.strptime("2026-10-29", "%d/%m/%Y").date()
 ```
 
@@ -60,6 +63,7 @@ emissao = datetime.strptime("2026-10-29", "%d/%m/%Y").date()
 
 ```python
 from collections import Counter
+
 print(Counter("abracadabra").most_common(2))
 ```
 
@@ -67,6 +71,7 @@ print(Counter("abracadabra").most_common(2))
 
 ```python
 from itertools import groupby
+
 print([(k, len(list(g))) for k, g in groupby([1, 1, 2, 1])])
 ```
 
@@ -74,6 +79,7 @@ print([(k, len(list(g))) for k, g in groupby([1, 1, 2, 1])])
 
 ```python
 from collections import defaultdict
+
 contagem = defaultdict(int)
 contagem["x"] += 1
 contagem["y"]
@@ -90,7 +96,7 @@ d) `statistics.median`
 
 **11.** Onde está o erro?
 
-```python
+```text
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -112,6 +118,7 @@ d) Instala a versão 2.2 exata.
 
 ```python
 import random
+
 print(random.Random(5).randint(1, 100) == random.Random(5).randint(1, 100))
 ```
 

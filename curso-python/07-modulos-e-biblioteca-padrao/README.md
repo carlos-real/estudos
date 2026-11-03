@@ -1036,11 +1036,11 @@ anotação quer dizer "qualquer coisa que funcione como dicionário só para lei
 ```python
 import sys
 
-print(sys.executable)   # QUAL Python está rodando (venv!)
-print(sys.platform)     # 'win32', 'linux' ou 'darwin' (macOS)
-print(sys.argv)         # argumentos: python script.py a b -> ['script.py', 'a', 'b']
-print("deu ruim", file=sys.stderr)   # mensagem no canal de erros
-sys.exit(1)             # encerra com código de saída 1
+print(sys.executable)  # QUAL Python está rodando (venv!)
+print(sys.platform)  # 'win32', 'linux' ou 'darwin' (macOS)
+print(sys.argv)  # argumentos: python script.py a b -> ['script.py', 'a', 'b']
+print("deu ruim", file=sys.stderr)  # mensagem no canal de erros
+sys.exit(1)  # encerra com código de saída 1
 ```
 
 - **Código de saída**: todo programa termina com um número. `0` = deu certo; outro =
@@ -1072,11 +1072,11 @@ padrão, ajuda, erro amigável. O `argparse` faz tudo isso, em quatro passos:
 import argparse
 
 parser = argparse.ArgumentParser(prog="faixa", description="Calcula nominal ± %.")  # 1
-parser.add_argument("nominal", type=float, help="valor nominal")                   # 2
-parser.add_argument("-p", "--percentual", type=float, default=10.0)                 # 2
-parser.add_argument("-v", "--verbose", action="store_true")                         # 2
-args = parser.parse_args(["25", "-p", "5"])                                         # 3
-print(args.nominal, args.percentual, args.verbose)                                  # 4
+parser.add_argument("nominal", type=float, help="valor nominal")  # 2
+parser.add_argument("-p", "--percentual", type=float, default=10.0)  # 2
+parser.add_argument("-v", "--verbose", action="store_true")  # 2
+args = parser.parse_args(["25", "-p", "5"])  # 3
+print(args.nominal, args.percentual, args.verbose)  # 4
 ```
 
 Saída:

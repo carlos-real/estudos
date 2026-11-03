@@ -559,3 +559,557 @@ Windows costuma ser cp1252. O mesmo programa lê certo no seu computador e quebr
 colega. Regra: **todo `open` de texto leva `encoding=`**. Para arquivos seus, use
 `"utf-8"`. Para arquivos do Excel, veja a seção 8.
 
+## 7. pathlib: caminhos sem dor
+
+Caminho de arquivo como texto (`"C:\\Laudos\\2025\\linha_A.csv"`) dá trabalho: barras
+diferentes no Windows e no Linux, `\n` virando quebra de linha, juntar pedaços com `+`.
+O módulo `pathlib` resolve isso com o objeto `Path`. O operador `/` junta os pedaços.
+
+```python
+>>> from pathlib import Path
+>>> laudo = Path("laudos") / "2025" / "linha_A.csv"
+>>> laudo.name, laudo.stem, laudo.suffix
+('linha_A.csv', 'linha_A', '.csv')
+>>> laudo.parent.name
+'2025'
+>>> laudo.with_suffix(".xlsx").name
+'linha_A.xlsx'
+>>> laudo.exists()
+False
+>>> laudo.parent.mkdir(parents=True, exist_ok=True)
+>>> laudo.write_text("lote;espessura\nL001;25,4\n", encoding="utf-8")
+25
+>>> laudo.exists(), laudo.is_file(), laudo.parent.is_dir()
+(True, True, True)
+>>> laudo.read_text(encoding="utf-8").splitlines()
+['lote;espessura', 'L001;25,4']
+```
+
+- `mkdir(parents=True, exist_ok=True)`: cria as pastas que faltam e não reclama se já
+  existirem.
+- `read_text` e `write_text` abrem, leem (ou gravam) e fecham numa linha só. Ótimos
+  para arquivos pequenos. Para ler bytes crus: `read_bytes`.
+
+Ao imprimir, o `Path` usa a barra do sistema:
+
+```text
+>>> print(laudo)
+laudos\2025\linha_A.csv      (Windows)
+laudos/2025/linha_A.csv      (Linux e macOS)
+```
+
+### Percorrendo uma pasta
+
+```python
+>>> pasta = Path("laudos") / "2025"
+>>> for nome in ["linha_B.csv", "linha_C.CSV", "notas.txt", "~$linha_D.xlsx"]:
+...     (pasta / nome).touch()        # touch cria um arquivo vazio
+...
+>>> sorted(p.name for p in pasta.iterdir())
+['linha_A.csv', 'linha_B.csv', 'linha_C.CSV', 'notas.txt', '~$linha_D.xlsx']
+>>> sorted(p.name for p in pasta.glob("*.txt"))
+['notas.txt']
+>>> sorted(p.name for p in pasta.iterdir() if p.suffix.lower() == ".csv")
+['linha_A.csv', 'linha_B.csv', 'linha_C.CSV']
+```
+
+`iterdir()` entrega tudo o que está na pasta; `glob("*.txt")` filtra por um padrão
+(`rglob` faz o mesmo entrando nas subpastas). Cuidado: no Windows o `glob` ignora
+maiúsculas e minúsculas, no Linux não. Para o mesmo resultado em qualquer sistema,
+filtre com `p.suffix.lower()`. E os arquivos `~$...` são os temporários que o Excel
+cria enquanto uma planilha está aberta: quase sempre você quer ignorá-los.
+
+### Caminhos do Windows e a pasta do script
+
+```python
+Path(r"C:\Laudos\2025")      # raw string: as barras ficam como estão
+Path("C:/Laudos/2025")       # barra normal também funciona no Windows
+Path.home() / "Documents"    # a pasta do usuário (C:\Users\voce)
+```
+
+> ⚠️ **Erro comum:** escrever `"C:\novos\testes"` sem o `r`. O `\n` vira quebra de
+> linha e o `\t` vira tab, e o caminho fica irreconhecível.
+
+Outra armadilha: caminho relativo (`Path("dados/regras.json")`) é relativo à pasta de
+onde você **rodou** o comando, e não à pasta do script. Rodou de outro lugar, levou um
+`FileNotFoundError`. A solução é partir da pasta do próprio script:
+
+```python
+PASTA_DO_SCRIPT = Path(__file__).resolve().parent     # onde este .py está
+REGRAS = PASTA_DO_SCRIPT.parent / "dados" / "regras_tolerancia.json"
+```
+
+`__file__` é o caminho do arquivo `.py` que está rodando; `resolve()` transforma em
+caminho completo. Todos os exemplos deste módulo usam esse truque.
+
+### Exemplo resolvido: quantas medições tem cada CSV?
+
+Problema: na pasta de laudos, contar as linhas de dados de cada CSV (sem o cabeçalho)
+para conferir se a exportação veio completa.
+
+Primeiro eu separei em passos: listar os CSVs (filtro pelo `suffix`), ler cada um
+(`read_text`), contar as linhas não vazias e descontar o cabeçalho. O arquivo pode vir
+do Excel, então leio com `utf-8-sig` (seção 8).
+
+```python
+from pathlib import Path
+
+pasta = Path("laudos") / "2025"
+for arquivo in sorted(pasta.iterdir()):
+    if arquivo.suffix.lower() != ".csv":
+        continue
+    linhas = [l for l in arquivo.read_text(encoding="utf-8-sig").splitlines() if l.strip()]
+    print(f"{arquivo.name:<14} {max(len(linhas) - 1, 0):>3} medições")
+```
+
+Saída:
+
+```text
+linha_A.csv      1 medições
+linha_B.csv      0 medições
+linha_C.CSV      0 medições
+```
+
+(Os arquivos B e C foram criados vazios com `touch`; por isso o `max(..., 0)`.)
+
+> 🔧 **Modifique:** mostre também o tamanho de cada arquivo em bytes, com
+> `arquivo.stat().st_size`.
+
+## 8. Encoding na prática: Excel, utf-8-sig e cp1252
+
+No módulo 05 você viu os dois encodings do dia a dia e o BOM. Agora, com `try/except`,
+a estratégia para ler um arquivo vindo do Excel fica direta:
+
+```python
+def ler_texto_excel(caminho):
+    try:
+        return caminho.read_text(encoding="utf-8-sig")   # UTF-8, com ou sem BOM
+    except UnicodeDecodeError:
+        return caminho.read_text(encoding="cp1252")      # o "ANSI" do Windows
+```
+
+Por que tentar UTF-8 primeiro? Porque ele é exigente: bytes cp1252 com acento quase
+nunca formam UTF-8 válido, então o erro aparece e o plano B entra. O contrário não
+funciona: cp1252 aceita quase qualquer byte e "lê" um arquivo UTF-8 sem erro nenhum,
+só que cheio de `Ã§`.
+
+E para **gravar** um CSV que o Excel em português abre certo com duplo clique, use
+`encoding="utf-8-sig"`. O BOM avisa ao Excel que o arquivo é UTF-8. Sem ele, o Excel
+supõe cp1252 e mostra `LiberaÃ§Ã£o`.
+
+```text
+Situação                                   Encoding
+----------------------------------------   ----------------------------------------
+Ler arquivo seu (JSON, log, txt)           "utf-8"
+Ler CSV/TXT vindo do Excel ou do ERP       tente "utf-8-sig"; se falhar, "cp1252"
+Gravar CSV para alguém abrir no Excel      "utf-8-sig"
+Gravar JSON, log, txt                      "utf-8"
+```
+
+## 9. CSV no padrão do Excel brasileiro
+
+CSV quer dizer "valores separados por vírgula". Mas no Brasil a vírgula é o separador
+decimal, então o Excel em português usa **ponto e vírgula** (`;`) para separar as
+colunas. Um CSV de medições exportado no laboratório fica assim:
+
+```text
+lote;linha;espessura;observacao
+L001;A;25,4;COF: liberado
+L002;A;27,9;"Selagem; refazer"
+```
+
+Repare na última linha: a observação tem um `;` dentro, então o Excel a colocou entre
+aspas. É por isso que `split(";")` não serve para ler CSV:
+
+```python
+>>> 'L002;A;27,9;"Selagem; refazer"'.split(";")
+['L002', 'A', '27,9', '"Selagem', ' refazer"']
+```
+
+O módulo `csv` da biblioteca padrão entende aspas, quebras de linha dentro de células e
+outras regras do formato. Vamos criar o arquivo e ler com `csv.reader`:
+
+```python
+>>> import csv
+>>> conteudo = 'lote;linha;espessura;observacao\nL001;A;25,4;COF: liberado\nL002;A;27,9;"Selagem; refazer"\n'
+>>> Path("medicoes.csv").write_text(conteudo, encoding="utf-8-sig")
+91
+>>> with open("medicoes.csv", encoding="utf-8-sig", newline="") as arquivo:
+...     for linha in csv.reader(arquivo, delimiter=";"):
+...         print(linha)
+...
+['lote', 'linha', 'espessura', 'observacao']
+['L001', 'A', '25,4', 'COF: liberado']
+['L002', 'A', '27,9', 'Selagem; refazer']
+```
+
+Dois detalhes que não podem faltar: `delimiter=";"` (o padrão do módulo é vírgula) e
+`newline=""` no `open` (a documentação do `csv` pede isso: o próprio módulo cuida das
+quebras de linha).
+
+### DictReader: cada linha vira um dicionário
+
+```python
+>>> with open("medicoes.csv", encoding="utf-8-sig", newline="") as arquivo:
+...     linhas = list(csv.DictReader(arquivo, delimiter=";"))
+...
+>>> linhas[0]
+{'lote': 'L001', 'linha': 'A', 'espessura': '25,4', 'observacao': 'COF: liberado'}
+>>> [float(l["espessura"].replace(",", ".")) for l in linhas]
+[25.4, 27.9]
+```
+
+A primeira linha do arquivo vira as chaves. Tudo chega como **texto**: a conversão do
+número brasileiro é com você (módulo 05).
+
+> 🔮 **Preveja antes de rodar:** o que acontece se você esquecer o `utf-8-sig` (usando
+> `"utf-8"`) ou esquecer o `delimiter=";"`?
+>
+> ```python
+> import csv
+> with open("medicoes.csv", encoding="utf-8", newline="") as arquivo:
+>     print(list(csv.DictReader(arquivo, delimiter=";"))[0]["lote"])
+> ```
+
+<details><summary>Resposta</summary>
+
+`KeyError: 'lote'`. Lido com `"utf-8"`, o BOM fica grudado no primeiro nome de coluna,
+que passa a ser `'\ufefflote'`. A chave `'lote'` não existe.
+
+E sem o `delimiter=";"`, o `csv` procura vírgulas: a linha inteira do cabeçalho vira
+**uma** chave só, `'lote;linha;espessura;observacao'`, e o `25,4` é partido no meio.
+Os dois erros são clássicos com arquivos do Excel brasileiro.
+
+</details>
+
+### Gravando com DictWriter
+
+Para gravar, diga as colunas (`fieldnames`), escreva o cabeçalho e depois as linhas. Os
+números você formata com vírgula antes de gravar:
+
+```python
+import csv
+
+resultado = [
+    {"lote": "L001", "espessura": 25.4, "status": "APROVADO"},
+    {"lote": "L002", "espessura": 27.9, "status": "REPROVADO"},
+]
+with open("resultado.csv", "w", encoding="utf-8-sig", newline="") as arquivo:
+    escritor = csv.DictWriter(arquivo, fieldnames=["lote", "espessura", "status"], delimiter=";")
+    escritor.writeheader()
+    for item in resultado:
+        linha = dict(item)  # cópia, para não alterar a lista original
+        linha["espessura"] = f"{item['espessura']:.2f}".replace(".", ",")
+        escritor.writerow(linha)
+
+print(open("resultado.csv", "rb").read())
+```
+
+Saída:
+
+```text
+b'\xef\xbb\xbflote;espessura;status\r\nL001;25,40;APROVADO\r\nL002;27,90;REPROVADO\r\n'
+```
+
+Os bytes mostram tudo o que importa: o BOM no começo, o `;`, a vírgula decimal e o fim
+de linha `\r\n` (padrão do `csv` e do Windows). Com duplo clique, o Excel abre em
+colunas e com os números à direita, prontos para somar.
+
+> ⚠️ **Erro comum:** esquecer o `newline=""` ao gravar. No Windows, cada linha ganha um
+> `\r` extra e o Excel mostra uma linha em branco entre cada registro.
+
+### Exemplo resolvido: média de espessura por linha de produção
+
+Problema: ler o CSV de medições e gravar um resumo com a média de cada linha (A, B...).
+
+Primeiro eu pensei na estrutura: um dicionário `{linha: [valores]}` (módulo 03). Leio
+com `DictReader`, converto o número, acumulo na lista da linha. No fim, calculo as
+médias e gravo com `DictWriter`.
+
+```python
+import csv
+
+conteudo = "lote;linha;espessura\nA-1;A;25,4\nA-2;A;26,0\nB-1;B;50,2\nB-2;B;49,4\n"
+with open("medicoes2.csv", "w", encoding="utf-8-sig") as arquivo:
+    arquivo.write(conteudo)
+
+por_linha = {}
+with open("medicoes2.csv", encoding="utf-8-sig", newline="") as arquivo:
+    for registro in csv.DictReader(arquivo, delimiter=";"):
+        valor = float(registro["espessura"].replace(".", "").replace(",", "."))
+        por_linha.setdefault(registro["linha"], []).append(valor)
+
+with open("medias.csv", "w", encoding="utf-8-sig", newline="") as arquivo:
+    escritor = csv.writer(arquivo, delimiter=";")
+    escritor.writerow(["linha", "medicoes", "media"])
+    for linha, valores in sorted(por_linha.items()):
+        media = sum(valores) / len(valores)
+        escritor.writerow([linha, len(valores), f"{media:.2f}".replace(".", ",")])
+
+with open("medias.csv", encoding="utf-8-sig") as arquivo:
+    print(arquivo.read(), end="")
+```
+
+Saída:
+
+```text
+linha;medicoes;media
+A;2;25,70
+B;2;49,80
+```
+
+`setdefault(chave, [])` devolve a lista da chave, criando uma vazia na primeira vez. É
+o jeito curto de "agrupar" valores num dicionário. E `csv.writer` (sem o `Dict`) grava
+listas em vez de dicionários.
+
+### CSV a partir de um texto já lido
+
+Às vezes você já tem o conteúdo numa `str` (por exemplo, depois de decidir o encoding
+com `try/except`). O `csv.reader` aceita qualquer lista de linhas:
+
+```python
+>>> texto = "lote;espessura\nA-1;25,4\n"
+>>> list(csv.reader(texto.splitlines(), delimiter=";"))
+[['lote', 'espessura'], ['A-1', '25,4']]
+```
+
+Só não funciona se alguma célula tiver quebra de linha dentro das aspas (raro em
+planilhas de medição).
+
+## 10. JSON: configurações e regras
+
+JSON é o formato de texto mais usado para trocar dados entre programas (APIs web,
+configurações, regras). Ele parece muito com dicionários e listas do Python:
+
+```json
+{
+  "linha": "A",
+  "espessura": {"nominal": 25.0, "tolerancia_pct": 10},
+  "cof": [0.15, 0.30],
+  "liberacao": "COF: liberado",
+  "ativo": true,
+  "observacao": null
+}
+```
+
+```text
+Python            JSON
+---------------   ----------------------------
+dict              objeto  {"chave": valor}
+list, tuple       array   [1, 2, 3]
+str               string  "texto" (só aspas DUPLAS)
+int, float        number  25.4
+True / False      true / false
+None              null
+```
+
+O módulo `json` converte nos dois sentidos. `dumps`/`loads` trabalham com `str`;
+`dump`/`load` (sem o "s") trabalham direto com arquivos.
+
+```python
+>>> import json
+>>> regras = {"linha": "A", "cof": [0.15, 0.30], "liberacao": "COF: liberado", "ativo": True}
+>>> texto = json.dumps(regras, ensure_ascii=False)
+>>> texto
+'{"linha": "A", "cof": [0.15, 0.3], "liberacao": "COF: liberado", "ativo": true}'
+>>> json.loads(texto) == regras
+True
+>>> json.dumps({"obs": "Liberação"})
+'{"obs": "Libera\\u00e7\\u00e3o"}'
+>>> json.dumps({"obs": "Liberação"}, ensure_ascii=False)
+'{"obs": "Liberação"}'
+```
+
+Por padrão, o `json` troca cada acento por um código (`\u00e7`). Funciona, mas fica
+ilegível para quem abre o arquivo no Bloco de Notas. Use `ensure_ascii=False` (e grave
+em UTF-8). Com `indent=2`, o arquivo fica indentado e fácil de editar à mão:
+
+```python
+>>> with open("regras.json", "w", encoding="utf-8") as arquivo:
+...     json.dump(regras, arquivo, ensure_ascii=False, indent=2)
+...
+>>> print(Path("regras.json").read_text(encoding="utf-8"))
+{
+  "linha": "A",
+  "cof": [
+    0.15,
+    0.3
+  ],
+  "liberacao": "COF: liberado",
+  "ativo": true
+}
+>>> with open("regras.json", encoding="utf-8") as arquivo:
+...     lidas = json.load(arquivo)
+...
+>>> lidas["cof"][1], lidas["ativo"]
+(0.3, True)
+```
+
+Como o JSON pode trazer qualquer coisa, confira o tipo antes de usar:
+`isinstance(dados, dict)` responde se `dados` é um dicionário (você verá `isinstance` a
+fundo no módulo 08).
+
+> 🔮 **Preveja antes de rodar:**
+>
+> ```python
+> import json
+> dados = {"faixa": (0.15, 0.30), "linhas": {"A", "B"}}
+> print(json.dumps(dados["faixa"]))
+> print(json.dumps(dados))
+> ```
+
+<details><summary>Resposta</summary>
+
+A primeira linha imprime `[0.15, 0.3]`: a tupla vira lista (JSON não tem tupla; ao ler
+de volta, você recebe uma lista). A segunda dá
+`TypeError: Object of type set is not JSON serializable`: conjuntos não existem em
+JSON. Converta antes: `sorted(dados["linhas"])`.
+
+</details>
+
+### Quando o JSON está quebrado
+
+Arquivo editado à mão quebra: aspas simples, vírgula esquecida. O `json` levanta
+`json.JSONDecodeError` (uma filha de `ValueError`) dizendo linha e coluna:
+
+```python
+>>> json.loads("{'linha': 'A'}")
+Traceback (most recent call last):
+  ...
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+>>> try:
+...     json.loads('{"casas": 3\n "pasta": "laudos"}')
+... except json.JSONDecodeError as erro:
+...     print("Erro na linha", erro.lineno, "->", erro.msg)
+...
+Erro na linha 2 -> Expecting ',' delimiter
+```
+
+Em programa de verdade, você captura esse erro e levanta um `ArquivoInvalido` com o nome
+do arquivo e a linha, encadeado com `from erro` (é o exercício 10).
+
+## 11. Leitura e escrita segura
+
+Gravar arquivo parece simples até dar errado no meio. Três situações reais:
+
+1. **Abrir em `"w"` apaga o arquivo na hora.** Se o erro acontece depois do `open` e
+   antes do fim da gravação, o arquivo antigo já era e o novo ficou pela metade.
+2. **O Excel tranca o arquivo.** No Windows, se `resultado.csv` está aberto no Excel,
+   gravar nele dá `PermissionError: [Errno 13] Permission denied: 'resultado.csv'`.
+3. **O programa cai** (energia, Ctrl+C, erro) no meio da gravação de um JSON de regras.
+   No dia seguinte, o robô não consegue nem ler a configuração.
+
+A técnica profissional é a **gravação atômica**: grave num arquivo temporário na mesma
+pasta e, só quando tudo deu certo, troque pelo definitivo com `Path.replace`. A troca é
+uma operação única: quem abrir o arquivo vê o antigo inteiro ou o novo inteiro, nunca
+um pedaço.
+
+```python
+from pathlib import Path
+
+
+def gravar_texto_seguro(caminho, texto):
+    temporario = caminho.with_name(caminho.name + ".tmp")
+    temporario.write_text(texto, encoding="utf-8")   # se falhar, o original está intacto
+    temporario.replace(caminho)                      # troca de uma vez
+
+
+destino = Path("relatorio.txt")
+gravar_texto_seguro(destino, "versão 1\n")
+gravar_texto_seguro(destino, "versão 2\n")
+print(destino.read_text(encoding="utf-8"), end="")
+print(sorted(p.name for p in Path(".").glob("relatorio*")))
+```
+
+Saída:
+
+```text
+versão 2
+['relatorio.txt']
+```
+
+Outras proteções baratas:
+
+- **Valide e prepare tudo antes de abrir para gravar.** Gere o texto, a lista de
+  linhas, o JSON; só depois abra o arquivo.
+- **Modo `"x"`** quando o arquivo não pode ser sobrescrito (por exemplo, um certificado
+  já emitido): se ele existir, dá `FileExistsError` em vez de apagar.
+- **Mensagem útil para o `PermissionError`**: capture e diga "feche o arquivo no
+  Excel", em vez de mostrar o traceback para o usuário.
+
+## 12. Validação defensiva
+
+Dados ruins devem ser barrados **na entrada**, perto de onde chegam, e não descobertos
+três funções depois como um `TypeError` misterioso. Três regras práticas:
+
+1. **Valide cedo, com cláusulas de guarda.** No começo da função, confira o que
+   recebeu e saia com `raise` se não der para continuar (módulo 04: retorno antecipado).
+2. **Mensagens com contexto.** Arquivo, linha, coluna e valor: `"linha 7: valor
+   inválido em espessura: '2O,1'"`.
+3. **Decida: parar ou continuar?** Se o problema invalida tudo (regras de tolerância
+   corrompidas), pare. Se afeta só uma parte (um entre quatro arquivos de laudo), registre
+   o problema e siga com o resto.
+
+```text
+                         um arquivo com problema
+                                   │
+              ┌────────────────────┴────────────────────┐
+     o resto depende dele?                     os outros são independentes?
+     (regras, configuração)                    (laudos de cada linha)
+              │                                         │
+        PARE com raise                    REGISTRE o erro e CONTINUE
+        mensagem clara                    (try/except dentro do for)
+```
+
+### Exemplo resolvido: processar a pasta sem parar no primeiro erro
+
+Problema: somar as espessuras de todos os CSVs da pasta. Se um arquivo estiver ruim,
+ele fica de fora, o erro é anotado, e os outros são processados.
+
+Primeiro eu separei o trabalho de **um** arquivo numa função que pode levantar erro.
+Depois, no laço da pasta, coloquei o `try/except` em volta da chamada: o erro de um
+arquivo fica preso naquela volta do `for`. E capturei só os tipos que eu sei explicar
+(`KeyError` para coluna que falta, `ValueError` para número inválido).
+
+```python
+import csv
+from pathlib import Path
+
+
+def somar_espessuras(caminho):
+    with open(caminho, encoding="utf-8-sig", newline="") as arquivo:
+        return sum(
+            float(linha["espessura"].replace(",", "."))
+            for linha in csv.DictReader(arquivo, delimiter=";")
+        )
+
+
+pasta = Path("lote_do_dia")
+pasta.mkdir(exist_ok=True)
+(pasta / "a.csv").write_text("lote;espessura\nA-1;25,4\nA-2;26,0\n", encoding="utf-8")
+(pasta / "b.csv").write_text("lote;espessura\nB-1;abc\n", encoding="utf-8")
+(pasta / "c.csv").write_text("lote;gramatura\nC-1;18,4\n", encoding="utf-8")
+
+erros = {}
+for caminho in sorted(pasta.glob("*.csv")):
+    try:
+        total = somar_espessuras(caminho)
+    except KeyError as erro:
+        erros[caminho.name] = f"falta a coluna {erro}"
+    except ValueError as erro:
+        erros[caminho.name] = f"valor inválido ({erro})"
+    else:
+        print(f"{caminho.name}: soma {total:.1f}")
+print("Com problema:", erros)
+```
+
+Saída:
+
+```text
+a.csv: soma 51.4
+Com problema: {'b.csv': "valor inválido (could not convert string to float: 'abc')", 'c.csv': "falta a coluna 'espessura'"}
+```
+
+O exercício 14 usa essa mesma ideia, com um detalhe a mais: o arquivo com erro precisa
+ficar de fora **inteiro**, mesmo que as primeiras linhas estivessem certas.
+
