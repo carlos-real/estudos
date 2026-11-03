@@ -22,6 +22,8 @@ para mostrar.
 - **Apostila em PDF** (versão A4 e versão para celular) com todas as aulas, enunciados,
   desafios e quizzes, na pasta `apostila/`.
 - **Ferramenta `curso.py`** que testa seus exercícios e mostra seu progresso.
+- **Índice detalhado** (`INDICE.md`): todas as seções das aulas e os 191 exercícios, para
+  achar rápido onde cada assunto é ensinado.
 
 ## Mapa do curso
 
@@ -123,5 +125,6 @@ plano dos próximos meses, e os [recursos complementares](carreira/recursos.md) 
 ```text
 python curso.py solucoes             # todas as soluções oficiais passam nos testes
 ruff check . && ruff format --check .
+python ferramentas/gerar_indice.py   # atualiza o INDICE.md
 python ferramentas/gerar_apostila.py # gera os PDFs (precisa de pandoc e Chrome/Edge)
 ```

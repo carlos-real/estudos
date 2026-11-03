@@ -52,8 +52,10 @@ O passo a passo completo, com os erros mais comuns, está no módulo 00.
 
 ```text
 estudos/
+├── CLAUDE.md                contexto do curso para o Claude tirar dúvidas
 ├── curso-python/            o curso
 │   ├── 00-preparacao/ … 14-projeto-final/
+│   ├── INDICE.md            todas as seções das aulas e os 191 exercícios
 │   ├── apostila/            PDFs com todas as aulas
 │   ├── carreira/            guia de carreira e recursos
 │   ├── curso.py             testa exercícios e mostra o progresso
