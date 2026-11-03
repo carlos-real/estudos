@@ -34,7 +34,8 @@ def test_por_nominal_percentual_negativo():
 
 
 @pytest.mark.parametrize(
-    ("texto", "esperado"), [("1.250,5", 1250.5), ("0,10", 0.1), (" 25 ", 25.0), ("12.000", 12000.0)]
+    ("texto", "esperado"),
+    [("1.250,5", 1250.5), ("0,10", 0.1), (" 25 ", 25.0), ("12.000", 12000.0)],
 )
 def test_converter_numero_e_staticmethod(texto, esperado):
     assert T.converter_numero(texto) == pytest.approx(esperado)
@@ -65,7 +66,13 @@ def test_de_texto_formato_invalido(texto):
 
 def test_aprova():
     t = T.de_texto("0,10 a 0,30")
-    assert [t.aprova(v) for v in (0.09, 0.10, 0.2, 0.30, 0.31)] == [False, True, True, True, False]
+    assert [t.aprova(v) for v in (0.09, 0.10, 0.2, 0.30, 0.31)] == [
+        False,
+        True,
+        True,
+        True,
+        False,
+    ]
 
 
 def test_repr():

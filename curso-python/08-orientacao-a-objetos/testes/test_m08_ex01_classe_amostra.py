@@ -32,7 +32,8 @@ def test_descricao(args, esperado):
 
 
 @pytest.mark.parametrize(
-    ("valor", "esperado"), [(22.5, True), (27.5, True), (25.0, True), (22.4, False), (28, False)]
+    ("valor", "esperado"),
+    [(22.5, True), (27.5, True), (25.0, True), (22.4, False), (28, False)],
 )
 def test_esta_entre_com_limites_inclusos(valor, esperado):
     assert ex.Amostra("AM-1", "espessura", valor).esta_entre(22.5, 27.5) is esperado

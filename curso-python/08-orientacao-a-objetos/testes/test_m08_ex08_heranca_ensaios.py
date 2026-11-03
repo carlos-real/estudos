@@ -35,7 +35,10 @@ def test_ensaio_maximo(valor, esperado):
 @pytest.mark.parametrize(
     ("ensaio", "esperado"),
     [
-        (("EnsaioFaixa", "espessura", 25.3, 22.5, 27.5, "µm"), "espessura: 25.30 µm -> APROVADO"),
+        (
+            ("EnsaioFaixa", "espessura", 25.3, 22.5, 27.5, "µm"),
+            "espessura: 25.30 µm -> APROVADO",
+        ),
         (("EnsaioMaximo", "cof", 0.32, 0.30), "cof: 0.32 -> REPROVADO"),
         (("EnsaioMinimo", "tração", 31, 20, "MPa"), "tração: 31.00 MPa -> APROVADO"),
     ],

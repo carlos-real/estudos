@@ -13,7 +13,8 @@ def test_guarda_limites():
 
 
 @pytest.mark.parametrize(
-    ("valor", "esperado"), [(0.10, True), (0.30, True), (0.2, True), (0.09, False), (0.31, False)]
+    ("valor", "esperado"),
+    [(0.10, True), (0.30, True), (0.2, True), (0.09, False), (0.31, False)],
 )
 def test_aprova_faixa(valor, esperado):
     assert ex.Tolerancia(0.10, 0.30).aprova(valor) is esperado
