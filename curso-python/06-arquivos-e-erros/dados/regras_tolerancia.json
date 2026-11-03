@@ -1,0 +1,58 @@
+{
+  "A": {
+    "espessura": {
+      "nominal": 25.0,
+      "tolerancia_pct": 10
+    },
+    "gramatura": {
+      "nominal": 23.0,
+      "tolerancia_pct": 5
+    },
+    "cof": {
+      "min": 0.15,
+      "max": 0.3
+    }
+  },
+  "B": {
+    "espessura": {
+      "nominal": 50.0,
+      "tolerancia_pct": 8
+    },
+    "gramatura": {
+      "nominal": 46.0,
+      "tolerancia_pct": 5
+    },
+    "cof": {
+      "min": 0.15,
+      "max": 0.25
+    }
+  },
+  "C": {
+    "espessura": {
+      "nominal": 20.0,
+      "tolerancia_pct": 10
+    },
+    "gramatura": {
+      "nominal": 18.4,
+      "tolerancia_pct": 5
+    },
+    "cof": {
+      "min": 0.1,
+      "max": 0.25
+    }
+  },
+  "D": {
+    "espessura": {
+      "nominal": 35.0,
+      "tolerancia_pct": 7
+    },
+    "gramatura": {
+      "nominal": 32.2,
+      "tolerancia_pct": 5
+    },
+    "cof": {
+      "min": 0.2,
+      "max": 0.35
+    }
+  }
+}

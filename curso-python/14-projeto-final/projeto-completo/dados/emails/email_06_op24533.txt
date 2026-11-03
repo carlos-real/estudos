@@ -1,0 +1,12 @@
+De: Expedição Turno B <expedicao@exemplo.com.br>
+Para: Laboratório da Qualidade <qualidade@exemplo.com.br>
+Data: 27/10/2026 13:15
+Assunto: Certificado OP 24533
+
+Boa tarde, segue a solicitação da expedição:
+
+OP 24533 / NF 123801 / Peso: 860,4 kg
+
+Atenção: carga com prioridade, caminhão já está na doca.
+
+Expedição - Turno B

@@ -1,0 +1,17 @@
+De: expedicao@plastifort.com.br
+Para: laboratorio@plastifort.com.br
+Assunto: Certificados - carga de 28/10
+Cliente:   embalagens   DO sul  ltda
+
+Bom dia, laboratório!
+
+Favor emitir os certificados dos pedidos abaixo:
+
+OP: 123456 | NF: 98765 | Peso: 1.250,5 kg
+OP: 123457 | NF: 98766 | Peso: 980,0 kg
+OP: 123458 | NF: 98767 | Peso: 2.040,75 kg
+
+A OP 123459 vai na próxima carga.
+
+Obrigado,
+Expedição

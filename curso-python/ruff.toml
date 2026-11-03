@@ -1,0 +1,13 @@
+line-length = 95
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[lint.per-file-ignores]
+# Nos arquivos de exercício os parâmetros ainda não são usados (você vai usar!)
+"*/exercicios/*" = ["ARG001"]
+
+[format]
+# Nas aulas (.md) os comentários alinhados são didáticos: não formatar os blocos de código
+exclude = ["*.md"]

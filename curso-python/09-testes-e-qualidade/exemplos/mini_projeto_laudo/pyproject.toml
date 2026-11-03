@@ -1,0 +1,16 @@
+[project]
+name = "mini-projeto-laudo"
+version = "0.1.0"
+description = "Mini projeto do módulo 09: conferência de medições com testes"
+requires-python = ">=3.10"
+
+# Configuração do pytest para este projeto
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+# Configuração do ruff: herda a do curso e avisa quais módulos são "nossos"
+[tool.ruff]
+extend = "../../../ruff.toml"
+
+[tool.ruff.lint.isort]
+known-first-party = ["laudo", "observacao"]
