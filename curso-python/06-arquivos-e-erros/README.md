@@ -333,21 +333,21 @@ meia hora de quem vai corrigir a planilha.
 1250.5
 ```
 
-Com `ler_peso("a confirmar")`, o traceback fica assim (resumido):
+Com `ler_peso("1.250,5 kg")`, o traceback fica assim (resumido):
 
 ```text
-ValueError: could not convert string to float: 'aconfirmar'
+ValueError: could not convert string to float: '1250.5 kg'
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
   ...
-ValueError: peso inválido no e-mail da expedição: 'a confirmar'
+ValueError: peso inválido no e-mail da expedição: '1.250,5 kg'
 ```
 
-Repare no `'aconfirmar'` da primeira mensagem: o `replace(".", "")` não mexeu em nada,
-mas o texto original tinha espaço, e o erro técnico mostra o texto **já transformado**.
-Por isso a mensagem nova, com o texto original, ajuda tanto.
+Repare na primeira mensagem: ela mostra o texto **já transformado** (`'1250.5 kg'`),
+que não existe em lugar nenhum do e-mail. A mensagem nova mostra o texto original, que
+a pessoa consegue procurar e corrigir.
 
 E se você só quer registrar algo e deixar o **mesmo** erro seguir? Use `raise` sozinho
 dentro do `except`:

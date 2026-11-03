@@ -1378,7 +1378,7 @@ Enunciado completo, exemplo de execução e critérios de aceite em
 
 ## Quiz
 
-Teste o que ficou em [quiz.md](quiz.md): 12 perguntas com gabarito comentado.
+Teste o que ficou em [quiz.md](quiz.md): 13 perguntas com gabarito comentado.
 
 ## Para ir além
 
