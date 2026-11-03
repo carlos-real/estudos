@@ -27,29 +27,29 @@ para mostrar.
 
 | Módulo | Assunto | O que você passa a conseguir fazer |
 |---|---|---|
-| 00 | Preparação do ambiente | Instalar Python, VS Code e Git, e rodar o primeiro teste |
-| 01 | Fundamentos | Variáveis, tipos, contas e textos formatados |
-| 02 | Decisões e repetições | Programas que decidem e repetem: if, for, while |
-| 03 | Coleções | Guardar e organizar dados: listas, dicionários, conjuntos |
-| 04 | Funções | Quebrar problemas grandes em peças pequenas e reutilizáveis |
-| 05 | Texto e expressões regulares | Ler e-mails, limpar textos, converter números brasileiros |
-| 06 | Arquivos e erros | Ler e gravar CSV e JSON, tratar erros sem o programa quebrar |
-| 07 | Módulos e biblioteca padrão | Organizar projetos, datas, estatística, programas de terminal |
-| 08 | Orientação a objetos | Modelar o mundo real com classes e dataclasses |
-| 09 | Testes e qualidade | Escrever testes, usar Git, depurar e manter código limpo |
-| 10 | Dados com pandas | Analisar planilhas e CSV, fazer gráficos, gerar relatórios Excel |
-| 11 | Banco de dados e SQL | Criar e consultar bancos de dados com SQL |
-| 12 | Automação e integração | APIs, e-mail, Excel, pastas e robôs no navegador |
-| 13 | APIs com FastAPI | Criar sua própria API web, com testes |
-| 14 | Projeto final | Construir o Validador de Certificados de ponta a ponta |
+| 00 | [Preparação do ambiente](00-preparacao/README.md) | Instalar Python, VS Code e Git, e rodar o primeiro teste |
+| 01 | [Fundamentos](01-fundamentos/README.md) | Variáveis, tipos, contas e textos formatados |
+| 02 | [Decisões e repetições](02-decisoes-e-repeticoes/README.md) | Programas que decidem e repetem: if, for, while |
+| 03 | [Coleções](03-colecoes/README.md) | Guardar e organizar dados: listas, dicionários, conjuntos |
+| 04 | [Funções](04-funcoes/README.md) | Quebrar problemas grandes em peças pequenas e reutilizáveis |
+| 05 | [Texto e expressões regulares](05-texto-e-regex/README.md) | Ler e-mails, limpar textos, converter números brasileiros |
+| 06 | [Arquivos e erros](06-arquivos-e-erros/README.md) | Ler e gravar CSV e JSON, tratar erros sem o programa quebrar |
+| 07 | [Módulos e biblioteca padrão](07-modulos-e-biblioteca-padrao/README.md) | Organizar projetos, datas, estatística, programas de terminal |
+| 08 | [Orientação a objetos](08-orientacao-a-objetos/README.md) | Modelar o mundo real com classes e dataclasses |
+| 09 | [Testes e qualidade](09-testes-e-qualidade/README.md) | Escrever testes, usar Git, depurar e manter código limpo |
+| 10 | [Dados com pandas](10-dados-com-pandas/README.md) | Analisar planilhas e CSV, fazer gráficos, gerar relatórios Excel |
+| 11 | [Banco de dados e SQL](11-banco-de-dados-e-sql/README.md) | Criar e consultar bancos de dados com SQL |
+| 12 | [Automação e integração](12-automacao-e-integracao/README.md) | APIs, e-mail, Excel, pastas e robôs no navegador |
+| 13 | [APIs com FastAPI](13-apis-com-fastapi/README.md) | Criar sua própria API web, com testes |
+| 14 | [Projeto final](14-projeto-final/README.md) | Construir o Validador de Certificados de ponta a ponta |
 
 Os módulos 01 a 09 são a base de qualquer carreira com Python. Do 10 em diante você entra
 nas ferramentas que o mercado pede para dados e automação.
 
 ## Como começar
 
-1. Leia `PLANO-DE-ESTUDOS.md` (10 minutos): ele mostra o caminho e a rotina.
-1. Abra `00-preparacao/README.md` e siga o passo a passo para preparar o computador.
+1. Leia o [plano de estudos](PLANO-DE-ESTUDOS.md) (10 minutos): ele mostra o caminho e a rotina.
+1. Abra a [aula 00](00-preparacao/README.md) e siga o passo a passo para preparar o computador.
 1. Na pasta `curso-python`, com o ambiente virtual ativado, rode:
 
    ```text
@@ -115,8 +115,8 @@ O passo a passo de cada semana, a rotina diária e o método de estudo estão em
 
 ## Depois do curso
 
-Leia `carreira/README.md` para escolher a trilha (dados, automação ou backend) e montar o
-plano dos próximos meses, e `carreira/recursos.md` para livros, vídeos e comunidades.
+Leia o [guia de carreira](carreira/README.md) para escolher a trilha (dados, automação ou backend) e montar o
+plano dos próximos meses, e os [recursos complementares](carreira/recursos.md) para livros, vídeos e comunidades.
 
 ## Para quem mantém o curso
 
