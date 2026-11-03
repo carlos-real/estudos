@@ -100,7 +100,9 @@ def demonstrar() -> None:
         resposta = cliente.post("/medicoes", json=corpo)
         print("POST ->", resposta.status_code, resposta.json())
 
-    print("GET /medicoes?op=123456 ->", cliente.get("/medicoes", params={"op": "123456"}).json())
+    print(
+        "GET /medicoes?op=123456 ->", cliente.get("/medicoes", params={"op": "123456"}).json()
+    )
 
     # "Reiniciar o servidor": um cliente novo, mas o arquivo do banco continua lá.
     outro_cliente = TestClient(app)

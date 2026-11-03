@@ -24,7 +24,7 @@ print("Consertando o estrago ->", "ExpediÃ§Ã£o".encode("cp1252").decode("utf
 def decodificar(dados):
     """Tenta UTF-8 (sem BOM); se aparecer o losango, era cp1252."""
     texto = dados.decode("utf-8-sig", errors="replace")
-    if "�" in texto:
+    if "\ufffd" in texto:
         texto = dados.decode("cp1252")
     return texto
 

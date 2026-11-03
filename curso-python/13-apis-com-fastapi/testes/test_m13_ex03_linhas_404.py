@@ -16,7 +16,11 @@ def test_lista_de_linhas_em_ordem():
 def test_detalhe_de_uma_linha():
     resposta = cliente.get("/linhas/C")
     assert resposta.status_code == 200
-    assert resposta.json() == {"codigo": "C", "nome": "Laminadora C", "produto": "Laminado PET/PE"}
+    assert resposta.json() == {
+        "codigo": "C",
+        "nome": "Laminadora C",
+        "produto": "Laminado PET/PE",
+    }
 
 
 @pytest.mark.parametrize("pedido", ["b", "B"])

@@ -360,6 +360,22 @@ except PermissionError:
     raise   # relança o mesmo PermissionError
 ```
 
+<details><summary>Tente você: escreva `validar_linha(texto)`, que devolve a linha de produção em maiúscula ("a" → "A") e levanta ValueError com uma mensagem clara se ela não for A, B, C ou D.</summary>
+
+```python
+def validar_linha(texto):
+    linha = texto.strip().upper()
+    if linha not in {"A", "B", "C", "D"}:
+        raise ValueError(f"linha de produção inválida: {texto!r} (use A, B, C ou D)")
+    return linha
+```
+
+`validar_linha(" b ")` devolve `'B'`; `validar_linha("E")` levanta
+`ValueError: linha de produção inválida: 'E' (use A, B, C ou D)`. Repare no `!r`: as
+aspas mostram espaços escondidos no valor digitado.
+
+</details>
+
 ### Devolver None ou levantar erro?
 
 ```text
@@ -861,6 +877,23 @@ B;2;49,80
 `setdefault(chave, [])` devolve a lista da chave, criando uma vazia na primeira vez. É
 o jeito curto de "agrupar" valores num dicionário. E `csv.writer` (sem o `Dict`) grava
 listas em vez de dicionários.
+
+<details><summary>Tente você: grave o arquivo `cof.csv` com as colunas lote e cof, para os lotes A-1 (0.215) e A-2 (0.3), com 3 casas e vírgula decimal, pronto para o Excel.</summary>
+
+```python
+import csv
+
+dados = [("A-1", 0.215), ("A-2", 0.3)]
+with open("cof.csv", "w", encoding="utf-8-sig", newline="") as arquivo:
+    escritor = csv.writer(arquivo, delimiter=";")
+    escritor.writerow(["lote", "cof"])
+    for lote, cof in dados:
+        escritor.writerow([lote, f"{cof:.3f}".replace(".", ",")])
+```
+
+O arquivo fica com as linhas `lote;cof`, `A-1;0,215` e `A-2;0,300`.
+
+</details>
 
 ### CSV a partir de um texto já lido
 

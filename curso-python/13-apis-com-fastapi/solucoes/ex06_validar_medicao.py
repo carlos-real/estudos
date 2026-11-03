@@ -55,7 +55,8 @@ def validar(pedido: PedidoValidacao) -> ResultadoValidacao:
     faixa = TOLERANCIAS.get(linha, {}).get(ensaio)
     if faixa is None:
         raise HTTPException(
-            status_code=404, detail=f"Tolerância não cadastrada: linha {linha} / ensaio {ensaio}"
+            status_code=404,
+            detail=f"Tolerância não cadastrada: linha {linha} / ensaio {ensaio}",
         )
 
     minimo, maximo = faixa

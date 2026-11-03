@@ -24,7 +24,9 @@ def test_avaliar(valor, minimo, maximo, esperado):
 
 
 def test_medicao_aprovada():
-    resposta = cliente.post("/validar", json={"linha": "A", "ensaio": "espessura", "valor": 20.4})
+    resposta = cliente.post(
+        "/validar", json={"linha": "A", "ensaio": "espessura", "valor": 20.4}
+    )
     assert resposta.status_code == 200, "A rota POST /validar ainda não existe"
     assert resposta.json() == {
         "linha": "A",
@@ -50,7 +52,13 @@ def test_resposta_tem_exatamente_os_campos_do_modelo():
     resposta = cliente.post("/validar", json={"linha": "C", "ensaio": "tracao", "valor": 30})
     assert resposta.status_code == 200
     assert set(resposta.json()) == {
-        "linha", "ensaio", "valor", "minimo", "maximo", "margem", "aprovado"
+        "linha",
+        "ensaio",
+        "valor",
+        "minimo",
+        "maximo",
+        "margem",
+        "aprovado",
     }
 
 

@@ -55,16 +55,22 @@ def test_linha_sem_regras_da_404():
 
 
 def test_gravar_com_perfil_de_escrita():
-    resposta = cliente.put("/regras/D/selagem", json={"minimo": 1.5, "maximo": 3.0}, headers=ESCRITA)
+    resposta = cliente.put(
+        "/regras/D/selagem", json={"minimo": 1.5, "maximo": 3.0}, headers=ESCRITA
+    )
     assert resposta.status_code == 200, "A rota PUT /regras/{linha}/{ensaio} ainda não existe"
     assert resposta.json() == {"linha": "D", "ensaio": "selagem", "minimo": 1.5, "maximo": 3.0}
-    assert cliente.get("/regras/D", headers=LEITURA).json()["regras"] == {"selagem": [1.5, 3.0]}
+    assert cliente.get("/regras/D", headers=LEITURA).json()["regras"] == {
+        "selagem": [1.5, 3.0]
+    }
 
 
 def test_gravar_com_perfil_de_leitura_da_403():
     ok = cliente.put("/regras/A/cof", json={"minimo": 0.1, "maximo": 0.2}, headers=ESCRITA)
     assert ok.status_code == 200
-    resposta = cliente.put("/regras/A/cof", json={"minimo": 0.0, "maximo": 9.0}, headers=LEITURA)
+    resposta = cliente.put(
+        "/regras/A/cof", json={"minimo": 0.0, "maximo": 9.0}, headers=LEITURA
+    )
     assert resposta.status_code == 403
     assert resposta.json() == {"detail": "Sem permissão de escrita"}
     assert cliente.get("/regras/A", headers=LEITURA).json()["regras"]["cof"] == [0.1, 0.2]

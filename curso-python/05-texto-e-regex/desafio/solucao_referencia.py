@@ -44,7 +44,7 @@ def decodificar(dados: bytes) -> tuple[str, str]:
     if dados.startswith(b"\xef\xbb\xbf"):
         return dados.decode("utf-8-sig"), "UTF-8 com BOM"
     texto = dados.decode("utf-8", errors="replace")
-    if "�" not in texto:  # sem losango: era UTF-8 mesmo
+    if "\ufffd" not in texto:  # sem losango: era UTF-8 mesmo
         return texto, "UTF-8"
     return dados.decode("cp1252"), "cp1252"
 

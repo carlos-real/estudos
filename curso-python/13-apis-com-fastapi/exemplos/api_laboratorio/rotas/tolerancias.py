@@ -20,8 +20,12 @@ def listar_tolerancias(linha: Linha, con: Conexao) -> list[Tolerancia]:
     ).fetchall()
     resultado = []
     for t in linhas:
-        minimo, maximo = limites(t["tipo"], t["minimo"], t["maximo"], t["nominal"], t["percentual"])
+        minimo, maximo = limites(
+            t["tipo"], t["minimo"], t["maximo"], t["nominal"], t["percentual"]
+        )
         resultado.append(
-            Tolerancia(linha=linha, ensaio=t["ensaio"], tipo=t["tipo"], minimo=minimo, maximo=maximo)
+            Tolerancia(
+                linha=linha, ensaio=t["ensaio"], tipo=t["tipo"], minimo=minimo, maximo=maximo
+            )
         )
     return resultado

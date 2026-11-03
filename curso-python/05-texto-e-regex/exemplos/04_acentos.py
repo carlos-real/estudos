@@ -7,7 +7,7 @@ Rode na pasta curso-python:
 import unicodedata
 
 composto = "ã"
-decomposto = "ã"  # 'a' + til combinante
+decomposto = "a\u0303"  # 'a' + til combinante
 print("Iguais na tela, diferentes no Python:", composto == decomposto)
 print("Depois de normalizar (NFC):", unicodedata.normalize("NFC", decomposto) == composto)
 

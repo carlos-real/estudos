@@ -24,7 +24,9 @@ BOBINAS = [
 app = FastAPI()
 
 
-def passa_nos_filtros(bobina: dict, linha: str | None, status: str | None, peso_min: float) -> bool:
+def passa_nos_filtros(
+    bobina: dict, linha: str | None, status: str | None, peso_min: float
+) -> bool:
     """Função pequena e pura: a regra do filtro fica fácil de ler e de testar."""
     if linha is not None and bobina["linha"] != linha.upper():
         return False

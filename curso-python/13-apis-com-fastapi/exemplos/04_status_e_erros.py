@@ -36,7 +36,9 @@ AMOSTRAS: dict[int, Amostra] = {}
 def buscar_ou_404(id_amostra: int) -> Amostra:
     """Função auxiliar: evita repetir o mesmo if em várias rotas."""
     if id_amostra not in AMOSTRAS:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"Amostra {id_amostra} não existe")
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, detail=f"Amostra {id_amostra} não existe"
+        )
     return AMOSTRAS[id_amostra]
 
 

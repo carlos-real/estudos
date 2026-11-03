@@ -53,7 +53,9 @@ def ver_regras(linha: str, perfil: Perfil, regras: Regras) -> dict:
 
 
 @app.put("/regras/{linha}/{ensaio}")
-def gravar_regra(linha: str, ensaio: str, faixa: Faixa, perfil: Perfil, regras: Regras) -> dict:
+def gravar_regra(
+    linha: str, ensaio: str, faixa: Faixa, perfil: Perfil, regras: Regras
+) -> dict:
     if perfil != "escrita":
         raise HTTPException(status_code=403, detail="Sem permissão de escrita")
     # setdefault: devolve regras[linha], criando {} antes se a linha não existir.

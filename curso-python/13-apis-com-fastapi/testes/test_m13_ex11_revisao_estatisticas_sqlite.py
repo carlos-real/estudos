@@ -29,7 +29,9 @@ def cliente_com_banco():
 
 def lancar(cliente, op, ensaio, valor):
     resposta = cliente.post("/medicoes", json={"op": op, "ensaio": ensaio, "valor": valor})
-    assert resposta.status_code == 201, f"POST /medicoes deveria dar 201, deu {resposta.status_code}"
+    assert resposta.status_code == 201, (
+        f"POST /medicoes deveria dar 201, deu {resposta.status_code}"
+    )
     return resposta.json()
 
 
@@ -57,7 +59,10 @@ def test_obter_conexao_entrega_e_fecha(tmp_path, monkeypatch):
 def test_post_grava_no_banco():
     cliente, con = cliente_com_banco()
     assert lancar(cliente, "123456", "cof", 0.25) == {
-        "id": 1, "op": "123456", "ensaio": "cof", "valor": 0.25
+        "id": 1,
+        "op": "123456",
+        "ensaio": "cof",
+        "valor": 0.25,
     }
     assert lancar(cliente, "123456", "cof", 0.27)["id"] == 2
     assert con.execute("SELECT COUNT(*) FROM medicoes").fetchone()[0] == 2
@@ -91,7 +96,11 @@ def test_resumo_estatistico():
     assert dados["op"] == "123456"
     assert list(dados["ensaios"]) == ["cof", "espessura"], "Ensaios em ordem alfabética"
     assert dados["ensaios"]["cof"] == {
-        "n": 1, "media": 0.25, "desvio": 0.0, "minimo": 0.25, "maximo": 0.25
+        "n": 1,
+        "media": 0.25,
+        "desvio": 0.0,
+        "minimo": 0.25,
+        "maximo": 0.25,
     }
     espessura = dados["ensaios"]["espessura"]
     assert espessura["n"] == 3

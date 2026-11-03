@@ -35,7 +35,8 @@ def demonstrar() -> None:
             resposta = cliente.post("/medicoes", json=corpo)
             dados = resposta.json()
             resumo = dados.get("aprovado", dados.get("detail"))
-            print(f"   {corpo['ensaio']:<10} {corpo['valor']:>5} -> {resposta.status_code} {resumo}")
+            ensaio, valor = corpo["ensaio"], corpo["valor"]
+            print(f"   {ensaio:<10} {valor:>5} -> {resposta.status_code} {resumo}")
 
         print("GET /ops/123789/situacao ->", cliente.get("/ops/123789/situacao").json())
         print("GET /ops/999999/situacao ->", cliente.get("/ops/999999/situacao").status_code)

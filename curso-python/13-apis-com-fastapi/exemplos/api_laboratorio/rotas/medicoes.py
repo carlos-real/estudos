@@ -24,7 +24,9 @@ def registrar_medicao(entrada: MedicaoEntrada, con: Conexao) -> MedicaoAvaliada:
             status.HTTP_404_NOT_FOUND,
             detail=f"Sem tolerância para linha {entrada.linha} / ensaio {entrada.ensaio}",
         )
-    minimo, maximo = limites(tol["tipo"], tol["minimo"], tol["maximo"], tol["nominal"], tol["percentual"])
+    minimo, maximo = limites(
+        tol["tipo"], tol["minimo"], tol["maximo"], tol["nominal"], tol["percentual"]
+    )
     aprovado = dentro(entrada.valor, minimo, maximo)
     with con:
         cursor = con.execute(

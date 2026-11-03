@@ -19,7 +19,9 @@ def banco_vazio():
 
 def criar(corpo):
     resposta = cliente.post("/ocorrencias", json=corpo)
-    assert resposta.status_code == 201, f"POST /ocorrencias deveria dar 201, deu {resposta.status_code}"
+    assert resposta.status_code == 201, (
+        f"POST /ocorrencias deveria dar 201, deu {resposta.status_code}"
+    )
     return resposta.json()
 
 
